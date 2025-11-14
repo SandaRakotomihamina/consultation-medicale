@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier consultation{% endblock %}
+
+{% block body %}
+    {% include '_partial/nav.html.twig' %}
+
+    <style>
+        .consultation-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 1.25rem;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            margin-top: 120px;
+        }
+
+        .consultation-container h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #222;
+        }
+
+        .consultation-form {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            max-width: 700px;
+        }
+
+        .consultation-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .consultation-form input[type="text"],
+        .consultation-form textarea {
+            padding: .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: .5rem;
+            margin-top: .5rem;
+        }
+
+        .btn {
+            padding: .5rem 1rem;
+            background: #0366d6;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn--muted {
+            padding: .45rem .9rem;
+            background: #6c757d;
+            color: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        @media (max-width: 640px) {
+            .consultation-container { padding: .75rem; }
+            .consultation-form { max-width: 100%; }
+        }
+    </style>
+
+    <div class="container consultation-container">
+        <h1>Modifier consultation</h1>
+        <p>Modifiez les champs ci‑dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
+
+        <form method="post" action="">
+            <div class="consultation-form">
+                <div class="form-row">
+                    <label for="grade">Grade</label>
+                    <input type="text" id="grade" name="grade" value="{{ consultation.Grade }}">
+                </div>
+
+                <div class="form-row">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" name="nom" value="{{ consultation.Nom }}">
+                </div>
+
+                <div class="form-row">
+                    <label for="matricule">Matricule</label>
+                    <input type="text" id="matricule" name="matricule" value="{{ consultation.Matricule }}">
+                </div>
+
+                <div class="form-row">
+                    <label for="motif">Motif</label>
+                    <textarea id="motif" name="motif">{{ consultation.Motif }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <label for="delivreur_de_motif">Délivreur de motif</label>
+                    <input type="text" id="delivreur_de_motif" name="delivreur_de_motif" value="{{ consultation.DelivreurDeMotif }}">
+                </div>
+
+                <div class="form-row">
+                    <label for="observation">Observation</label>
+                    <textarea id="observation" name="observation">{{ consultation.Observation }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <label for="delivreur_d_observation">Délivreur d'observation</label>
+                    <input type="text" id="delivreur_d_observation" name="delivreur_d_observation" value="{{ consultation.DelivreurDObservation }}">
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" type="submit">Enregistrer</button>
+                    <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% include '_partial/footer.html.twig' %}
+{% endblock %}

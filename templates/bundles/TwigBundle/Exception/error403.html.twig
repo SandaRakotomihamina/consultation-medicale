@@ -1,0 +1,14 @@
+{# templates/bundles/TwigBundle/Exception/error403.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé{% endblock %}
+
+{% block body %}
+{% include '_partial/nav.html.twig' %}
+<div style="text-align: center; padding: 50px;margin-top: 120px;">
+    <h1>🚫 Accès refusé (403)</h1>
+    <p>Vous n’avez pas la permission d’accéder à cette page.</p>
+    <a href="{{ path('app_main') }}">Retour à l'accueil</a>
+</div>
+{% include '_partial/footer.html.twig' %}
+{% endblock %}
