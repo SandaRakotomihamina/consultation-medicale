@@ -1,0 +1,80 @@
+<style>
+    .navbar { 
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        
+        background: #333;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        align-items: center;
+        z-index: 1000;
+
+        box-sizing: border-box; 
+    }
+    .navbar .container { 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+    }
+    .navbar .brand { 
+        color:#fff; 
+        text-decoration:none; 
+        font-weight:600; 
+        font-size:1.1rem; 
+    }
+    .navbar-right { 
+        display:flex; 
+        gap:0.75rem; 
+        align-items:center; 
+    }
+    .navbar-right span { 
+        color:#fff; 
+    }
+    .navbar-left{
+        display:flex;
+        align-items: center;
+    }
+    .brand{
+        vertical-align: middle;
+    }
+    .btn-logout { 
+        color:#fff; 
+        background:#d9534f; 
+        padding:0.35rem 0.6rem; 
+        border-radius:4px; 
+        text-decoration:none; 
+    }
+    .btn-logout:hover { 
+        background:#c9302c; 
+    }
+    @media (max-width: 600px) {
+        .navbar-right span {
+            display: none;
+        }
+    }
+
+</style>
+
+
+
+
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-left">
+            <a href="{{ path('app_main') }}" ><img src="{{ asset('images/logo.png') }}" alt="Logo de la gendarmerie" style="width: 60px; heigth: -0px"></a>
+            <a href="{{ path('app_main') }}" class="brand">Consultation Médicale</a>
+        </div>
+        <div class="navbar-right">
+            {% if app.user %}
+                <span>Connecter en tant que  <strong>"{{ app.user.username }}"</strong></span>
+                <a href="{{ path('app_logout') }}" class="btn-logout">Déconnection</a>
+            {% else %}
+                <a href="{{ path('app_login') }}" style="color: white">Se connecter</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+

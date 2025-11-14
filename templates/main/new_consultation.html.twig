@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle consultation{% endblock %}
+
+{% block body %}
+    {% include '_partial/nav.html.twig' %}
+
+    <style>
+        .consultation-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 1.25rem;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            margin-top: 120px;
+        }
+
+        .consultation-container h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #222;
+        }
+
+        .consultation-form {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            max-width: 700px;
+        }
+
+        .consultation-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .consultation-form input[type="text"],
+        .consultation-form input[type="search"],
+        .consultation-form textarea,
+        .consultation-form input[type="date"] {
+            padding: .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: .5rem;
+            margin-top: .5rem;
+        }
+
+        .btn {
+            padding: .5rem 1rem;
+            background: #0366d6;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn--muted {
+            padding: .45rem .9rem;
+            background: #6c757d;
+            color: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .consultation-container { padding: .75rem; }
+            .consultation-form { max-width: 100%; }
+        }
+    </style>
+
+    <div class="container consultation-container">
+        <h1>Nouvelle consultation</h1>
+        <p>Remplissez les champs ci‑dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
+
+        {# Le contrôleur doit fournir la variable 'form' (FormView) via createForm(ConsultationType)
+           Exemple dans le contrôleur : $form = $this->createForm(ConsultationType::class); et passer 'form' => $form->createView() #}
+
+        {{ form_start(form) }}
+
+        <div class="consultation-form">
+            {# Date is set automatically on the server, do not render the Date field to the user #}
+            {{ form_row(form.Grade) }}
+            {{ form_row(form.Nom) }}
+            {{ form_row(form.Matricule) }}
+            {{ form_row(form.Motif) }}
+            {{ form_row(form.DelivreurDeMotif) }}
+            {{ form_row(form.Observation) }}
+            {{ form_row(form.DelivreurDObservation) }}
+
+            <div class="form-actions">
+                <button class="btn" type="submit">Enregistrer</button>
+                <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    {% include '_partial/footer.html.twig' %}
+{% endblock %}

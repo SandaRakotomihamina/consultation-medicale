@@ -1,0 +1,157 @@
+<style>
+    .subnav {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5rem 0;
+        width: 100%;
+        margin-top: 120px;
+        flex-wrap: wrap; /* ⬅ permet de descendre sur une 2e ligne */
+    }
+
+    .subnav-form {
+        display: flex;
+        gap: 1rem;
+        margin-left: 10px;
+        flex-grow: 1; /* ⬅ important : pousse la searchbar à utiliser tout l'espace */
+    }
+
+    .subnav-input {
+        padding: .4rem .6rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        min-width: 250px;
+        flex-grow: 1; /* ⬅ la barre de recherche peut s'étirer */
+    }
+
+    .subnav-button {
+        padding: .45rem .8rem;
+        background: #0366d6;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 1rem;
+    }
+
+    .options{
+        margin-bottom: 0.5rem;
+        color: #333;
+        text-decoration: none;
+        position: relative;
+        display: block;
+        padding: 0.4rem 1.2rem;
+    }
+    li{
+        list-style-type: none;
+    }
+    /* ★★★ PARTIE PRINCIPALE MODIFIÉE ★★★ */
+    .subnav-actions {
+        display: flex;
+        flex-direction: row;   /* ⬅ TOUJOURS en ligne */
+        gap: 1rem;
+        align-items: center;
+        white-space: nowrap;   /* ⬅ empêche la coupure sur 2 lignes */
+    }
+
+    @media (max-width: 900px) {
+        .subnav {
+            justify-content: center;
+        }
+
+        .subnav-actions {
+            justify-content: right;  /* ⬅ centré quand il descend */
+            width: 100%;
+            margin-top: 10px;              /* ⬅ passe sur la ligne du bas mais reste en flex-row */
+        }
+    }
+
+
+    .btn-primary {
+        padding: .4rem .7rem;
+        background: #28a745;
+        color: #fff;
+        border-radius: 4px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .hamburger-menu {
+        display: inline-block;
+        cursor: pointer;
+        width: 35px;
+        margin-top: 4px;
+    }
+
+    .hamburger-menu span {
+        display: block;
+        width: 25px;
+        height: 4px;
+        margin: 4px 0;
+        background-color: #333;
+        border-radius: 2px;
+    }
+
+    .subnav-dropdown {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        border-radius: 6px;
+        min-width: 180px;
+        padding: 0.4rem 0;
+        display: none;
+        z-index: 1200;
+    }
+    .avertissement{
+        margin-top: 120px;
+        padding: 1rem;
+        background-color: #ffdddd;
+        border: 1px solid #ff5c5c;
+        border-radius: 4px;
+        color: #a94442;
+        text-align: center;
+    }
+    .subnav-dropdown.open {
+        display: block;
+        animation: dropdownFade .14s ease-out;
+    }
+
+    @keyframes dropdownFade {
+        from { transform: translateY(-4px); opacity: 0 }
+        to { transform: translateY(0); opacity: 1 }
+    }
+</style>
+
+{% if app.user %}
+    <div class="subnav">
+        <form action="/search" method="get" class="subnav-form">
+            <input type="search" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" />
+            <button type="submit" class="subnav-button">Rechercher</button>
+        </form>
+            <div class="subnav-actions">
+                <a href="{{ subnav_button_path|default(path('app_new_consultation')) }}" class="btn-primary"><strong> + </strong> Nouvelle consultation</a>
+                <div class="hamburger-menu" role="button" aria-label="Ouvrir le menu" aria-expanded="false" tabindex="0">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="subnav-dropdown" id="subnavDropdown" role="menu" aria-hidden="true">
+                    <ul>
+                        <li><a href="{{ path('app_new_user') }}" role="menuitem" class="options">Nouvel utilisateur</a></li>
+                    </ul>
+                </div>
+            </div>
+
+    </div>
+{% else %}
+    <div class="avertissement">
+        connecter vous!
+    </div>
+{% endif %}
+
+ 
