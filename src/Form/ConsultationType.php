@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\ConsultationList;
-use Dom\Text;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,7 +19,11 @@ class ConsultationType extends AbstractType
             ->add('Motif')
             ->add('DelivreurDeMotif')
             ->add('Observation')
-            ->add('DelivreurDObservation')
+            ->add('DelivreurDObservation', null, [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
         ;
     }
 

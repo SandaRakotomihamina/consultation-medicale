@@ -1,31 +1,148 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}log in{% endblock %}
+{% block title %}Se connecter{% endblock %}
 
 {% block body %}
-	<div style="max-width:420px;margin:2rem auto;padding:1.5rem;border:1px solid #eee;border-radius:8px;">
-		<h1 style="margin-top:0">log in</h1>
+	<style>
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		.login-container{
+			max-width:420px;
+			min-width:380px;
+			margin:0rem auto;
+			padding:1.5rem;
+			border:1px solid #000000ff;
+			border-radius:8px;
+			
+		}
+
+		.username, .password {
+			width: 100%;
+			padding: .5rem;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			box-sizing: border-box;
+		}	
+
+
+		.button{
+			padding:.5rem 1rem;
+			color:#fff;
+			border:none;
+			border-radius:4px;
+			cursor:pointer;
+		}
+
+		.error{
+			width: 100%;
+			max-width: 400px;
+			padding:1rem;
+			background:#fee;
+			color:#c33;
+			border:1px solid #fcc;
+			border-radius:8px;
+			margin-top:1rem;
+			text-align:left;
+
+			position: absolute;
+			bottom: 3rem;
+		}
+
+		.flash-close {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            line-height: 20px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.5;
+            float:right;
+
+        }
+        .flash-close:hover {
+            opacity: 0.7;
+        }
+
+		.floating-group {
+			position: relative;
+			margin-bottom: 1.2rem;
+		}
+
+		.floating-group input {
+			width: 100%;
+			padding: 0.75rem 0.5rem;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			outline: none;
+			font-size: 1rem;
+			background: none;
+		}
+
+		.floating-group label {
+			position: absolute;
+			top: 50%;
+			left: 0.55rem;
+			transform: translateY(-50%);
+			color: #777;
+			pointer-events: none;
+			transition: 0.2s ease;
+			background: white;
+			padding: 0 0.2rem;
+		}
+
+		.floating-group input:focus + label,
+		.floating-group input:not(:placeholder-shown) + label {
+			top: -0.1rem;
+			font-size: 0.8rem;
+			color: #333;
+		}
+
+	</style>
+	<div class="login-container">
+		<h1 style="margin-top:0">Se connecter</h1>
 		<form action="{{ path('app_login') }}" method="post">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-			<div style="margin-bottom:.75rem">
-				<label for="id">Username</label><br>
-				<input type="text" value="{{ last_username }}" name="username" id="inputUsername" required autofocus style="width:100%;padding:.5rem;border:1px solid #ccc;border-radius:4px" />
+			<div class="floating-group">
+				<input type="text" 
+					name="username" 
+					id="inputUsername"
+					class="username"
+					placeholder=" "
+					required
+				>
+				<label for="inputUsername">Nom d'utilisateur</label>
 			</div>
 
-			<div style="margin-bottom:.75rem">
-				<label for="inputPassword">Password</label><br>
-				<input type="password" name="password" id="inputPassword" autocomplete="current-password" required style="width:100%;padding:.5rem;border:1px solid #ccc;border-radius:4px" />
+
+			<div class="floating-group">
+				<input 
+					type="password" 
+					name="password" 
+					id="inputPassword"
+					class="password"
+					placeholder=" " 
+					required
+				>
+				<label for="inputPassword">Mot de passe</label>
 			</div>
 
-			<div style="display:flex;gap:.5rem;align-items:center">
-				<button type="submit" style="padding:.5rem 1rem;background:#0366d6;color:#fff;border:none;border-radius:4px;cursor:pointer">Log in</button>
+			<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+				<button type="submit" class="button" style="background:#0366d6;">Connexion</button>
+				<button type="reset" class="button" style="background:#9b9b9bff;">Annuler</button>
 			</div>
 		</form>
 	</div>
+	
 	{% if error %}
-		<div style="padding:1rem;background:#fee;color:#c33;border:1px solid #fcc;border-radius:4px;margin-bottom:1rem">
+		<div class="error">
 			{{ error.messageKey|trans(error.messageData, 'security') }}
+			<button class="flash-close" onclick="this.parentElement.remove()">×</button>
 		</div>
 	{% endif %}
 {% endblock %}

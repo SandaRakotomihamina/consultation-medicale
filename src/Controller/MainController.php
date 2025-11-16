@@ -29,9 +29,7 @@ final class MainController extends AbstractController
         ]);
     }
     #[Route('/consultation/new', name: 'app_new_consultation')]
-    #[IsGranted('ROLE_USER')]
-    #[IsGranted(!'ROLE_ADMIN')]
-
+    #[IsGranted('ROLE_ADMIN')]
     public function newConsultation(Request $request, EntityManagerInterface $em): Response
     {
         $consultation = new ConsultationList();
@@ -62,9 +60,8 @@ final class MainController extends AbstractController
         ]);
     }
 
-    // --- ROLE_ADMIN SEULEMENT ---
     #[Route('/user/new', name: 'app_new_user')]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
     public function newUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
@@ -78,8 +75,6 @@ final class MainController extends AbstractController
                 $hashed = $passwordHasher->hashPassword($user, $plain);
                 $user->setPassword($hashed);
             }
-
-            $user->setRoles(['ROLE_USER']);
 
             $em->persist($user);
             $em->flush();
@@ -114,7 +109,7 @@ final class MainController extends AbstractController
     }
 
     #[Route('/consultation/edit/{id}', name: 'app_consultation_edit')]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
     public function edit(ManagerRegistry $doctrine, Request $request, string $id): Response
     {
         $em = $doctrine->getManager();

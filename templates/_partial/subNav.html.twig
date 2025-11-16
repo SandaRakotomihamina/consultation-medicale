@@ -134,7 +134,7 @@
         </form>
             <div class="subnav-actions">
                 {# Pour ceux qui font des consultations #}
-                <a href="{{ subnav_button_path|default(path('app_new_consultation')) }}" class="btn-primary"{% if 'ROLE_ADMIN' in app.user.roles %}
+                <a href="{{ subnav_button_path|default(path('app_new_consultation')) }}" class="btn-primary"{% if 'ROLE_SUPER_ADMIN' in app.user.roles or 'ROLE_USER' in app.user.roles and 'ROLE_ADMIN' not in app.user.roles %}
                     style="pointer-events: none; opacity: 0.5; cursor: default;"
                     {% endif %}>
                      + Nouvel consultation
@@ -146,7 +146,7 @@
                     aria-label="Ouvrir le menu"
                     aria-expanded="false"
                     tabindex="0"
-                    {% if 'ROLE_ADMIN' not in app.user.roles %}
+                    {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
                         style="pointer-events: none; opacity: 0.5; cursor: default;"
                         aria-disabled="true"
                     {% endif %}>
