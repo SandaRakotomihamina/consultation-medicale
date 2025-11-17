@@ -9,7 +9,6 @@
                 .flash { 
                     padding: .75rem 1rem; 
                     margin: .75rem auto; 
-                    max-width: 900px; 
                     border-radius: 6px; 
                     box-sizing: border-box; 
                 }
@@ -93,6 +92,26 @@
                 }
             });
         })();
+        
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const checkbox = document.getElementById('repos-check');
+
+            // On cible automatiquement le <select> dans repos-field
+            const reposInput = document.querySelector('#repos-field select');
+
+            function toggle() {
+                reposInput.disabled = !checkbox.checked;
+
+                if (!checkbox.checked) {
+                    reposInput.value = "";
+                }
+            }
+
+            checkbox.addEventListener('change', toggle);
+            toggle(); // état initial
+        });
         </script>
     </body>
 </html>

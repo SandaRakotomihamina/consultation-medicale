@@ -109,6 +109,18 @@
         border-top: 1px solid #ddd;
         padding-top: 0.3rem;
     }
+
+    .obs-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        border-top: 1px solid #ddd;
+        padding-top: 0.4rem;
+        color: #555;
+    }
+
 </style>
 <h1 style="text-align:left; margin-bottom:2rem;">Historique des Consultations</h1>
 
@@ -136,7 +148,7 @@
                     <a 
                         href="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
                         title="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
-                        style="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: default;' }}"
+                        style="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: not-allowed;' }}"
                     >
                         <img src="{{ asset('images/editer.png') }}" alt="Editer" style="width:30px; height:auto; margin-top:5px;">
                     </a>
@@ -156,8 +168,21 @@
                     <div class="info-block">
                         <div class="label">Observation</div>
                         <div class="content">{{ consultation.Observation }}</div>
-                        <div class="delivreur">{{ consultation.DelivreurDObservation }}</div>
+
+                        <div class="obs-footer">
+                            <span>{{ consultation.DelivreurDObservation }}</span>
+
+                            <span style="font-weight: bold;">
+                                {% if consultation.Repos %}
+                                    <span style="color:#d9534f">Repos administré:{{espace}}{{ consultation.Repos }}</span>
+
+                                {% else %}
+                                    <span style="color:#28a745">Aucun repos administré</span>
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

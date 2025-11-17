@@ -6,7 +6,7 @@
         align-items: center;
         padding: .5rem 0;
         width: 100%;
-        margin-top: 120px;
+        margin-top: 140px;
         flex-wrap: wrap; /* ⬅ permet de descendre sur une 2e ligne */
     }
 
@@ -107,7 +107,7 @@
         z-index: 1200;
     }
     .avertissement{
-        margin-top: 120px;
+        margin-top: 140px;
         padding: 1rem;
         background-color: #caf0b0ff;
         border: 1px solid #000000ff;
@@ -137,29 +137,29 @@
                 <a href="{{ subnav_button_path|default(path('app_new_consultation')) }}" class="btn-primary"{% if 'ROLE_SUPER_ADMIN' in app.user.roles or 'ROLE_USER' in app.user.roles and 'ROLE_ADMIN' not in app.user.roles %}
                     style="pointer-events: none; opacity: 0.5; cursor: default;"
                     {% endif %}>
-                     + Nouvel consultation
+                     <strong>+</strong> Nouvel consultation
                 </a>
 
-                {# Pour l'admin seulement #}
+                {# Pour le superAdmin seulement #}
                 <div class="hamburger-menu"
                     role="button"
                     aria-label="Ouvrir le menu"
                     aria-expanded="false"
                     tabindex="0"
                     {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
-                        style="pointer-events: none; opacity: 0.5; cursor: default;"
+                        style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
                         aria-disabled="true"
-                    {% endif %}>
+                    {% endif %}
+                >
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
 
 
-
                 <div class="subnav-dropdown" id="subnavDropdown" role="menu" aria-hidden="true">
                     <ul>
-                        <li"><a href="{{ path('app_new_user') }}" role="menuitem" class="options">Nouvel utilisateur</a></li>
+                        <li><a href="{{ path('app_new_user') }}" role="menuitem" class="options">Nouvel utilisateur</a></li>
                     </ul>
                 </div>
             </div>

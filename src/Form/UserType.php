@@ -17,6 +17,10 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('matricule', TextType::class, [
+                'required' => true,
+                'label' => 'Matricule',
+            ])
             ->add('title', TextType::class, [
                 'required' => true,
                 'label' => 'Titre',
@@ -46,8 +50,8 @@ class UserType extends AbstractType
                     'Administrateur' => 'ROLE_ADMIN',
                     'Super Administrateur' => 'ROLE_SUPER_ADMIN'
                 ],
-                'multiple' => true,   // les rôles sont stockés dans un tableau
-                'expanded' => false,  // liste déroulante (select)
+                'multiple' => true,
+                'expanded' => false,
                 'attr' => [
                     'class' => 'form-select-custom'
                 ]

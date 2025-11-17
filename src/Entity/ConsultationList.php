@@ -38,6 +38,9 @@ class ConsultationList
     #[ORM\Column(length: 255)]
     private ?string $DelivreurDObservation = null;
 
+    #[ORM\Column(length: 16, nullable: true)]
+    private ?string $Repos = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -142,6 +145,18 @@ class ConsultationList
     public function setDelivreurDObservation(string $DelivreurDObservation): static
     {
         $this->DelivreurDObservation = $DelivreurDObservation;
+
+        return $this;
+    }
+
+    public function getRepos(): ?string
+    {
+        return $this->Repos;
+    }
+
+    public function setRepos(?string $Repos): static
+    {
+        $this->Repos = $Repos;
 
         return $this;
     }

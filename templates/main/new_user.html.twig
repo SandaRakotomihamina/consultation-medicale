@@ -14,7 +14,7 @@
             border: 1px solid #eee;
             border-radius: 8px;symfony 
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            margin-top: 120px;
+            margin-top: 140px;
         }
 
         .consultation-container h1 {
@@ -97,6 +97,7 @@
         {{ form_start(form) }}
 
         <div class="consultation-form">
+            {{ form_row(form.matricule) }}
             {{ form_row(form.title) }}
             {{ form_row(form.name) }}
             {{ form_row(form.username) }}

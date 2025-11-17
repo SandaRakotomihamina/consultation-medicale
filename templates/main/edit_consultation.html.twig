@@ -14,7 +14,7 @@
             border: 1px solid #eee;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            margin-top: 120px;
+            margin-top: 140px;
         }
 
         .consultation-container h1 {
@@ -70,6 +70,26 @@
             display: inline-block;
         }
 
+        .consultation-form select {
+            padding: .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            color: #333;
+            appearance: none; /* Supprime le style par défaut du navigateur */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E"); /* petite flèche */
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.65rem auto;
+        }
+
         @media (max-width: 640px) {
             .consultation-container { padding: .75rem; }
             .consultation-form { max-width: 100%; }
@@ -83,18 +103,18 @@
         <form method="post" action="">
             <div class="consultation-form">
                 <div class="form-row">
+                    <label for="matricule">Matricule</label>
+                    <input type="text" id="matricule" name="matricule" value="{{ consultation.Matricule }}" readonly>
+                </div>
+
+                <div class="form-row">
                     <label for="grade">Grade</label>
-                    <input type="text" id="grade" name="grade" value="{{ consultation.Grade }}">
+                    <input type="text" id="grade" name="grade" value="{{ consultation.Grade }}" readonly>
                 </div>
 
                 <div class="form-row">
                     <label for="nom">Nom</label>
-                    <input type="text" id="nom" name="nom" value="{{ consultation.Nom }}">
-                </div>
-
-                <div class="form-row">
-                    <label for="matricule">Matricule</label>
-                    <input type="text" id="matricule" name="matricule" value="{{ consultation.Matricule }}">
+                    <input type="text" id="nom" name="nom" value="{{ consultation.Nom }}" readonly>
                 </div>
 
                 <div class="form-row">
@@ -116,6 +136,17 @@
                     <label for="delivreur_d_observation">Délivreur d'observation</label>
                     <input type="text" id="delivreur_d_observation" name="delivreur_d_observation" value="{{ consultation.DelivreurDObservation }}">
                 </div>
+
+                <div class="form-row">
+                    <label for="repos">Repos administré</label>
+                    <select id="repos" name="repos">
+                        <option value="" {% if consultation.Repos is empty %}selected{% endif %}>Aucun</option>
+                        <option value="24h" {% if consultation.Repos == '24h' %}selected{% endif %}>24h</option>
+                        <option value="48h" {% if consultation.Repos == '48h' %}selected{% endif %}>48h</option>
+                        <option value="72h" {% if consultation.Repos == '72h' %}selected{% endif %}>72h</option>
+                    </select>
+                </div>
+
 
                 <div class="form-actions">
                     <button class="btn" type="submit">Enregistrer</button>

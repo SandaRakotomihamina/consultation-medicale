@@ -22,10 +22,12 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(ConsultationListRepository $repository): Response
     {
-        $consultations = $repository->findBy([], ['Date' => 'DESC']);
+        $consultations = $repository->findBy([], ['id' => 'DESC']);
+        $espace = " ";
 
         return $this->render('main/index.html.twig', [
             'consultations' => $consultations,
+            'espace' => $espace,
         ]);
     }
     #[Route('/consultation/new', name: 'app_new_consultation')]
@@ -127,6 +129,7 @@ final class MainController extends AbstractController
             $consultation->setDelivreurDeMotif($request->request->get('delivreur_de_motif'));
             $consultation->setObservation($request->request->get('observation'));
             $consultation->setDelivreurDObservation($request->request->get('delivreur_d_observation'));
+            $consultation->setRepos($request->request->get('repos'));
 
             $em->persist($consultation);
             $em->flush();

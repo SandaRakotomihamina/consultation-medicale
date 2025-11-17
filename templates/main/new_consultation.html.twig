@@ -14,7 +14,7 @@
             border: 1px solid #eee;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            margin-top: 120px;
+            margin-top: 140px;
         }
 
         .consultation-container h1 {
@@ -36,6 +36,12 @@
             gap: .35rem;
         }
 
+        .form-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .consultation-form input[type="text"],
         .consultation-form input[type="search"],
         .consultation-form textarea,
@@ -47,6 +53,25 @@
             width: 100%;
         }
 
+        .consultation-form select {
+            padding: .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            color: #333;
+            appearance: none; /* Supprime le style natif */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E"); /* petite flèche */
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.65rem auto;
+        }
         .form-actions {
             display: flex;
             gap: .5rem;
@@ -72,32 +97,37 @@
             display: inline-block;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-            .consultation-container { padding: .75rem; }
-            .consultation-form { max-width: 100%; }
+        .form-repos-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: .5rem;
+        }
+
+        .form-repos-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: .5rem;
         }
     </style>
 
     <div class="container consultation-container">
         <h1>Nouvelle consultation</h1>
-        <p>Remplissez les champs ci‑dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
-
-        {# Le contrôleur doit fournir la variable 'form' (FormView) via createForm(ConsultationType)
-           Exemple dans le contrôleur : $form = $this->createForm(ConsultationType::class); et passer 'form' => $form->createView() #}
+        <p>Remplissez les champs ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
 
         {{ form_start(form) }}
 
         <div class="consultation-form">
-            {# Date is set automatically on the server, do not render the Date field to the user #}
+            {{ form_row(form.Matricule) }}
             {{ form_row(form.Grade) }}
             {{ form_row(form.Nom) }}
-            {{ form_row(form.Matricule) }}
             {{ form_row(form.Motif) }}
             {{ form_row(form.DelivreurDeMotif) }}
             {{ form_row(form.Observation) }}
             {{ form_row(form.DelivreurDObservation) }}
-
+            {{ form_row(form.Repos) }}
+            
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>
                 <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>
