@@ -52,6 +52,27 @@ final class MainController extends AbstractController
             $em->persist($consultation);
             $em->flush();
 
+            // Si un repos est administré, envoyer un SMS
+            if ($consultation->getRepos()) {
+                $message = "Repos administré : " . $consultation->getRepos() . " au  personnel " . $consultation->getNom();
+
+                // Exemple avec HttpClient Symfony
+                $client = \Symfony\Component\HttpClient\HttpClient::create();
+                try {
+                    $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
+                        'json' => [
+                            'apiKey' => 'CLE_API',
+                            'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
+                            'to' => '+261333549507',
+                            'message' => $message
+                        ]
+                    ]);
+                } catch (\Exception $e) {
+                    // Si l'envoi échoue, on peut log l'erreur
+                    $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
+                }
+            }
+
             $this->addFlash('success', 'Consultation enregistrée avec succès.');
             return $this->redirectToRoute('app_main');
         }
@@ -60,6 +81,7 @@ final class MainController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
 
     #[Route('/user/new', name: 'app_new_user')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
