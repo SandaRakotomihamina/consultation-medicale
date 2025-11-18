@@ -36,82 +36,75 @@
     </head>
     <body>
         {% block body %}{% endblock %}
-        {# Global subnav dropdown handler (delegated, idempotent). Placed in base so it survives Turbo/partial navigation #}
         <script>
-        (function () {
-            if (window.__subnavInit) return;
-            window.__subnavInit = true;
+            (function () {
+                if (window.__subnavInit) return;
+                window.__subnavInit = true;
 
-            function closeAll() {
-                document.querySelectorAll('.subnav-dropdown.open').forEach(function (d) {
-                    d.classList.remove('open');
-                    d.setAttribute('aria-hidden', 'true');
-                });
-                document.querySelectorAll('.hamburger-menu[aria-expanded="true"]').forEach(function (b) {
-                    b.setAttribute('aria-expanded', 'false');
-                });
-            }
+                function closeAll() {
+                    document.querySelectorAll('.subnav-dropdown.open').forEach(function (d) {
+                        d.classList.remove('open');
+                        d.setAttribute('aria-hidden', 'true');
+                    });
+                    document.querySelectorAll('.hamburger-menu[aria-expanded="true"]').forEach(function (b) {
+                        b.setAttribute('aria-expanded', 'false');
+                    });
+                }
 
-            document.addEventListener('click', function (e) {
-                var burger = e.target.closest && e.target.closest('.hamburger-menu');
-                if (burger) {
-                    e.stopPropagation();
-                    var subnav = burger.closest && burger.closest('.subnav');
-                    var dropdown = subnav && subnav.querySelector('.subnav-dropdown');
-                    if (!dropdown) return;
-                    if (dropdown.classList.contains('open')) {
-                        dropdown.classList.remove('open');
-                        dropdown.setAttribute('aria-hidden', 'true');
-                        burger.setAttribute('aria-expanded', 'false');
-                    } else {
+                document.addEventListener('click', function (e) {
+                    var burger = e.target.closest && e.target.closest('.hamburger-menu');
+                    if (burger) {
+                        e.stopPropagation();
+                        var subnav = burger.closest && burger.closest('.subnav');
+                        var dropdown = subnav && subnav.querySelector('.subnav-dropdown');
+                        if (!dropdown) return;
+                        if (dropdown.classList.contains('open')) {
+                            dropdown.classList.remove('open');
+                            dropdown.setAttribute('aria-hidden', 'true');
+                            burger.setAttribute('aria-expanded', 'false');
+                        } else {
+                            closeAll();
+                            dropdown.classList.add('open');
+                            dropdown.setAttribute('aria-hidden', 'false');
+                            burger.setAttribute('aria-expanded', 'true');
+                        }
+                        return;
+                    }
+
+                    // click outside -> close all
+                    if (!e.target.closest || !e.target.closest('.subnav-dropdown')) {
                         closeAll();
-                        dropdown.classList.add('open');
-                        dropdown.setAttribute('aria-hidden', 'false');
-                        burger.setAttribute('aria-expanded', 'true');
                     }
-                    return;
-                }
+                }, true);
 
-                // click outside -> close all
-                if (!e.target.closest || !e.target.closest('.subnav-dropdown')) {
-                    closeAll();
-                }
-            }, true);
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') {
-                    closeAll();
-                    return;
-                }
-                if (e.key === 'Enter' || e.key === ' ') {
-                    var focused = document.activeElement;
-                    if (focused && focused.classList && focused.classList.contains('hamburger-menu')) {
-                        e.preventDefault();
-                        focused.click();
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' || e.key === 'Esc') {
+                        closeAll();
+                        return;
                     }
-                }
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        var focused = document.activeElement;
+                        if (focused && focused.classList && focused.classList.contains('hamburger-menu')) {
+                            e.preventDefault();
+                            focused.click();
+                        }
+                    }
+                });
+            })();
+            
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const flashes = document.querySelectorAll('.flash');
+                flashes.forEach(function(flash) {
+                    setTimeout(function() {
+                        flash.style.opacity = '0';
+                        flash.style.transition = 'opacity 0.5s ease-out';
+                        setTimeout(function() {
+                            flash.style.display = 'none';
+                        }, 500);
+                    }, 5000);
+                });
             });
-        })();
-        
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const checkbox = document.getElementById('repos-check');
-
-            // On cible automatiquement le <select> dans repos-field
-            const reposInput = document.querySelector('#repos-field select');
-
-            function toggle() {
-                reposInput.disabled = !checkbox.checked;
-
-                if (!checkbox.checked) {
-                    reposInput.value = "";
-                }
-            }
-
-            checkbox.addEventListener('change', toggle);
-            toggle(); // état initial
-        });
         </script>
     </body>
 </html>

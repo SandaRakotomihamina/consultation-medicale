@@ -12,8 +12,9 @@
         <p>Vous n’avez pas la permission d’accéder à cette page.</p>
     {% else %}
         <p>Une erreur est survenue.</p>
+        <p>{{}}</p>
     {% endif %}
-    <a href="{{ path('app_home') }}">Retour à l'accueil</a>
+    <a href="{{ path('app_main') }}">Retour à l'accueil</a>
 </div>
 {% include '_partial/footer.html.twig' %}
 {% endblock %}
