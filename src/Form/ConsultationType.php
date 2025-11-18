@@ -36,6 +36,11 @@ class ConsultationType extends AbstractType
                 'required' => false,
             ])
         ;
+
+        if($builder->getData()->getRepos()){
+            
+
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

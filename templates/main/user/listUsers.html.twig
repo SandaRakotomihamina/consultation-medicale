@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block body %}
+    {% include "_partial/nav.html.twig" %}
+
+<style>
+
+    /* Conteneur principal : inline-block au lieu de column */
+    .feed {
+        display: block;
+        margin-top: 2rem;
+    }
+
+    /* Card carrée + inline-block */
+    .card {
+        display: inline-block;
+        width: 260px;
+        height: 260px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #949090ff;
+        margin: 1rem;
+        vertical-align: top;
+        position: relative;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .avatar img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .name-grade {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .name-grade .grade {
+        font-weight: bold;
+        color: #4267B2;
+    }
+
+    .name-grade .name {
+        font-weight: 600;
+        margin-left: 0.2rem;
+    }
+
+    .name-grade .matricule {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .card-body {
+        padding: 1rem;
+        font-size: 0.9rem;
+        text-align: left;
+    }
+
+    /* Badge rôle */
+    .role-badge {
+        display: inline-block;
+        background: #4267B2;
+        color: white;
+        padding: 3px 7px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        margin-right: 4px;
+        margin-top: 4px;
+    }
+
+</style>
+
+
+<h1 style="text-align:left; margin-bottom:2rem; margin-top: 140px;">Liste des utilisateurs</h1>
+
+<div class="feed">
+    {% for user in users %}
+        <div class="card">
+
+            <!-- Header -->
+            <div class="card-header">
+                <div class="user-info">
+                    <div class="avatar">
+                        <img src="{{ asset('images/avatar.png') }}" alt="avatar">
+                    </div>
+                    <div class="name-grade">
+                        <div style= "display: flex">
+                            <span class="grade">{{ user.title }}</span>
+                            <span class="name">{{ user.name }}</span>
+                        </div>
+                        
+                        <span class="matricule">{{ user.matricule }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <p><strong>nom d'utilisateur :</strong> {{ user.username }}</p>
+
+                <p><strong>Idemtifiant du compte :</strong> {{ user.id }}</p>
+
+                <p style="margin-top:8px;"><strong>Rôles :</strong></p>
+                {% set roleLabels = {
+                    'ROLE_SUPER_ADMIN': 'Super administrateur',
+                    'ROLE_ADMIN': 'Administrateur',
+                    'ROLE_USER': 'Utilisateur simple'
+                } %}
+
+                {% for role in user.roles %}
+                    <span class="role-badge">
+                        {{ roleLabels[role] ?? role }}
+                    </span>
+                {% endfor %}
+
+            </div>
+
+        </div>
+    {% else %}
+        <p style="text-align:center;">Aucun utilisateur trouvé.</p>
+    {% endfor %}
+</div>
+
+{{ include('_partial/footer.html.twig') }}
+
+{% endblock %}

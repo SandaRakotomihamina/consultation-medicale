@@ -104,7 +104,7 @@
         min-width: 180px;
         padding: 0.4rem 0;
         display: none;
-        z-index: 1200;
+        z-index: 999;
     }
     .avertissement{
         margin-top: 140px;
@@ -146,10 +146,7 @@
                     aria-label="Ouvrir le menu"
                     aria-expanded="false"
                     tabindex="0"
-                    {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
-                        style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
-                        aria-disabled="true"
-                    {% endif %}
+                    
                 >
                     <span></span>
                     <span></span>
@@ -159,7 +156,25 @@
 
                 <div class="subnav-dropdown" id="subnavDropdown" role="menu" aria-hidden="true">
                     <ul>
-                        <li><a href="{{ path('app_new_user') }}" role="menuitem" class="options">Nouvel utilisateur</a></li>
+                        <li><a href="{{ path('app_new_user') }}" 
+                                role="menuitem" 
+                                class="options"
+                                {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
+                                    style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                                    aria-disabled="true"
+                                {% endif %}
+                            >Nouvel utilisateur</a>
+                        </li>
+
+                        <li><a href="{{ path('app_list_user') }}" 
+                                role="menuitem" 
+                                class="options"
+                                {% if 'ROLE_SUPER_ADMIN' not in app.user.roles and 'ROLE_USER' not in app.user.roles%}
+                                    style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                                    aria-disabled="true"
+                                {% endif %}
+                            >Liste des utilisateurs</a>
+                        </li>
                     </ul>
                 </div>
             </div>

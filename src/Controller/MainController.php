@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Form\ConsultationType;
 use App\Form\UserType;
 use App\Repository\ConsultationListRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -23,11 +24,9 @@ final class MainController extends AbstractController
     public function index(ConsultationListRepository $repository): Response
     {
         $consultations = $repository->findBy([], ['id' => 'DESC']);
-        $espace = " ";
 
         return $this->render('main/index.html.twig', [
-            'consultations' => $consultations,
-            'espace' => $espace,
+            'consultations' => $consultations
         ]);
     }
     #[Route('/consultation/new', name: 'app_new_consultation')]
@@ -57,7 +56,7 @@ final class MainController extends AbstractController
             return $this->redirectToRoute('app_main');
         }
 
-        return $this->render('main/new_consultation.html.twig', [
+        return $this->render('main/consultations/new_consultation.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -85,7 +84,7 @@ final class MainController extends AbstractController
             return $this->redirectToRoute('app_main');
         }
 
-        return $this->render('main/new_user.html.twig', [
+        return $this->render('main/user/new_user.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -138,8 +137,25 @@ final class MainController extends AbstractController
             return $this->redirectToRoute('app_main');
         }
 
-        return $this->render('main/edit_consultation.html.twig', [
+        return $this->render('main/consultations/edit_consultation.html.twig', [
             'consultation' => $consultation
         ]);
     }
+
+    #[Route('/users', name: 'app_list_user')]
+    public function listUser(UserRepository $userRepository): Response
+    {
+        // Autoriser si SUPER_ADMIN ou ROLE_USER
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé aux super-admins et utilisateurs simples.');
+        }
+
+        $users = $userRepository->findAll();
+
+        return $this->render('main/user/listUsers.html.twig', [
+            'users' => $users,
+        ]);
+    }
+
+
 }

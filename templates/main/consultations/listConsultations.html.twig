@@ -121,6 +121,10 @@
         color: #555;
     }
 
+    #consultation_Repos{
+        margin-left: .2rem;
+    }
+
 </style>
 <h1 style="text-align:left; margin-bottom:2rem;">Historique des Consultations</h1>
 
@@ -174,7 +178,7 @@
 
                             <span style="font-weight: bold;">
                                 {% if consultation.Repos %}
-                                    <span style="color:#d9534f">Repos administré:{{espace}}{{ consultation.Repos }}</span>
+                                    <span style="color:#d9534f">Repos administré:{{ consultation.Repos }}</span>
 
                                 {% else %}
                                     <span style="color:#28a745">Aucun repos administré</span>
@@ -190,6 +194,5 @@
         <p style="text-align:center;">Aucune consultation trouvée.</p>
     {% endfor %}
 </div>
-
 
 {% endblock %}
