@@ -13,7 +13,7 @@
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
         border: 1px solid #949090ff;
     }
 
@@ -21,6 +21,14 @@
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
+
+    /* 🔵 Effet bleu AU SURVOL du bouton modifier — uniquement si superadmin */
+    {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+    .card:has(.edit-btn:hover) {
+        background-color: rgba(130, 180, 255, 0.15) !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+    {% endif %}
 
     .card-header {
         display: flex;
@@ -124,8 +132,8 @@
     #consultation_Repos{
         margin-left: .2rem;
     }
-
 </style>
+
 <h1 style="text-align:left; margin-bottom:2rem;">Historique des Consultations</h1>
 
 <div class="feed">
@@ -145,16 +153,21 @@
                         <span class="matricule">{{ consultation.Matricule }}</span>
                     </div>
                 </div>
+
                 <div style="display: flex; align-items:center; gap:10px;">
                     <div class="date">
                         {{ consultation.Date ? consultation.Date|date('d/m/Y') : '' }}
                     </div>
+
                     <a 
                         href="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
                         title="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
                         style="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: not-allowed;' }}"
                     >
-                        <img src="{{ asset('images/editer.png') }}" alt="Editer" style="width:30px; height:auto; margin-top:5px;">
+                        <img src="{{ asset('images/editer.png') }}" 
+                             alt="Editer" 
+                             class="edit-btn"
+                             style="width:30px; height:auto; margin-top:5px;">
                     </a>
 
                 </div>
@@ -178,8 +191,7 @@
 
                             <span style="font-weight: bold;">
                                 {% if consultation.Repos %}
-                                    <span style="color:#d9534f">Repos administré:{{ consultation.Repos }}</span>
-
+                                    <span style="color:#d9534f">Repos administré: {{ consultation.Repos }}</span>
                                 {% else %}
                                     <span style="color:#28a745">Aucun repos administré</span>
                                 {% endif %}

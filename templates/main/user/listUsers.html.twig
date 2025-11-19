@@ -7,31 +7,36 @@
 
 <style>
 
-    /* Conteneur principal : inline-block au lieu de column */
     .feed {
         display: block;
         margin-top: 2rem;
+        text-align: left;
     }
 
-    /* Card carrée + inline-block */
     .card {
+        position: relative;
         display: inline-block;
-        width: 260px;
-        height: 260px;
+        width: 400px;
+        height: 340px;
         background-color: #fff;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
         border: 1px solid #949090ff;
         margin: 1rem;
         vertical-align: top;
-        position: relative;
+        box-sizing: border-box;
     }
 
     .card:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .card:has(.delete-btn:hover) {
+        background-color: rgba(255, 166, 166, 0.15) !important;
+        transition: background-color 0.2s ease-in-out;
     }
 
     .card-header {
@@ -40,12 +45,15 @@
         align-items: center;
         padding: 0.8rem;
         border-bottom: 1px solid #eee;
+        min-height: 70px;
+        box-sizing: border-box;
     }
 
     .user-info {
         display: flex;
         align-items: center;
         gap: 0.8rem;
+        overflow: hidden;
     }
 
     .avatar img {
@@ -58,46 +66,123 @@
     .name-grade {
         display: flex;
         flex-direction: column;
-        text-align: left;
+        overflow: hidden;
+        max-width: 350px;
     }
 
-    .name-grade .grade {
+    .name-grade div,
+    .name-grade span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 400px;
+        display: block;
+    }
+
+    .grade {
         font-weight: bold;
         color: #4267B2;
-    }
-
-    .name-grade .name {
-        font-weight: 600;
-        margin-left: 0.2rem;
-    }
-
-    .name-grade .matricule {
-        font-size: 0.85rem;
-        color: #666;
     }
 
     .card-body {
         padding: 1rem;
         font-size: 0.9rem;
         text-align: left;
+        overflow: hidden;
+        height: 170px;
+        box-sizing: border-box;
     }
 
-    /* Badge rôle */
+    .card-body p {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 6px;
+    }
+
+    .roles-wrapper {
+        margin-top: 6px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .roles-label {
+        font-weight: bold;
+        margin-bottom: 4px;
+        white-space: nowrap;
+    }
+
+    .roles-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
     .role-badge {
-        display: inline-block;
         background: #4267B2;
         color: white;
         padding: 3px 7px;
         border-radius: 6px;
         font-size: 0.75rem;
-        margin-right: 4px;
-        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+
+    .card-footer {
+        height: 40px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0.5rem 0.8rem;
+        border-top: 1px solid #eee;
+        box-sizing: border-box;
+    }
+
+    .delete-btn {
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .delete-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .flash-close {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            line-height: 20px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.5;
+            float:right;
+
+        }
+        .flash-close:hover {
+            opacity: 0.7;
+        }
 
 </style>
 
+<div style="height: 1px;  margin-top: 139px;"></div>
 
-<h1 style="text-align:left; margin-bottom:2rem; margin-top: 140px;">Liste des utilisateurs</h1>
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="flash flash-{{ label }}">
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+
+<h1 style="text-align:left; margin-bottom:2rem;">Liste des utilisateurs</h1>
 
 <div class="feed">
     {% for user in users %}
@@ -110,11 +195,11 @@
                         <img src="{{ asset('images/avatar.png') }}" alt="avatar">
                     </div>
                     <div class="name-grade">
-                        <div style= "display: flex">
+                        <div style="display: flex; gap: .2rem;">
                             <span class="grade">{{ user.title }}</span>
                             <span class="name">{{ user.name }}</span>
                         </div>
-                        
+
                         <span class="matricule">{{ user.matricule }}</span>
                     </div>
                 </div>
@@ -124,21 +209,34 @@
             <div class="card-body">
                 <p><strong>nom d'utilisateur :</strong> {{ user.username }}</p>
 
-                <p><strong>Idemtifiant du compte :</strong> {{ user.id }}</p>
+                <p><strong>Identifiant du compte :</strong> {{ user.id }}</p>
 
-                <p style="margin-top:8px;"><strong>Rôles :</strong></p>
                 {% set roleLabels = {
                     'ROLE_SUPER_ADMIN': 'Super administrateur',
                     'ROLE_ADMIN': 'Administrateur',
                     'ROLE_USER': 'Utilisateur simple'
                 } %}
 
-                {% for role in user.roles %}
-                    <span class="role-badge">
-                        {{ roleLabels[role] ?? role }}
-                    </span>
-                {% endfor %}
+                <div class="roles-wrapper">
+                    <span class="roles-label">Rôles :</span>
 
+                    <div class="roles-container">
+                        {% for role in user.roles %}
+                            <span class="role-badge">
+                                {{ roleLabels[role] ?? role }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer avec bouton suppression -->
+            <div class="card-footer">
+                <a href="{{ path('app_user_delete', {id: user.id}) }}"
+                   onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
+                    <img src="{{ asset('images/supprimer.png') }}" alt="Supprimer" class="delete-btn">
+                </a>
             </div>
 
         </div>

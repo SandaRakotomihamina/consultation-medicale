@@ -37,7 +37,6 @@
         {% include '_partial/subNav.html.twig' %}
     </div>
         
-    {# Flash messages (displayed on main page) #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="flash flash-{{ label }}">

@@ -179,5 +179,23 @@ final class MainController extends AbstractController
         ]);
     }
 
+    #[Route('/user/delete/{id}', name: 'app_user_delete')]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+public function deleteUser(int $id, EntityManagerInterface $em, UserRepository $repo): Response
+{
+    $user = $repo->find($id);
+
+    if (!$user) {
+        throw $this->createNotFoundException("Utilisateur introuvable.");
+    }
+
+    $em->remove($user);
+    $em->flush();
+
+    $this->addFlash('success', 'Utilisateur supprimé avec succès.');
+
+    return $this->redirectToRoute('app_list_user'); // Remplace par ta vraie route
+}
+
 
 }

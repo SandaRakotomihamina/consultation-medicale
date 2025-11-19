@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Résultats de la recherche{% endblock %}
 
 {% block body %}
     <style>
@@ -11,17 +12,31 @@
         }
 
         .card {
+            position: relative;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
             border: 1px solid #949090ff;
         }
 
         .card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .card.edit-hover {
+            background-color: rgba(0, 123, 255, 0.15) !important;
+        }
+
+        .edit-btn {
+            cursor: pointer;
+        }
+
+        .edit-btn.disabled {
+            pointer-events: none;
+            opacity: 0.4;
         }
 
         .card-header {
@@ -112,6 +127,7 @@
             padding-top: 0.3rem;
         }
     </style>
+
     {% include '_partial/nav.html.twig' %}
     {% include '_partial/subNav.html.twig' %}
 
@@ -134,14 +150,18 @@
                             <span class="matricule">{{ consultation.Matricule }}</span>
                         </div>
                     </div>
+
                     <div style="display: flex; align-items:center; gap:10px;">
                         <div class="date">
                             {{ consultation.Date ? consultation.Date|date('d/m/Y') : '' }}
                         </div>
+
+                        {% set can_edit = 'ROLE_SUPER_ADMIN' in app.user.roles %}
+
                         <a 
-                            href="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
-                            title="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
-                            style="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: default;' }}"
+                            href="{{ can_edit ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
+                            class="edit-btn {{ not can_edit ? 'disabled' : '' }}"
+                            title="{{ can_edit ? 'Modifier' : 'Accès réservé au super admin' }}"
                         >
                             <img src="{{ asset('images/editer.png') }}" alt="Editer" style="width:30px; height:auto; margin-top:5px;">
                         </a>
@@ -156,6 +176,7 @@
                             <div class="content">{{ consultation.Motif }}</div>
                             <div class="delivreur">{{ consultation.DelivreurDeMotif }}</div>
                         </div>
+
                         <div class="info-block">
                             <div class="label">Observation</div>
                             <div class="content">{{ consultation.Observation }}</div>
@@ -168,7 +189,21 @@
             <p style="text-align:center;">Aucune consultation trouvée.</p>
         {% endfor %}
     </div>
+
     {% include '_partial/footer.html.twig' %}
 
-    
+    <script>
+        document.querySelectorAll('.card').forEach(card => {
+            const editBtn = card.querySelector('.edit-btn');
+
+            if (editBtn && !editBtn.classList.contains('disabled')) {
+                editBtn.addEventListener('mouseenter', () => {
+                    card.classList.add('edit-hover');
+                });
+                editBtn.addEventListener('mouseleave', () => {
+                    card.classList.remove('edit-hover');
+                });
+            }
+        });
+    </script>
 {% endblock %}
