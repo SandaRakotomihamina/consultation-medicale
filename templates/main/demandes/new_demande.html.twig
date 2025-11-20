@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvel utilisateur{% endblock %}
+{% block title %}Nouvelle consultation{% endblock %}
 
 {% block body %}
     {% include '_partial/nav.html.twig' %}
@@ -12,7 +12,7 @@
             padding: 1.25rem;
             background: #fff;
             border: 1px solid #eee;
-            border-radius: 8px;symfony 
+            border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
             margin-top: 140px;
         }
@@ -37,10 +37,7 @@
         }
 
         .consultation-form input[type="text"],
-        .consultation-form input[type="search"],
-        .consultation-form input[type="email"],
-        .consultation-form textarea,
-        .consultation-form input[type="password"] {
+        .consultation-form textarea {
             padding: .5rem;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -73,47 +70,29 @@
             display: inline-block;
         }
 
-
-        .consultation-form select.form-select-custom {
-            padding: .5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            width: 100%;
-            background: #fff;
-            font-size: 1rem;
-        }
-
-        @media (max-width: 640px) {
-            .consultation-container { padding: .75rem; }
-            .consultation-form { max-width: 100%; }
-        }
     </style>
 
     <div class="container consultation-container">
-        <h1>Nouvel utilisateur</h1>
-        <p>Remplissez les champs ci‑dessous puis cliquez sur <strong>Créer</strong>.</p>
+        <h1>Nouvelle consultation</h1>
+        <p>Remplissez les champs ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
 
         {{ form_start(form) }}
 
         <div class="consultation-form">
-            {{ form_row(form.matricule) }}
-            {{ form_row(form.title) }}
-            {{ form_row(form.name) }}
-            {{ form_row(form.username) }}
-            {{ form_row(form.plainPassword) }}
-            {{ form_row(form.roles) }}
-
+            {{ form_row(form.Matricule) }}
+            {{ form_row(form.Grade) }}
+            {{ form_row(form.Nom) }}
+            {{ form_row(form.Motif) }}
+            {{ form_row(form.DelivreurDeMotif) }}
+            
             <div class="form-actions">
-                <button class="btn" type="submit">Créer</button>
+                <button class="btn" type="submit">Enregistrer</button>
                 <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>
             </div>
         </div>
 
         {{ form_end(form) }}
     </div>
-
-    
 
     {% include '_partial/footer.html.twig' %}
 {% endblock %}

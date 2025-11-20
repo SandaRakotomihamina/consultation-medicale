@@ -14,7 +14,7 @@
         display: flex;
         gap: 1rem;
         margin-left: 10px;
-        flex-grow: 1; /* ⬅ important : pousse la searchbar à utiliser tout l'espace */
+        flex-grow: 1;
     }
 
     .subnav-input {
@@ -22,7 +22,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         min-width: 250px;
-        flex-grow: 1; /* ⬅ la barre de recherche peut s'étirer */
+        flex-grow: 1;
     }
 
     .subnav-button {
@@ -35,24 +35,45 @@
         margin-right: 1rem;
     }
 
+    /* ===== MENU BURGER OPTIONS CENTRÉES ===== */
+
+    .subnav-dropdown ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;  /* ← centre tous les items */
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .subnav-dropdown li {
+        list-style-type: none;
+        width: 100%;
+        display: flex;
+        justify-content: center; /* ← centre l’item dans la ligne */
+    }
+
     .options{
         margin-bottom: 0.5rem;
         color: #333;
         text-decoration: none;
-        position: relative;
-        display: block;
+        display: flex;
+        justify-content: center; /* ← centre le texte */
+        align-items: center;
         padding: 0.4rem 1.2rem;
+        text-align: center;      /* ← évite le texte aligné à gauche */
+        width: 100%;             /* ← occupe la largeur du conteneur */
     }
-    li{
-        list-style-type: none;
-    }
-    /* ★★★ PARTIE PRINCIPALE MODIFIÉE ★★★ */
+
+    /* ======================================== */
+
     .subnav-actions {
         display: flex;
-        flex-direction: row;   /* ⬅ TOUJOURS en ligne */
+        flex-direction: row;
         gap: 1rem;
         align-items: center;
-        white-space: nowrap;   /* ⬅ empêche la coupure sur 2 lignes */
+        white-space: nowrap;
     }
 
     @media (max-width: 900px) {
@@ -61,12 +82,11 @@
         }
 
         .subnav-actions {
-            justify-content: right;  /* ⬅ centré quand il descend */
+            justify-content: right;
             width: 100%;
-            margin-top: 10px;              /* ⬅ passe sur la ligne du bas mais reste en flex-row */
+            margin-top: 10px;
         }
     }
-
 
     .btn-primary {
         padding: .4rem .7rem;
@@ -106,6 +126,7 @@
         display: none;
         z-index: 999;
     }
+
     .avertissement{
         margin-top: 140px;
         padding: 1rem;
@@ -115,6 +136,7 @@
         color: #1b1818ff;
         text-align: center;
     }
+
     .subnav-dropdown.open {
         display: block;
         animation: dropdownFade .14s ease-out;
@@ -126,64 +148,78 @@
     }
 </style>
 
+
 {% if app.user %}
     <div class="subnav">
         <form action="{{ path('app_search') }}" method="get" class="subnav-form">
             <input type="search" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" />
             <button type="submit" class="subnav-button">Rechercher</button>
         </form>
-            <div class="subnav-actions">
-                {# Pour ceux qui font des consultations #}
-                <a href="{{ subnav_button_path|default(path('app_new_consultation')) }}" class="btn-primary"{% if 'ROLE_SUPER_ADMIN' in app.user.roles or 'ROLE_USER' in app.user.roles and 'ROLE_ADMIN' not in app.user.roles %}
-                    style="pointer-events: none; opacity: 0.5; cursor: default;"
-                    {% endif %}>
-                     <strong>+</strong> Nouvel consultation
-                </a>
 
-                {# Pour le superAdmin seulement #}
-                <div class="hamburger-menu"
-                    role="button"
-                    aria-label="Ouvrir le menu"
-                    aria-expanded="false"
-                    tabindex="0"
-                    
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+        <div class="subnav-actions">
 
+            {# Pour ceux qui font des consultations #}
+            <a href="{{ subnav_button_path|default(path('app_list_demande')) }}" class="btn-primary"
+               {% if 'ROLE_SUPER_ADMIN' in app.user.roles or 'ROLE_USER' in app.user.roles and 'ROLE_ADMIN' not in app.user.roles %}
+                   style="pointer-events: none; opacity: 0.5; cursor: default;"
+               {% endif %}
+            >
+                <strong>+</strong> Nouvel consultation
+            </a>
 
-                <div class="subnav-dropdown" id="subnavDropdown" role="menu" aria-hidden="true">
-                    <ul>
-                        <li><a href="{{ path('app_new_user') }}" 
-                                role="menuitem" 
-                                class="options"
-                                {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
-                                    style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
-                                    aria-disabled="true"
-                                {% endif %}
-                            >Nouvel utilisateur</a>
-                        </li>
+            {# Pour ceux qui font des autorisation de consultation #}
+            <a href="{{ subnav_button_path|default(path('app_new_demande')) }}" class="btn-primary"
+               {% if 'ROLE_USER' not in app.user.roles %}
+                   style="pointer-events: none; opacity: 0.5; cursor: default;"
+               {% endif %}
+            >
+                <strong>+</strong> Nouvel demande
+            </a>
 
-                        <li><a href="{{ path('app_list_user') }}" 
-                                role="menuitem" 
-                                class="options"
-                                {% if 'ROLE_SUPER_ADMIN' not in app.user.roles and 'ROLE_USER' not in app.user.roles%}
-                                    style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
-                                    aria-disabled="true"
-                                {% endif %}
-                            >Liste des utilisateurs</a>
-                        </li>
-                    </ul>
-                </div>
+            {# Hamburger #}
+            <div class="hamburger-menu"
+                role="button"
+                aria-label="Ouvrir le menu"
+                aria-expanded="false"
+                tabindex="0"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
 
+            <div class="subnav-dropdown" id="subnavDropdown" role="menu" aria-hidden="true">
+                <ul>
+                    <li>
+                        <a href="{{ path('app_new_user') }}"
+                           role="menuitem"
+                           class="options"
+                           {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
+                               style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                               aria-disabled="true"
+                           {% endif %}
+                        >Nouvel utilisateur</a>
+                    </li>
+
+                    <li>
+                        <a href="{{ path('app_list_user') }}"
+                           role="menuitem"
+                           class="options"
+                           {% if 'ROLE_SUPER_ADMIN' not in app.user.roles and 'ROLE_USER' not in app.user.roles %}
+                               style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                               aria-disabled="true"
+                           {% endif %}
+                        >Liste des utilisateurs</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
     </div>
+
 {% else %}
     <div class="avertissement">
-        Bienvenu sur l'application de gestion des consultations de la gendarmerie national. Veuillez vous connecter pour accéder aux fonctionnalités.
+        Bienvenu sur l'application de gestion des consultations de la gendarmerie national. 
+        Veuillez vous connecter pour accéder aux fonctionnalités.
     </div>
 {% endif %}
-
- 

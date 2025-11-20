@@ -14,11 +14,31 @@ class ConsultationType extends AbstractType
     {
         $builder
             ->add('Date')
-            ->add('Grade')
-            ->add('Nom')
-            ->add('Matricule')
-            ->add('Motif')
-            ->add('DelivreurDeMotif')
+            ->add('Grade' , null , [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
+            ->add('Nom' , null , [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
+            ->add('Matricule' , null , [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
+            ->add('Motif' , null , [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
+            ->add('DelivreurDeMotif', null, [
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
             ->add('Observation')
             ->add('DelivreurDObservation', null, [
                 'attr' => [

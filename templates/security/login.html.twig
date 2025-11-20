@@ -4,59 +4,170 @@
 
 {% block body %}
 <style>
-	body {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 100vh;
-	}
-
-	.login-container{
-		max-width:420px;
-		min-width:380px;
-		margin:0rem auto;
-		padding:1.5rem;
-		border:1px solid #000000ff;
-		border-radius:8px;
-		background: #ffffffff;
-	}
-
-	.login-container:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    *, *::before, *::after {
+        box-sizing: border-box;
     }
 
-	.username, .password {
-		width: 100%;
-		padding: .5rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		box-sizing: border-box;
-	}	
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f0f4ff, #eff3ffff);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        position: relative;
+    }
 
-	.button{
-		padding:.5rem 1rem;
-		color:#fff;
-		border:none;
-		border-radius:4px;
-		cursor:pointer;
-	}
+    .login-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+    }
 
-	.error{
-		width: 100%;
-		max-width: 400px;
-		padding:1rem;
-		background:#fee;
-		color:#c33;
-		border:1px solid #fcc;
-		border-radius:8px;
-		margin-top:1rem;
-		text-align:left;
-		position: absolute;
-		bottom: 3rem;
-	}
+    .login-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
 
-	.flash-close {
+    .login-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header img {
+        max-width: 50px;
+        margin-right: 1rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.8rem;
+        margin: 0;
+        color: #0366d6;
+    }
+
+    .floating-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .floating-group input {
+        width: 100%;
+        padding: 0.85rem 0.75rem;
+        padding-right: 2.5rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+        font-size: 1rem;
+        transition: border 0.2s, box-shadow 0.2s;
+        background: none;
+    }
+
+    .floating-group input:focus {
+        border-color: #0366d6;
+        box-shadow: 0 0 0 3px rgba(3,102,214,0.1);
+    }
+
+    .floating-group label {
+        position: absolute;
+        top: 50%;
+        left: 0.75rem;
+        transform: translateY(-50%);
+        color: #777;
+        pointer-events: none;
+        transition: 0.2s ease all;
+        background: #fff;
+        padding: 0 0.25rem;
+    }
+
+    .floating-group input:focus + label,
+    .floating-group input:not(:placeholder-shown) + label {
+        top: -0.6rem;
+        left: 0.6rem;
+        font-size: 0.75rem;
+        color: #0366d6;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 0.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #777;
+        transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+        color: #0366d6;
+    }
+
+    .login-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .button {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        color: #fff;
+    }
+
+    .button:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-login {
+        background: #0366d6;
+    }
+
+    .btn-login:hover {
+        background: #0254a2;
+    }
+
+    .btn-reset {
+        background: #9b9b9b;
+    }
+
+    .btn-reset:hover {
+        background: #7d7d7d;
+    }
+
+    .error {
+        width: 100%;
+        max-width: 400px;
+        padding: 1rem;
+        background: #ffe6e6;
+        color: #c33;
+        border: 1px solid #fcc;
+        border-radius: 8px;
+        text-align: left;
+        position: absolute;
+        bottom: 3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    .flash-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
         background: transparent;
         border: none;
         font-size: 20px;
@@ -64,127 +175,72 @@
         cursor: pointer;
         color: inherit;
         opacity: 0.5;
-        float:right;
     }
 
     .flash-close:hover {
-        opacity: 0.7;
+        opacity: 0.8;
     }
-
-	.floating-group {
-		position: relative;
-		margin-bottom: 1.2rem;
-	}
-
-	.floating-group input {
-		width: 100%;
-		padding: 0.75rem 0.5rem;
-		padding-right: 2.5rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		outline: none;
-		font-size: 1rem;
-		background: none;
-		box-sizing: border-box;
-	}
-
-	.floating-group label {
-		position: absolute;
-		top: 50%;
-		left: 0.55rem;
-		transform: translateY(-50%);
-		color: #777;
-		pointer-events: none;
-		transition: 0.2s ease;
-		background: white;
-		padding: 0 0.2rem;
-	}
-
-	.floating-group input:focus + label,
-	.floating-group input:not(:placeholder-shown) + label {
-		top: -0.1rem;
-		font-size: 0.8rem;
-		color: #333;
-	}
-
-	.toggle-password {
-		position: absolute;
-		right: 0.6rem;
-		top: 50%;
-		transform: translateY(-50%);
-		cursor: pointer;
-		width: 22px;
-		height: 22px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #777;
-	}
-
-	.toggle-password:hover {
-		color: #333;
-	}
 </style>
 
 <div class="login-container">
-	<h1 style="margin-top:0">Se connecter</h1>
+    <div class="login-header">
+        <img src="{{ asset('/images/logo.png') }}" alt="Logo">
+        <h1>Se connecter</h1>
+    </div>
 
-	<form action="{{ path('app_login') }}" method="post">
-		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+    <form action="{{ path('app_login') }}" method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-		<div class="floating-group">
-			<input type="text" name="username" id="inputUsername" placeholder=" " required style="background-color: transparent;">
-			<label for="inputUsername">Nom d'utilisateur</label>
-		</div>
+        <div class="floating-group">
+            <input type="text" name="username" id="inputUsername" placeholder=" " required>
+            <label for="inputUsername">Nom d'utilisateur</label>
+        </div>
 
-		<div class="floating-group">
-			<input type="password" name="password" id="inputPassword" placeholder=" " required style="background-color: transparent;">
-			<label for="inputPassword">Mot de passe</label>
+        <div class="floating-group">
+            <input type="password" name="password" id="inputPassword" placeholder=" " required>
+            <label for="inputPassword">Mot de passe</label>
 
-			<span class="toggle-password" onclick="togglePassword()">
-				<svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-						d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
-						   0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
-						   0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
-				</svg>
-			</span>
-		</div>
+            <span class="toggle-password" onclick="togglePassword()">
+                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+                           0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+                           0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
+                </svg>
+            </span>
+        </div>
 
-		<div style="display:flex; justify-content:space-between; align-items:center;">
-			<button type="submit" class="button" style="background:#0366d6;">Connexion</button>
-			<button type="reset" class="button" style="background:#9b9b9b;">Annuler</button>
-		</div>
-	</form>
+        <div class="login-actions">
+            <button type="submit" class="button btn-login">Connexion</button>
+            <button type="reset" class="button btn-reset">Annuler</button>
+        </div>
+    </form>
 </div>
 
 {% if error %}
-	<div class="error">
-		{{ error.messageKey|trans(error.messageData, 'security') }}
-		<button class="flash-close" onclick="this.parentElement.remove()">×</button>
-	</div>
+<div class="error">
+    {{ error.messageKey|trans(error.messageData, 'security') }}
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+</div>
 {% endif %}
 
 <script>
-	function togglePassword() {
-		const input = document.getElementById("inputPassword");
-		const icon = document.getElementById("eyeIcon");
+function togglePassword() {
+    const input = document.getElementById("inputPassword");
+    const icon = document.getElementById("eyeIcon");
 
-		if (input.type === "password") {
-			input.type = "text";
-			// Icône œil ouvert
-			icon.innerHTML = `
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-				d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12zm10.5 3a3 3 0 100-6 3 3 0 000 6z"/>`;
-		} else {
-			input.type = "password";
-			// Icône œil barré
-			icon.innerHTML = `
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-				d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
-				   0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
-				   0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
-		}
-	}
+    if (input.type === "password") {
+        input.type = "text";
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12zm10.5 3a3 3 0 100-6 3 3 0 000 6z"/>`;
+    } else {
+        input.type = "password";
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+               0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+               0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
+    }
+}
 </script>
+
 {% endblock %}

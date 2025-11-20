@@ -3,16 +3,19 @@
 namespace App\Controller;
 
 
+use App\Form\DemandeType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\ConsultationList;
+use App\Entity\DemandeDeConsultation;
 use App\Entity\User;
 use App\Form\ConsultationType;
 use App\Form\UserType;
 use App\Repository\ConsultationListRepository;
+use App\Repository\DemandeDeConsultationRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,6 +32,8 @@ final class MainController extends AbstractController
             'consultations' => $consultations
         ]);
     }
+
+    //Ajouter une nouvelle consultation
     #[Route('/consultation/new', name: 'app_new_consultation')]
     #[IsGranted('ROLE_ADMIN')]
     public function newConsultation(Request $request, EntityManagerInterface $em): Response
@@ -36,6 +41,14 @@ final class MainController extends AbstractController
         $consultation = new ConsultationList();
         $consultation->setDate(new \DateTime());
 
+        //Pré-remplissage depuis la demande
+        $consultation->setGrade($request->query->get('grade'));
+        $consultation->setNom($request->query->get('nom'));
+        $consultation->setMatricule($request->query->get('matricule'));
+        $consultation->setMotif($request->query->get('motif'));
+        $consultation->setDelivreurDeMotif($request->query->get('delivreurMotif'));
+
+        //Définir le délivreur d'observation automatiquement
         $user = $this->getUser();
         if ($user instanceof User) {
             $delivreur = trim($user->getTitle() . ' ' . $user->getName());
@@ -46,17 +59,30 @@ final class MainController extends AbstractController
         if ($form->has('Date')) {
             $form->remove('Date');
         }
+
         $form->handleRequest($request);
 
+        //Voir si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($consultation);
             $em->flush();
 
-            // Si un repos est administré, envoyer un SMS
-            if ($consultation->getRepos()) {
-                $message = "Repos administré : " . $consultation->getRepos() . " au  personnel " . $consultation->getNom();
+            //supprimer la demande associée si existe
+            $demandeId = $request->query->get('id');
+            if ($demandeId) {
+                $demandeRepo = $em->getRepository(DemandeDeConsultation::class);
+                $demande = $demandeRepo->find($demandeId);
+                if ($demande) {
+                    $em->remove($demande);
+                    $em->flush();
+                }
+            }
 
-                // Exemple avec HttpClient Symfony
+            //SMS si repos
+            if ($consultation->getRepos()) {
+                $message = "Repos administré : " . $consultation->getRepos() . 
+                        " au personnel " . $consultation->getNom();
+
                 $client = \Symfony\Component\HttpClient\HttpClient::create();
                 try {
                     $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
@@ -68,7 +94,6 @@ final class MainController extends AbstractController
                         ]
                     ]);
                 } catch (\Exception $e) {
-                    // Si l'envoi échoue, on peut log l'erreur
                     $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
                 }
             }
@@ -83,6 +108,7 @@ final class MainController extends AbstractController
     }
 
 
+    //Ajouter un nouvel utilisateur
     #[Route('/user/new', name: 'app_new_user')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
     public function newUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
@@ -111,6 +137,7 @@ final class MainController extends AbstractController
         ]);
     }
 
+    //Recherche de consultation
     #[Route('/search', name: 'app_search')]
     public function search(Request $request, ConsultationListRepository $repo): Response
     {
@@ -131,6 +158,7 @@ final class MainController extends AbstractController
         ]);
     }
 
+    //Modifier une consultation
     #[Route('/consultation/edit/{id}', name: 'app_consultation_edit')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
     public function edit(ManagerRegistry $doctrine, Request $request, string $id): Response
@@ -164,6 +192,8 @@ final class MainController extends AbstractController
         ]);
     }
 
+
+    //Liste des utilisateurs
     #[Route('/users', name: 'app_list_user')]
     public function listUser(UserRepository $userRepository): Response
     {
@@ -174,28 +204,77 @@ final class MainController extends AbstractController
 
         $users = $userRepository->findAll();
 
-        return $this->render('main/user/listUsers.html.twig', [
+        return $this->render('main/user/list_users.html.twig', [
             'users' => $users,
         ]);
     }
 
+
+    //Supprimer un utilisateur
     #[Route('/user/delete/{id}', name: 'app_user_delete')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
-public function deleteUser(int $id, EntityManagerInterface $em, UserRepository $repo): Response
-{
-    $user = $repo->find($id);
+    public function deleteUser(int $id, EntityManagerInterface $em, UserRepository $repo): Response
+    {
+        $user = $repo->find($id);
 
-    if (!$user) {
-        throw $this->createNotFoundException("Utilisateur introuvable.");
+        if (!$user) {
+            throw $this->createNotFoundException("Utilisateur introuvable.");
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        $this->addFlash('success', 'Utilisateur supprimé avec succès.');
+
+        return $this->redirectToRoute('app_list_user'); // Remplace par ta vraie route
     }
 
-    $em->remove($user);
-    $em->flush();
 
-    $this->addFlash('success', 'Utilisateur supprimé avec succès.');
+    //Ajouter une nouvelle demande de consultation
+    #[Route('/demande/new', name: 'app_new_demande')]
+    #[IsGranted('ROLE_USER')]
+    public function newDemande(Request $request, EntityManagerInterface $em): Response
+    {
+        $demande = new DemandeDeConsultation();
+        $demande->setDate(new \DateTime());
 
-    return $this->redirectToRoute('app_list_user'); // Remplace par ta vraie route
-}
+        $user = $this->getUser();
+        if ($user instanceof User) {
+            $delivreur = trim($user->getTitle() . ' ' . $user->getName());
+            $demande->setDelivreurDeMotif($delivreur);
+        }
 
+        $form = $this->createForm(DemandeType::class, $demande);
+        if ($form->has('Date')) {
+            $form->remove('Date');
+        }
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($demande);
+            $em->flush();
+
+            $this->addFlash('success', 'Demande de consultation enregistrée avec succès.');
+            return $this->redirectToRoute('app_main');
+        }
+
+        return $this->render('main/demandes/new_demande.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+
+    //Liste des demandes de consultation
+    #[Route('/demandes', name: 'app_list_demande')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function listdemande(DemandeDeConsultationRepository $demandeDeConsultationRepository): Response
+    {
+
+        $demandes = $demandeDeConsultationRepository->findAll();
+
+        return $this->render('main/demandes/list_demande.html.twig', [
+            'Demandes' => $demandes,
+        ]);
+    }
 
 }

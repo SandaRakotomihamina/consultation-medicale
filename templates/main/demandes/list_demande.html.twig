@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des demandes de consultation{% endblock %}
+
+{% block body %}
+{% include '_partial/nav.html.twig' %}
+<style>
+    .feed {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin: 0 auto;
+        max-width: 900px;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        border: 1px solid #949090ff;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .avatar img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .name-grade {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .name-grade .grade {
+        font-weight: bold;
+        color: #4267B2;
+        margin-right: 0.3rem;
+    }
+
+    .name-grade .name {
+        font-weight: 600;
+    }
+
+    .name-grade .matricule {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .date {
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .flex-container {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .info-block {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        position: relative;
+        padding: 1.5rem 1rem 1rem 1rem;
+        background-color: #f9f9f9;
+    }
+
+    .info-block .label {
+        position: absolute;
+        top: -0.8rem;
+        left: 1rem;
+        background-color: #f9f9f9;
+        padding: 0 0.5rem;
+        font-weight: bold;
+        font-size: 0.85rem;
+        color: #333;
+    }
+
+    .info-block .content {
+        margin-bottom: 0.8rem;
+        white-space: pre-wrap;
+    }
+
+    .info-block .delivreur {
+        font-size: 0.85rem;
+        color: #555;
+        border-top: 1px solid #ddd;
+        padding-top: 0.3rem;
+    }
+
+    /* Bouton Consulter */
+    .btn-consulter {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #4267B2;
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-consulter:hover {
+        background-color: #2f4f8d;
+    }
+
+</style>
+
+<h1 style="text-align:left; margin-bottom:2rem; margin-top:140px;">Liste des demandes de consultation</h1>
+
+<div class="feed">
+    {% for demande in Demandes %}
+        <div class="card">
+
+            <!-- Header -->
+            <div class="card-header">
+                <div class="user-info">
+                    <div class="avatar">
+                        <img src="{{ asset('images/avatar.png') }}" alt="avatar">
+                    </div>
+
+                    <div class="name-grade">
+                        <div style="display:flex; align-items:center; gap:0.3rem;">
+                            <span class="grade">{{ demande.Grade }}</span>
+                            <span class="name">{{ demande.Nom }}</span>
+                        </div>
+                        <span class="matricule">{{ demande.Matricule }}</span>
+                    </div>
+                </div>
+
+                <div class="date">
+                    {{ demande.Date ? demande.Date|date('d/m/Y') : '' }}
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <div class="flex-container">
+
+                    <!-- MOTIF -->
+                    <div class="info-block">
+                        <div class="label">Motif</div>
+                        <div class="content">{{ demande.Motif }}</div>
+                        <div class="delivreur">
+                            {{ demande.DelivreurDeMotif }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bouton Consulter -->
+                <div style="margin-top: 1rem;">
+                    <a href="{{ path('app_new_consultation', {
+                        'grade': demande.Grade,
+                        'nom': demande.Nom,
+                        'matricule': demande.Matricule,
+                        'motif': demande.Motif,
+                        'delivreurMotif': demande.DelivreurDeMotif,
+                        'id': demande.id
+                    }) }}"
+                    class="btn-consulter">
+                        Consulter
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    {% else %}
+        <p style="text-align:center;">Aucune demande trouvée.</p>
+    {% endfor %}
+</div>
+{% include '_partial/footer.html.twig' %}
+{% endblock %}
