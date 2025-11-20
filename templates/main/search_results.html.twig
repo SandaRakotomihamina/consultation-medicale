@@ -34,6 +34,11 @@
             cursor: pointer;
         }
 
+        .edit-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
         .edit-btn.disabled {
             pointer-events: none;
             opacity: 0.4;
@@ -126,6 +131,7 @@
             border-top: 1px solid #ddd;
             padding-top: 0.3rem;
         }
+        
     </style>
 
     {% include '_partial/nav.html.twig' %}
@@ -161,7 +167,7 @@
                         <a 
                             href="{{ can_edit ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
                             class="edit-btn {{ not can_edit ? 'disabled' : '' }}"
-                            title="{{ can_edit ? 'Modifier' : 'Accès réservé au super admin' }}"
+                            title="{{ can_edit ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
                         >
                             <img src="{{ asset('images/editer.png') }}" alt="Editer" style="width:30px; height:auto; margin-top:5px;">
                         </a>

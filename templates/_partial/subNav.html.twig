@@ -152,8 +152,8 @@
 {% if app.user %}
     <div class="subnav">
         <form action="{{ path('app_search') }}" method="get" class="subnav-form">
-            <input type="search" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" required/>
-            <button type="submit" class="subnav-button">Rechercher</button>
+            <input type="search" id="search-input" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" required/>
+            <button type="submit" id="search-button" class="subnav-button" title="Rechercher">Rechercher</button>
         </form>
 
         <div class="subnav-actions">
@@ -182,6 +182,7 @@
                 aria-label="Ouvrir le menu"
                 aria-expanded="false"
                 tabindex="0"
+                title="Autres options"
             >
                 <span></span>
                 <span></span>
@@ -223,3 +224,12 @@
         Veuillez vous connecter pour accéder aux fonctionnalités.
     </div>
 {% endif %}
+
+<script>
+    const input = document.getElementById('search-input');
+    const button = document.getElementById('search-button');
+
+    input.addEventListener('input', () => {
+        button.title = `Rechercher dans la consultation "${input.value}"`;
+    });
+</script>
