@@ -22,7 +22,6 @@
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
 
-    /* 🔵 Effet bleu AU SURVOL du bouton modifier — uniquement si superadmin */
     {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
     .card:has(.edit-btn:hover) {
         background-color: rgba(130, 180, 255, 0.15) !important;
