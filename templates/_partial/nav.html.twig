@@ -1,85 +1,197 @@
 <style>
-    .navbar { 
-        position: fixed;
-        top: .5rem;
-        left: .5rem;
-        right: .5rem;
-        
-        background: #333;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-        z-index: 1000;
+.navbar { 
+    position: fixed;
+    top: .5rem;
+    left: .5rem;
+    right: .5rem;
+    background: #333;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    z-index: 1000;
+    box-sizing: border-box; 
+}
+.navbar .container { 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+}
+.navbar .brand { 
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    font-size:1.1rem;
+}
+.navbar-right { 
+    display:flex;
+    gap:0.75rem;
+    align-items:center;
+    position: relative;
+}
+.navbar-right span { 
+    color:#fff;
+    cursor: pointer;
+    position: relative;
+}
+.navbar-left{
+    display:flex;
+    align-items: center;
+    gap:0.75rem;
+}
+.brand{
+    vertical-align: middle;
+}
+.btn-logout { 
+    color:#fff;
+    background:#d9534f;
+    padding:0.35rem 0.6rem;
+    border-radius:4px;
+    text-decoration:none;
+}
+.btn-logout:hover { 
+    background:#c9302c;
+}
 
-        box-sizing: border-box; 
-    }
-    .navbar .container { 
-        display:flex; 
-        justify-content:space-between; 
-        align-items:center; 
-    }
-    .navbar .brand { 
-        color:#fff;
-        text-decoration:none;
-        font-weight:600;
-        font-size:1.1rem;
-    }
-    .navbar-right { 
-        display:flex;
-        gap:0.75rem;
-        align-items:center;
-    }
-    .navbar-right span { 
-        color:#fff;
-    }
-    .navbar-left{
-        display:flex;
-        align-items: center;
-        gap:0.75rem;
-    }
-    .brand{
-        vertical-align: middle;
-    }
-    .btn-logout { 
-        color:#fff;
-        background:#d9534f;
-        padding:0.35rem 0.6rem;
-        border-radius:4px;
-        text-decoration:none;
-    }
-    .btn-logout:hover { 
-        background:#c9302c;
-    }
-    @media (max-width: 800px) {
-        .navbar-right span {
-            display: none;
-        }
-    }
 
+.user-card {
+    display: none;
+    position: absolute;
+    top: 110%;
+    right: 0;
+    width: 280px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #ccc;
+    z-index: 1001;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.navbar-right span:hover .user-card {
+    display: block;
+}
+
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border-bottom: 1px solid #eee;
+    background-color: #f8f8f8;
+}
+.user-card-header .avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.user-card-header .name-grade {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.user-card-header .name-grade span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.matricule{
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.user-card-body {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+}
+.user-card-body div {
+    margin-bottom: 4px;
+}
+.user-card-body strong {
+    color: #333;
+}
+
+
+.user-card-body .role-badge {
+    background: #4267B2;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    margin-right: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+
+.user-card-body div, 
+.user-card-header .name-grade span {
+    color: #333;
+}
+
+
+
+@media (max-width: 800px) {
+    .navbar-right span {
+        display: none;
+    }
+}
 </style>
-
 
 <nav class="navbar">
     <div class="container">
         <div class="navbar-left">
-            <a href="{{ path('app_main') }}"><img src="{{ asset('images/logo.png') }}" alt="Logo de la gendarmerie" style="width: 60px; heigth: 60px"/></a>
+            <a href="{{ path('app_main') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo de la gendarmerie" style="width: 60px; height: 80px"/>
+            </a>
             <a href="{{ path('app_main') }}" class="brand">Consultation Médicale</a>
         </div>
         <div class="navbar-right">
             {% if app.user %}
-                <span>Connecté en tant que <strong>"{{ app.user.username }}"</strong></span>
+                <span>
+                    Connecté en tant que <strong>"{{ app.user.username }}"</strong>
+
+                    <!-- Card miniature -->
+                    <div class="user-card">
+                        <div class="user-card-header">
+                            <div class="avatar">
+                                <img src="{{ asset('images/avatar.png') }}" alt="Avatar">
+                            </div>
+                            <div class="name-grade">
+                                <div style="display: flex; gap: .2rem;">
+                                    <span class="grade">{{ app.user.title }}</span>
+                                    <span class="name">{{ app.user.name }}</span>
+                                </div>
+                                <span class="matricule">{{ app.user.Matricule }}</span>
+                            </div>
+                        </div>
+                        <div class="user-card-body">
+                            <div><strong>Nom d'utilisateur :</strong> {{ app.user.username }}</div>
+                            <div><strong>ID :</strong> {{ app.user.id }}</div>
+                            <div><strong>Rôles :</strong>
+                                {% set roleLabels = {
+                                    'ROLE_SUPER_ADMIN': 'Super administrateur',
+                                    'ROLE_ADMIN': 'Administrateur',
+                                    'ROLE_USER': 'Utilisateur simple'
+                                } %}
+                                {% for role in app.user.roles %}
+                                    <span class="role-badge">{{ roleLabels[role] ?? role }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </span>
 
                 <a href="{{ path('app_logout') }}"
                    class="btn-logout"
                    onclick="return confirm('Voulez-vous vraiment vous déconnecter ?');">
                     Déconnexion
                 </a>
-
             {% else %}
                 <a href="{{ path('app_login') }}" style="color: white" class="btn-login">Se connecter</a>
             {% endif %}
         </div>
     </div>
 </nav>
-
-

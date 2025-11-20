@@ -152,7 +152,7 @@
 {% if app.user %}
     <div class="subnav">
         <form action="{{ path('app_search') }}" method="get" class="subnav-form">
-            <input type="search" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" />
+            <input type="search" name="q" placeholder="Rechercher..." aria-label="Rechercher" class="subnav-input" required/>
             <button type="submit" class="subnav-button">Rechercher</button>
         </form>
 
