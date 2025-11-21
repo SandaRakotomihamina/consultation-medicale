@@ -9,67 +9,111 @@
         .consultation-container {
             max-width: 900px;
             margin: 2rem auto;
-            padding: 1.25rem;
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             margin-top: 140px;
+            transition: .3s ease;
+        }
+
+        .consultation-container:hover {
+            box-shadow: 0 6px 28px rgba(0,0,0,0.10);
         }
 
         .consultation-container h1 {
             margin-top: 0;
-            font-size: 1.5rem;
+            font-size: 1.7rem;
+            font-weight: 700;
             color: #222;
+        }
+
+        .consultation-container p {
+            color: #555;
+            margin-bottom: 1.5rem;
         }
 
         .consultation-form {
             display: flex;
             flex-direction: column;
-            gap: .75rem;
-            max-width: 700px;
+            gap: 1.2rem;
+            width: 100%; /* alignement parfait */
         }
 
-        .consultation-form .form-row {
-            display: flex;
-            flex-direction: column;
-            gap: .35rem;
+        /* Labels */
+        .consultation-form label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: .35rem;
         }
 
+        /* Inputs (100% largeur réelle) */
         .consultation-form input[type="text"],
-        .consultation-form textarea {
-            padding: .5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .consultation-form textarea,
+        .consultation-form select {
+            padding: .75rem 1rem;
+            border: 1px solid #d1d1d1;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+            background: #fafafa;
+            transition: .2s ease;
             box-sizing: border-box;
+        }
+
+        .consultation-form input:focus,
+        .consultation-form textarea:focus,
+        .consultation-form select:focus {
+            border-color: #0d6efd;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+            outline: none;
+        }
+
+        /* Supprimer largeur parasite */
+        .consultation-form .form-row {
             width: 100%;
         }
 
+        /* Boutons */
         .form-actions {
             display: flex;
-            gap: .5rem;
-            margin-top: .5rem;
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .btn {
-            padding: .5rem 1rem;
-            background: #0366d6;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
+            padding: .75rem 1.4rem;
+            font-size: 1rem;
+            border-radius: 8px;
             cursor: pointer;
-            text-decoration: none;
+            border: none;
+            background: #0d6efd;
+            color: #fff;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .btn:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
         }
 
         .btn--muted {
-            padding: .45rem .9rem;
+            padding: .75rem 1.4rem;
+            font-size: 1rem;
             background: #6c757d;
             color: #fff;
-            border-radius: 4px;
+            border-radius: 8px;
             text-decoration: none;
             display: inline-block;
+            transition: 0.25s ease;
         }
 
+        .btn--muted:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
     </style>
 
     <div class="container consultation-container">

@@ -10,7 +10,6 @@
         flex-direction: column;
         gap: 1.5rem;
         margin: 0 auto;
-        max-width: 900px;
     }
 
     .card {
@@ -25,6 +24,10 @@
     .card:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .card:has(.btn-image:hover) {
+        background-color: rgba(185, 247, 115, 0.15);
     }
 
     .card-header {
@@ -116,20 +119,19 @@
         padding-top: 0.3rem;
     }
 
-    /* Bouton Consulter */
-    .btn-consulter {
+    .btn-image {
         display: inline-block;
-        padding: 0.5rem 1rem;
-        background-color: #4267B2;
-        color: white;
-        border-radius: 6px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: background-color 0.2s ease;
+        cursor: pointer;
+        transition: transform 0.2s ease;
     }
 
-    .btn-consulter:hover {
-        background-color: #2f4f8d;
+    .btn-image img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .btn-image:hover {
+        transform: scale(1.1);
     }
 
 </style>
@@ -169,15 +171,13 @@
                     <div class="info-block">
                         <div class="label">Motif</div>
                         <div class="content">{{ demande.Motif }}</div>
-                        <div class="delivreur">
-                            {{ demande.DelivreurDeMotif }}
-                        </div>
+                        <div class="delivreur">{{ demande.DelivreurDeMotif }}</div>
                     </div>
 
                 </div>
 
-                <!-- Bouton Consulter -->
-                <div style="margin-top: 1rem;">
+                <!-- Bouton Consulter remplacé par image -->
+                <div style="margin-top: 1rem; display:flex; justify-content:flex-end;">
                     <a href="{{ path('app_new_consultation', {
                         'grade': demande.Grade,
                         'nom': demande.Nom,
@@ -186,8 +186,8 @@
                         'delivreurMotif': demande.DelivreurDeMotif,
                         'id': demande.id
                     }) }}"
-                    class="btn-consulter">
-                        Consulter
+                    class="btn-image">
+                        <img src="{{ asset('images/consulter.png') }}" alt="Consulter">
                     </a>
                 </div>
 
@@ -198,5 +198,6 @@
         <p style="text-align:center;">Aucune demande trouvée.</p>
     {% endfor %}
 </div>
+
 {% include '_partial/footer.html.twig' %}
 {% endblock %}
