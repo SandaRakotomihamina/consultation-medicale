@@ -35,12 +35,11 @@
         margin-right: 1rem;
     }
 
-    /* ===== MENU BURGER OPTIONS CENTRÉES ===== */
 
     .subnav-dropdown ul {
         display: flex;
         flex-direction: column;
-        align-items: center;  /* ← centre tous les items */
+        align-items: center;  
         justify-content: center;
         padding: 0;
         margin: 0;
@@ -51,7 +50,7 @@
         list-style-type: none;
         width: 100%;
         display: flex;
-        justify-content: center; /* ← centre l’item dans la ligne */
+        justify-content: center;
     }
 
     .options{
@@ -59,14 +58,13 @@
         color: #333;
         text-decoration: none;
         display: flex;
-        justify-content: center; /* ← centre le texte */
+        justify-content: center;
         align-items: center;
         padding: 0.4rem 1.2rem;
-        text-align: center;      /* ← évite le texte aligné à gauche */
-        width: 100%;             /* ← occupe la largeur du conteneur */
+        text-align: center;  
+        width: 100%; 
     }
 
-    /* ======================================== */
 
     .subnav-actions {
         display: flex;
@@ -223,6 +221,7 @@
         Bienvenu sur l'application de gestion des consultations médicaux de la gendarmerie national. 
         Veuillez vous connecter pour accéder aux fonctionnalités.
     </div>
+    {% include 'main/animations/animation1.html.twig' %}
 {% endif %}
 
 <script>
