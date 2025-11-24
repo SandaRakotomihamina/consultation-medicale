@@ -26,7 +26,6 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(ConsultationListRepository $repository): Response
     {
-        // Charger seulement 4 consultations
         $consultations = $repository->findBy([], ['id' => 'DESC'], 4, 0);
 
         return $this->render('main/index.html.twig', [
@@ -80,24 +79,24 @@ final class MainController extends AbstractController
             }
 
             //SMS si repos
-            if ($consultation->getRepos()) {
-                $message = "Repos administré : " . $consultation->getRepos() . 
-                        " au personnel " . $consultation->getNom();
+            // if ($consultation->getRepos()) {
+            //     $message = "Repos administré : " . $consultation->getRepos() . 
+            //             " au personnel " . $consultation->getNom();
 
-                $client = \Symfony\Component\HttpClient\HttpClient::create();
-                try {
-                    $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
-                        'json' => [
-                            'apiKey' => 'CLE_API',
-                            'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
-                            'to' => '+261333549507',
-                            'message' => $message
-                        ]
-                    ]);
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
-                }
-            }
+            //     $client = \Symfony\Component\HttpClient\HttpClient::create();
+            //     try {
+            //         $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
+            //             'json' => [
+            //                 'apiKey' => 'CLE_API',
+            //                 'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
+            //                 'to' => '+261333549507',
+            //                 'message' => $message
+            //             ]
+            //         ]);
+            //     } catch (\Exception $e) {
+            //         $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
+            //     }
+            // }
 
             $this->addFlash('success', 'Consultation enregistrée avec succès.');
             return $this->redirectToRoute('app_main');
