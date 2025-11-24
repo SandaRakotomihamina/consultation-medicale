@@ -141,75 +141,18 @@
 
 <h1 style="text-align:left; margin-bottom:2rem;">Historique des Consultations</h1>
 
-<div class="feed">
-    {% for consultation in consultations %}
-        <div class="card">
-            <!-- Header -->
-            <div class="card-header">
-                <div class="user-info">
-                    <div class="avatar">
-                        <img src="{{ asset('images/avatar.png') }}" alt="avatar">
-                    </div>
-                    <div class="name-grade">
-                        <div style="display: flex; align-items: center; gap: 0.3rem;">
-                            <span class="grade">{{ consultation.Grade }}</span>
-                            <span class="name">{{ consultation.Nom }}</span>
-                        </div>
-                        <span class="matricule">{{ consultation.Matricule }}</span>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items:center; gap:10px;">
-                    <div class="date">
-                        {{ consultation.Date ? consultation.Date|date('d/m/Y') : '' }}
-                    </div>
-
-                    <a 
-                        href="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
-                        title="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
-                        style="{{ 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: not-allowed;' }}"
-                    >
-                        <img src="{{ asset('images/editer.png') }}" 
-                             alt="Editer" 
-                             class="edit-btn"
-                             style="width:30px; height:auto; margin-top:5px;">
-                    </a>
-
-                </div>
-                
-            </div>
-
-            <!-- Body -->
-            <div class="card-body">
-                <div class="flex-container">
-                    <div class="info-block">
-                        <div class="label">Motif</div>
-                        <div class="content">{{ consultation.Motif }}</div>
-                        <div class="delivreur">{{ consultation.DelivreurDeMotif }}</div>
-                    </div>
-                    <div class="info-block">
-                        <div class="label">Observation</div>
-                        <div class="content">{{ consultation.Observation }}</div>
-
-                        <div class="obs-footer">
-                            <span>{{ consultation.DelivreurDObservation }}</span>
-
-                            <span style="font-weight: bold;">
-                                {% if consultation.Repos %}
-                                    <span style="color:#d9534f">Repos administré: {{ consultation.Repos }}</span>
-                                {% else %}
-                                    <span style="color:#28a745">Aucun repos administré</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+<div class="feed" id="consultations-feed" data-page="1">
+    {% if consultations %}
+        {% for consultation in consultations %}
+            {% include 'main/consultations/_card.html.twig' %}
+        {% endfor %}
     {% else %}
         <p style="text-align:center;">Aucune consultation trouvée.</p>
-    {% endfor %}
+    {% endif %}
+</div>
+
+<div id="loading-indicator" style="text-align: center; padding: 2rem; display: none;">
+    <p>Chargement...</p>
 </div>
 
 

@@ -26,7 +26,8 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(ConsultationListRepository $repository): Response
     {
-        $consultations = $repository->findBy([], ['id' => 'DESC']);
+        // Charger seulement 4 consultations
+        $consultations = $repository->findBy([], ['id' => 'DESC'], 4, 0);
 
         return $this->render('main/index.html.twig', [
             'consultations' => $consultations
@@ -274,6 +275,29 @@ final class MainController extends AbstractController
 
         return $this->render('main/demandes/list_demande.html.twig', [
             'Demandes' => $demandes,
+        ]);
+    }
+
+    // API pour charger plus de consultations
+    #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
+    public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $page = (int)$request->query->get('page', 1);
+        $limit = 4;
+        $offset = ($page - 1) * $limit;
+
+        $consultations = $repository->findBy([], ['id' => 'DESC'], $limit, $offset);
+
+        $html = '';
+        foreach ($consultations as $consultation) {
+            $html .= $this->renderView('main/consultations/_card.html.twig', [
+                'consultation' => $consultation
+            ]);
+        }
+
+        return $this->json([
+            'html' => $html,
+            'count' => count($consultations)
         ]);
     }
 
