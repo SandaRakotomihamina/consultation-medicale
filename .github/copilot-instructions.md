@@ -51,5 +51,3 @@ Ce dépôt est une application Symfony (requiert PHP >= 8.2, Symfony 7.3.*). Str
 - `templates/base.html.twig` (structure HTML et importmap usage)
 - `assets/controllers/` (Stimulus controllers pattern)
 - `migrations/` (histoire du schéma DB)
-
-Si quelque chose manque ou si vous voulez que j'insère des exemples précis (ex : modifier un contrôleur, ajouter une migration, ou patcher l'importmap), dites-moi quel fichier modifier et je proposerai un patch.
