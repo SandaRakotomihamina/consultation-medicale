@@ -116,21 +116,33 @@
         margin-top: 1rem;
     }
 
+    /* --- Boutons modernisés avec ombre douce --- */
     .button {
         flex: 1;
         padding: 0.75rem;
         font-size: 1rem;
         font-weight: 600;
-        border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
-        transition: background 0.2s, transform 0.2s;
+        border: none;
         color: #fff;
+        transition: all 0.25s ease;
+
+        /* Ombre douce */
+        box-shadow: 0 6px 14px rgba(0,0,0,0.18);
     }
 
     .button:hover {
         transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(0,0,0,0.22);
     }
+
+    .button:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+        }
 
     .btn-login {
         background: #0366d6;
@@ -201,7 +213,8 @@
             <label for="inputPassword">Mot de passe</label>
 
             <span class="toggle-password" onclick="togglePassword()">
-                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
+                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                         d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
                            0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 

@@ -19,38 +19,34 @@
   background-color: transparent;
 }
 
-/* Barre de support */
 .pendulum-support {
   position: absolute;
   top: 0;
   left: 50%;
   width: 100%;
   height: 10px;
-  background-color: #d4edda;
+  background-color: #333333;
   border-radius: 5px;
   transform: translateX(-50%);
 }
 
-/* Boules */
 .pendulum-balls {
   position: absolute;
-  top: 130px; /* juste en dessous du support */
+  top: 130px;
   left: 50%;
   display: flex;
-  gap: 0;
   transform: translateX(-50%);
 }
 
 .ball {
   width: 40px;
   height: 40px;
-  background-color: #132e41;
+  background-color: #333333;
   border-radius: 50%;
   position: relative;
-  transform-origin: 50% -120px; /* pivot en haut de la corde */
+  transform-origin: 50% -120px;
 }
 
-/* Cordes */
 .ball::before {
   content: '';
   position: absolute;
@@ -58,12 +54,11 @@
   left: 50%;
   width: 2px;
   height: 120px;
-  background-color: #fff;
+  background-color: #333333;
   transform: translateX(-50%);
   border-radius: 1px;
 }
 
-/* Animations */
 .ball.first {
   animation: firstball 0.9s alternate ease-in infinite;
 }

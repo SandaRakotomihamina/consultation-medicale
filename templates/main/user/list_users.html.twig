@@ -23,7 +23,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-        border: 1px solid #949090ff;
+        border: 0px solid #949090ff;
         margin: 1rem;
         vertical-align: top;
         box-sizing: border-box;
@@ -238,7 +238,11 @@
             <!-- Footer avec bouton suppression -->
             <div class="card-footer">
                 <a href="{{ path('app_user_delete', {id: user.id}) }}"
-                   onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
+                   onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"
+                    {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
+                        style="pointer-events: none; opacity: 0.5; cursor: default;"
+                    {% endif %} 
+                   >
                     <img src="{{ asset('images/supprimer.png') }}" alt="Supprimer" class="delete-btn">
                 </a>
             </div>

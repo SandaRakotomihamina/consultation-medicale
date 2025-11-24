@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle consultation{% endblock %}
+{% block title %}Nouvelle demande{% endblock %}
 
 {% block body %}
     {% include '_partial/nav.html.twig' %}
@@ -37,17 +37,15 @@
             display: flex;
             flex-direction: column;
             gap: 1.2rem;
-            width: 100%; /* alignement parfait */
+            width: 100%;
         }
 
-        /* Labels */
         .consultation-form label {
             font-weight: 600;
             color: #333;
             margin-bottom: .35rem;
         }
 
-        /* Inputs (100% largeur réelle) */
         .consultation-form input[type="text"],
         .consultation-form textarea,
         .consultation-form select {
@@ -70,50 +68,65 @@
             outline: none;
         }
 
-        /* Supprimer largeur parasite */
         .consultation-form .form-row {
             width: 100%;
         }
 
-        /* Boutons */
+        /* ======= BOUTONS 3D AVEC OMBRES ======= */
         .form-actions {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
         }
 
-        .btn {
+        .btn,
+        .btn--muted {
             padding: .75rem 1.4rem;
             font-size: 1rem;
             border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
             border: none;
+            display: inline-block;
+            transition: 0.25s ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+        }
+
+        .btn {
             background: #0d6efd;
             color: #fff;
-            font-weight: 600;
-            transition: 0.25s ease;
         }
 
         .btn:hover {
             background: #0b5ed7;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+                inset -3px -3px 7px rgba(41, 43, 44, 0.5);
         }
 
         .btn--muted {
-            padding: .75rem 1.4rem;
-            font-size: 1rem;
             background: #6c757d;
             color: #fff;
-            border-radius: 8px;
             text-decoration: none;
-            display: inline-block;
-            transition: 0.25s ease;
         }
 
         .btn--muted:hover {
             background: #5a6268;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.22);
         }
+        .btn--muted:active {
+        transform: translateY(2px);
+        box-shadow:
+            inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+            inset -3px -3px 7px rgba(41, 43, 44, 0.5);
+    }
     </style>
 
     <div class="container consultation-container">
@@ -128,7 +141,7 @@
             {{ form_row(form.Nom) }}
             {{ form_row(form.Motif) }}
             {{ form_row(form.DelivreurDeMotif) }}
-            
+
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>
                 <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>

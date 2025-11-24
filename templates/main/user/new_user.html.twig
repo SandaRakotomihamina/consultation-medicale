@@ -75,17 +75,12 @@
             width: 100%;
             font-size: 1rem;
             background-color: #fff;
-            font-family: inherit;
             color: #333;
             appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 0.65rem auto;
-            box-sizing: border-box;
             transition: .2s ease;
         }
 
@@ -95,54 +90,74 @@
             outline: none;
         }
 
+        /* ---- BOUTONS MODERNES ---- */
+
         .form-actions {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
         }
 
-        .btn {
+        .btn,
+        .btn--muted {
             padding: .75rem 1.4rem;
             font-size: 1rem;
             border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
             border: none;
+            transition: 0.25s ease;
+            display: inline-block;
+
+            /* Ombre douce en bas */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .btn {
             background: #0d6efd;
             color: #fff;
-            font-weight: 600;
-            transition: 0.25s ease;
         }
 
         .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
             background: #0b5ed7;
-            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
         }
 
         .btn--muted {
-            padding: .75rem 1.4rem;
-            font-size: 1rem;
             background: #6c757d;
             color: #fff;
-            border-radius: 8px;
             text-decoration: none;
-            display: inline-block;
-            transition: 0.25s ease;
         }
 
         .btn--muted:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
             background: #5a6268;
-            transform: translateY(-2px);
+        }
+
+        .btn--muted:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
         }
 
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
-            .consultation-form { width: 100%; }
         }
     </style>
 
     <div class="container consultation-container">
         <h1>Nouvel utilisateur</h1>
-        <p>Remplissez les champs ci‑dessous puis cliquez sur <strong>Créer</strong>.</p>
+        <p>Remplissez les champs ci-dessous puis cliquez sur <strong>Créer</strong>.</p>
 
         {{ form_start(form) }}
 

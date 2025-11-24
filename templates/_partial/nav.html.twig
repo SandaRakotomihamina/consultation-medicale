@@ -4,54 +4,87 @@
     top: .5rem;
     left: .5rem;
     right: .5rem;
-    background: #333;
+
+    background: #ffffffff;
     padding: 0.75rem 1rem;
-    border-radius: 4px;
+    border-radius: 16px;
+
     margin-bottom: 1rem;
     z-index: 1000;
-    box-sizing: border-box; 
+    box-sizing: border-box;
+
+    box-shadow:
+        8px 8px 16px rgba(0,0,0,0.15),
+        -8px -8px 16px rgba(255,255,255,1);
+    transition: all .25s ease;
 }
+
+.navbar:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        5px 5px 10px rgba(0,0,0,0.12),
+        -5px -5px 10px rgba(255,255,255,1);
+}
+
 .navbar .container { 
     display:flex; 
     justify-content:space-between; 
     align-items:center; 
 }
+
 .navbar .brand { 
-    color:#fff;
+    color: #0366d6;
     text-decoration:none;
-    font-weight:600;
-    font-size:1.1rem;
+    font-weight:1000;
+    font-size:1.5rem;
 }
+
+.navbar-left{
+    display:flex;
+    align-items: center;
+    gap:0.75rem;
+}
+
+.brand{
+    vertical-align: middle;
+}
+
 .navbar-right { 
     display:flex;
     gap:0.75rem;
     align-items:center;
     position: relative;
 }
+
 .navbar-right span { 
-    color:#fff;
+    color:#333;
     cursor: pointer;
     position: relative;
 }
-.navbar-left{
-    display:flex;
-    align-items: center;
-    gap:0.75rem;
-}
-.brand{
-    vertical-align: middle;
-}
+
 .btn-logout { 
-    color:#fff;
-    background:#d9534f;
-    padding:0.35rem 0.6rem;
-    border-radius:4px;
+    color:#444;
+    background:#f0f0f0;
+    padding:0.45rem 0.9rem;
+    border-radius:10px;
     text-decoration:none;
-}
-.btn-logout:hover { 
-    background:#c9302c;
+    
+    box-shadow:
+        6px 6px 14px rgba(0,0,0,0.15),
+        -6px -6px 14px rgba(255,255,255,1);
+    transition: .2s;
 }
 
+.btn-logout:hover { 
+    color:#222;
+}
+
+.btn-logout:active {
+    box-shadow:
+        inset 4px 4px 10px rgba(0,0,0,0.18),
+        inset -4px -4px 10px rgba(255,255,255,1);
+    transform: translateY(2px);
+}
 
 .user-card {
     display: none;
@@ -59,38 +92,48 @@
     top: 110%;
     right: 0;
     width: 280px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border: 1px solid #ccc;
+
+    background-color: #f0f0f0;
+    border-radius: 18px;
+
+    box-shadow:
+        10px 10px 18px rgba(0,0,0,0.15),
+        -10px -10px 18px rgba(255,255,255,1);
+
     z-index: 1001;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .navbar-right span:hover .user-card {
     display: block;
 }
-
 
 .user-card-header {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.6rem;
-    border-bottom: 1px solid #eee;
-    background-color: #f8f8f8;
+    padding: 0.8rem;
+    background-color: #fafafa;
 }
+
 .user-card-header .avatar img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+
+    box-shadow:
+        4px 4px 8px rgba(0,0,0,0.15),
+        -4px -4px 8px rgba(255,255,255,1);
 }
+
 .user-card-header .name-grade {
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
+
 .user-card-header .name-grade span {
     white-space: nowrap;
     overflow: hidden;
@@ -103,16 +146,13 @@
 }
 
 .user-card-body {
-    padding: 0.6rem 0.8rem;
+    padding: 0.8rem 1rem;
     font-size: 0.85rem;
 }
-.user-card-body div {
-    margin-bottom: 4px;
-}
+
 .user-card-body strong {
     color: #333;
 }
-
 
 .user-card-body .role-badge {
     background: #4267B2;
@@ -120,17 +160,11 @@
     padding: 2px 6px;
     border-radius: 6px;
     font-size: 0.7rem;
-    margin-right: 4px;
-    display: inline-block;
-    margin-bottom: 2px;
+
+    box-shadow:
+        2px 2px 5px rgba(0,0,0,0.15),
+        -2px -2px 5px rgba(255,255,255,1);
 }
-
-.user-card-body div, 
-.user-card-header .name-grade span {
-    color: #333;
-}
-
-
 
 @media (max-width: 800px) {
     .navbar-right span {
@@ -190,8 +224,9 @@
                    title="Déconnexion de ce compte">
                     Déconnexion
                 </a>
+
             {% else %}
-                <a href="{{ path('app_login') }}" style="color: white" class="btn-login">Se connecter</a>
+                <a href="{{ path('app_login') }}" class="btn-logout">Se connecter</a>
             {% endif %}
         </div>
     </div>
