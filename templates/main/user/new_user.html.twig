@@ -90,7 +90,6 @@
             outline: none;
         }
 
-        /* ---- BOUTONS MODERNES ---- */
 
         .form-actions {
             display: flex;
@@ -108,8 +107,6 @@
             border: none;
             transition: 0.25s ease;
             display: inline-block;
-
-            /* Ombre douce en bas */
             box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
@@ -150,21 +147,65 @@
                 inset -3px -3px 7px rgba(44, 41, 41, 0.5);
         }
 
+        .error-message {
+            display: none;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.35rem;
+            padding: 0.5rem 0.75rem;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+
+        .consultation-form input[style*="border-color: rgb(220, 53, 69)"] {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
         }
     </style>
 
-    <div class="container consultation-container">
+        <div class="container consultation-container">
         <h1>Nouvel utilisateur</h1>
         <p>Remplissez les champs ci-dessous puis cliquez sur <strong>Créer</strong>.</p>
 
         {{ form_start(form) }}
 
-        <div class="consultation-form">
-            {{ form_row(form.matricule) }}
-            {{ form_row(form.title) }}
-            {{ form_row(form.name) }}
+        <div class="consultation-form" data-controller="personnel-lookup">
+            <div>
+                {{ form_label(form.matricule) }}
+                {{ form_widget(form.matricule, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'matricule',
+                        'data-action': 'input->personnel-lookup#searchPersonnel'
+                    }
+                }) }}
+                <div class="error-message" data-personnel-lookup-target="errorMessage"></div>
+            </div>
+
+            <div>
+                {{ form_label(form.title) }}
+                {{ form_widget(form.title, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'grade',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+
+            <div>
+                {{ form_label(form.name) }}
+                {{ form_widget(form.name, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'nom',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+
             {{ form_row(form.username) }}
             {{ form_row(form.plainPassword) }}
             {{ form_row(form.roles) }}

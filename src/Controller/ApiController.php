@@ -18,7 +18,6 @@ class ApiController extends AbstractController
             return new JsonResponse(['error' => 'Matricule manquant'], 400);
         }
 
-        // 🔧 Configuration du client HTTP
         $client = HttpClient::create([
             'timeout' => 30,
             'verify_peer' => false,
