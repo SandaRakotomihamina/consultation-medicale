@@ -127,6 +127,23 @@
             inset 3px 3px 7px rgba(255, 255, 255, 0.87),
             inset -3px -3px 7px rgba(41, 43, 44, 0.5);
     }
+
+    /* Styles pour le message d'erreur */
+    .error-message {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.35rem;
+        padding: 0.5rem 0.75rem;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+    }
+
+    .consultation-form input[style*="border-color: rgb(220, 53, 69)"] {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+    }
     </style>
 
     <div class="container consultation-container">
@@ -135,10 +152,38 @@
 
         {{ form_start(form) }}
 
-        <div class="consultation-form">
-            {{ form_row(form.Matricule) }}
-            {{ form_row(form.Grade) }}
-            {{ form_row(form.Nom) }}
+        <div class="consultation-form" data-controller="personnel-lookup">
+            <div>
+                {{ form_label(form.Matricule) }}
+                {{ form_widget(form.Matricule, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'matricule',
+                        'data-action': 'input->personnel-lookup#searchPersonnel'
+                    }
+                }) }}
+                <div class="error-message" data-personnel-lookup-target="errorMessage"></div>
+            </div>
+            
+            <div>
+                {{ form_label(form.Grade) }}
+                {{ form_widget(form.Grade, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'grade',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+            
+            <div>
+                {{ form_label(form.Nom) }}
+                {{ form_widget(form.Nom, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'nom',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+            
             {{ form_row(form.Motif) }}
             {{ form_row(form.DelivreurDeMotif) }}
 

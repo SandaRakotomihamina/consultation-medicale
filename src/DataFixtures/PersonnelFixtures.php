@@ -11,18 +11,25 @@ class PersonnelFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Générer 50 personnels avec des données aléatoires simples
-        $grades = ['Caporal', 'Sergent', 'Lieutenant', 'Capitaine', 'Commandant', 'Colonel'];
-        $firstNames = ['Rasoa', 'Rabe', 'Rakoto', 'Andry', 'Hery', 'Lala', 'Miora', 'Tiana', 'Nono', 'Faly'];
+        $grades = [
+            'Caporal', 'Sergent', 'Lieutenant', 'Capitaine', 'Commandant', 'Colonel',
+            'Général de brigade', 'Général de division', 'Général de corps d\'armée', 'Général d\'armée'
+        ];
+        $firstNames = [
+            'Rasoa', 'Rabe', 'Ravo', 'Andry', 'Hery', 'Lala', 'Miora', 'Tiana', 'Nono', 'Faly',
+            'Jean', 'Pierre', 'Marie', 'Luc', 'Sophie', 'Paul', 'Julie', 'Michel', 'Nina', 'David',
+            'Alice', 'Bob', 'Chloe', 'David', 'Eva', 'Frank', 'Grace', 'Hannah', 'Ian', 'Jack'
+        ];
         $lastNames = [
             'RAKOTONDRABE', 'ANDRIANARIVO', 'RANDRIANASOLO', 'RAKOTOARIMANANA', 'RABEMANANJARA',
             'ANDRIAMANJATO', 'RAKOTOMALALA', 'RANDRIAMAMPIONONA', 'RABEARIMANANA', 'ANDRIANJAKA', 
-            'RAKOTOVAO', 'RANDRIATSARAFARA', 'RABENIRINA', 'ANDRIANASOLO', 'RAKOTOBE'
+            'RAKOTOVAO', 'RANDRIATSARAFARA', 'RABENIRINA', 'ANDRIANASOLO', 'RAKOTOBE',
+            'RANDRIANARIMANANA', 'RABEMANJAKA', 'ANDRIANJATO', 'RAKOTOMANGA', 'RANDRIAMPIANINA'
         ];
 
-        for ($i = 1; $i <= 50; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             $personnel = new Personnel();
 
-            // Matricule en string, par exemple "MAT-0001"
             $mat = sprintf('%05d', $i);
             $personnel->setMatricule((string)$mat);
 
