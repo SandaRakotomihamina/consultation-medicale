@@ -29,8 +29,8 @@ class ApiController extends AbstractController
         try {
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'Authorization' => 'clé API',
-                    'x-api-key'     => 'nom@example.com',
+                    'Authorization' => 'API_KEY',
+                    'x-api-key'     => 'name@example.com',
                     'Accept'        => 'application/json',
                 ]
             ]);
@@ -52,9 +52,9 @@ class ApiController extends AbstractController
         $data = $json[0] ?? [];
 
         return new JsonResponse([
-            'nom'        => $data['NOMPERS'] . $data['PRENOM']?? null,
-            'grade'      => $data['ABREVGRADE'] ?? null,
-            'found'      => !empty($data),
+            'nom' => $data['NOMPERS'] . $data['PRENOM']?? null,
+            'grade' => $data['ABREVGRADE'] ?? null,
+            'found' => !empty($data),
         ]);
     }
 
