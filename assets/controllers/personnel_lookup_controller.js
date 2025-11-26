@@ -22,6 +22,7 @@ export default class extends Controller {
         clearTimeout(this.debounceTimer);
         this.debounceTimer = setTimeout(async () => {
             try {
+                // Appel à l'API pour rechercher le personnel
                 const response = await fetch(`/api/personnel-local/${encodeURIComponent(matricule)}`);
                 const data = await response.json();
 

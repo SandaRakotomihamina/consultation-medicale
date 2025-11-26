@@ -32,8 +32,9 @@ final class MainController extends AbstractController
             'consultations' => $consultations
         ]);
     }
-
-    //Ajouter une nouvelle consultation
+    #############################################################################################################
+    ####################################Ajouter une nouvelle consultation########################################
+    #############################################################################################################
     #[Route('/consultation/new', name: 'app_new_consultation')]
     #[IsGranted('ROLE_ADMIN')]
     public function newConsultation(Request $request, EntityManagerInterface $em): Response
@@ -41,14 +42,14 @@ final class MainController extends AbstractController
         $consultation = new ConsultationList();
         $consultation->setDate(new \DateTime());
 
-        //Pré-remplissage depuis la demande
+        // Pré-remplissage depuis la demande
         $consultation->setGrade($request->query->get('grade'));
         $consultation->setNom($request->query->get('nom'));
         $consultation->setMatricule($request->query->get('matricule'));
         $consultation->setMotif($request->query->get('motif'));
         $consultation->setDelivreurDeMotif($request->query->get('delivreurMotif'));
 
-        //Définir le délivreur d'observation automatiquement
+        // Définir le délivreur d'observation automatiquement
         $user = $this->getUser();
         if ($user instanceof User) {
             $delivreur = trim($user->getTitle() . ' ' . $user->getName());
@@ -62,12 +63,12 @@ final class MainController extends AbstractController
 
         $form->handleRequest($request);
 
-        //Voir si le formulaire est soumis et valide
+        // Voir si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($consultation);
             $em->flush();
 
-            //supprimer la demande associée si existe
+            // supprimer la demande associée si existe
             $demandeId = $request->query->get('id');
             if ($demandeId) {
                 $demandeRepo = $em->getRepository(DemandeDeConsultation::class);
@@ -78,20 +79,19 @@ final class MainController extends AbstractController
                 }
             }
 
-            //SMS si repos
+            // SMS si repos
             // if ($consultation->getRepos()) {
-            //     $message = "Repos administré : " . $consultation->getRepos() . 
-            //             " au personnel " . $consultation->getNom();
-
+            //     $message = "Repos administré : " . $consultation->getRepos() . " au personnel " . $consultation->getNom();
             //     $client = \Symfony\Component\HttpClient\HttpClient::create();
             //     try {
             //         $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
             //             'json' => [
             //                 'apiKey' => 'CLE_API',
             //                 'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
-            //                 'to' => '+261333549507',
+            //                 'to' => 'numéro du déstinataire',
             //                 'message' => $message
             //             ]
+            //         $this->addFlash('success', 'Message envoyé pour le repos administré à ' . $consultation->getNom());
             //         ]);
             //     } catch (\Exception $e) {
             //         $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
@@ -107,8 +107,9 @@ final class MainController extends AbstractController
         ]);
     }
 
-
-    //Ajouter un nouvel utilisateur
+    #############################################################################################################
+    #########################################Ajouter un nouvel utilisateur#######################################
+    #############################################################################################################
     #[Route('/user/new', name: 'app_new_user')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
     public function newUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
@@ -137,7 +138,9 @@ final class MainController extends AbstractController
         ]);
     }
 
-    //Recherche de consultation
+    #############################################################################################################
+    ###########################################Recherche de consultation#########################################
+    #############################################################################################################
     #[Route('/search', name: 'app_search')]
     public function search(Request $request, ConsultationListRepository $repo): Response
     {
@@ -158,7 +161,10 @@ final class MainController extends AbstractController
         ]);
     }
 
-    //Modifier une consultation
+
+    #############################################################################################################
+    #########################################Modifier une consultation###########################################
+    #############################################################################################################
     #[Route('/consultation/edit/{id}', name: 'app_consultation_edit')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
     public function edit(ManagerRegistry $doctrine, Request $request, string $id): Response
@@ -193,7 +199,9 @@ final class MainController extends AbstractController
     }
 
 
-    //Liste des utilisateurs
+    #############################################################################################################
+    ##########################################Liste des utilisateurs#############################################
+    #############################################################################################################
     #[Route('/users', name: 'app_list_user')]
     public function listUser(UserRepository $userRepository): Response
     {
@@ -210,7 +218,9 @@ final class MainController extends AbstractController
     }
 
 
-    //Supprimer un utilisateur
+    #############################################################################################################
+    #######################################Supprimer un utilisateur##############################################
+    #############################################################################################################
     #[Route('/user/delete/{id}', name: 'app_user_delete')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
     public function deleteUser(int $id, EntityManagerInterface $em, UserRepository $repo): Response
@@ -230,7 +240,9 @@ final class MainController extends AbstractController
     }
 
 
-    //Ajouter une nouvelle demande de consultation
+    #############################################################################################################
+    ##################################Ajouter une nouvelle demande de consultation###############################
+    #############################################################################################################
     #[Route('/demande/new', name: 'app_new_demande')]
     #[IsGranted('ROLE_USER')]
     public function newDemande(Request $request, EntityManagerInterface $em): Response
@@ -264,7 +276,10 @@ final class MainController extends AbstractController
     }
 
 
-    //Liste des demandes de consultation
+    #############################################################################################################
+    #######################################Liste des demandes de consultation####################################
+    #############################################################################################################
+
     #[Route('/demandes', name: 'app_list_demande')]
     #[IsGranted('ROLE_ADMIN')]
     public function listdemande(DemandeDeConsultationRepository $demandeDeConsultationRepository): Response
@@ -277,7 +292,9 @@ final class MainController extends AbstractController
         ]);
     }
 
-    // API pour charger plus de consultations
+    #############################################################################################################
+    ######################################API pour plus de consultations#########################################
+    #############################################################################################################
     #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
     public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse
     {
@@ -299,5 +316,4 @@ final class MainController extends AbstractController
             'count' => count($consultations)
         ]);
     }
-
 }

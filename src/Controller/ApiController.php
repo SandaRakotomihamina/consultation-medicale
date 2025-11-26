@@ -48,15 +48,11 @@ class ApiController extends AbstractController
             return new JsonResponse(['error' => 'Non trouvé'], 404);
         }
 
-        // Récupération du JSON
         $json = $response->toArray(false);
-
-        // L'API renvoie une LISTE, donc on prend le premier élément
         $data = $json[0] ?? [];
 
         return new JsonResponse([
-            'nom'        => $data['NOMPERS'] ?? null,
-            'prenom'     => $data['PRENOM'] ?? null,
+            'nom'        => $data['NOMPERS'] . $data['PRENOM']?? null,
             'grade'      => $data['ABREVGRADE'] ?? null,
             'found'      => !empty($data),
         ]);
