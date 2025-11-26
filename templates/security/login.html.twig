@@ -127,9 +127,11 @@
         border: none;
         color: #fff;
         transition: all 0.25s ease;
-
-        /* Ombre douce */
         box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .button:hover {
@@ -138,11 +140,11 @@
     }
 
     .button:active {
-            transform: translateY(2px);
-            box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
-        }
+        transform: translateY(2px);
+        box-shadow:
+            inset 3px 3px 7px rgba(255, 255, 255, 0.87),
+            inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+    }
 
     .btn-login {
         background: #0366d6;
@@ -158,6 +160,21 @@
 
     .btn-reset:hover {
         background: #7d7d7d;
+    }
+
+    .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #fff; 
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        animation: spin 1s linear infinite;
+        display: none;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     .error {
@@ -200,7 +217,7 @@
         <h1>Se connecter</h1>
     </div>
 
-    <form action="{{ path('app_login') }}" method="post">
+    <form id="loginForm" action="{{ path('app_login') }}" method="post" onsubmit="showLoading()">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
         <div class="floating-group">
@@ -224,7 +241,10 @@
         </div>
 
         <div class="login-actions">
-            <button type="submit" class="button btn-login">Connexion</button>
+            <button type="submit" class="button btn-login" id="btnLogin">
+                <span class="btn-text">Connexion</span>
+                <span class="loader"></span>
+            </button>
             <button type="reset" class="button btn-reset">Annuler</button>
         </div>
     </form>
@@ -253,6 +273,15 @@ function togglePassword() {
             0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
             0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
     }
+}
+
+function showLoading() {
+    const btn = document.getElementById('btnLogin');
+    const text = btn.querySelector('.btn-text');
+    const loader = btn.querySelector('.loader');
+
+    text.style.display = 'none';
+    loader.style.display = 'inline-block';
 }
 </script>
 
