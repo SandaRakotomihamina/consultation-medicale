@@ -61,6 +61,10 @@ class ApiController extends AbstractController
     #[Route('/api/personnel-local/{matricule}', name: 'api_personnel_local')]
     public function getPersonnelLocal(string $matricule, PersonnelRepository $personnelRepository): JsonResponse
     {
+        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
         if (!$matricule) {
             return new JsonResponse(['error' => 'Matricule manquant'], 400);
         }
