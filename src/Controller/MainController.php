@@ -293,7 +293,7 @@ final class MainController extends AbstractController
     }
 
     #############################################################################################################
-    ######################################API pour plus de consultations#########################################
+    ###################################API pour plus de consultations affichés###################################
     #############################################################################################################
     #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
     public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse

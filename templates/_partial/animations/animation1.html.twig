@@ -5,7 +5,8 @@
         animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideDown;
         animation-delay: 0s;
     }svg#freepik_stories-doctors.animated #freepik--Icons--inject-2 {
-        animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp,1.5s Infinite  linear floating;animation-delay: 0s,1s;
+        animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp,1.5s Infinite  linear floating;
+        animation-delay: 0s,1s;
     }svg#freepik_stories-doctors.animated #freepik--character-3--inject-2 {
         animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp;
         animation-delay: 0s;
@@ -20,11 +21,12 @@
         0% {
             opacity: 0;
             transform: translateY(-30px);
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
     }
     @keyframes slideUp {
         0% {
@@ -66,7 +68,7 @@
     >
         <path 
             d="M165.19,75.75s-75.77,38.61-113.56,98.1-34.8,136,11.12,192.78S196.44,416,269.93,452s154.57,28.58,189.32-47.66S441.6,299.57,432.6,211.36,344.07-6,165.19,75.75Z" 
-            style="fill: #3C6A96; transform-origin: 248.297px 261.286px 0px;" 
+            style="fill: #3c6a96ff; transform-origin: 248.297px 261.286px 0px;" 
             id="el4byk2f72pp6" 
             class="animable"
         ></path>
@@ -1112,8 +1114,12 @@
                 result="OUTLINE"
             ></feComposite>
             <feMerge>
-                <feMergeNode in="OUTLINE"></feMergeNode>
-                <feMergeNode in="SourceGraphic"></feMergeNode>
+                <feMergeNode 
+                    in="OUTLINE"
+                ></feMergeNode>
+                <feMergeNode 
+                    in="SourceGraphic"
+                ></feMergeNode>
             </feMerge>
         </filter>
         <filter id="hover" height="200%">
@@ -1135,10 +1141,17 @@
                 result="OUTLINE"
             ></feComposite>
             <feMerge>
-                <feMergeNode in="OUTLINE"></feMergeNode>
-                <feMergeNode in="SourceGraphic"></feMergeNode>
+                <feMergeNode 
+                    in="OUTLINE"
+                ></feMergeNode>
+                <feMergeNode 
+                    in="SourceGraphic"
+                ></feMergeNode>
             </feMerge>
-            <feColorMatrix type="matrix" values="00000 01000 00000 00010"></feColorMatrix>
+            <feColorMatrix 
+                type="matrix" 
+                values="00000 01000 00000 00010"
+            ></feColorMatrix>
         </filter>
     </defs>
 </svg>

@@ -220,6 +220,29 @@
         to { transform: translateY(0); opacity: 1 }
     }
 
+    .animations-slideshow {
+        width: 400px;
+        height: 400px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        background: transparent;
+        display: block;
+    }
+
+    .animations-slideshow .slide {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+    }
+
+    .animations-slideshow .slide.active {
+        display: block;
+    }
+
 </style>
 
 {% if app.user %}
@@ -229,6 +252,8 @@
             <input type="search" id="search-input" name="q" placeholder="Rechercher..." class="subnav-input" required />
             <button type="submit" id="search-button" class="button-3d" title="Rechercher">Rechercher</button>
         </form>
+
+        
 
         <div class="subnav-actions">
 
@@ -293,7 +318,21 @@
     </div>
 
     <div style="width: 400px; height: 400px; display: grid; place-items: center; margin: 0 auto;">
-        {% include '_partial/animations/animation1.html.twig' %}
+        {# Slideshow d'animations #}
+        <div class="animations-slideshow" data-controller="animation-slideshow" data-animation-slideshow-interval-value="6000">
+            <div class="slide active" data-animation-slideshow-target="slide" aria-hidden="false">
+                {% include '_partial/animations/animation1.html.twig' %}
+            </div>
+            <div class="slide" data-animation-slideshow-target="slide" aria-hidden="true">
+                {% include '_partial/animations/animation2.html.twig' %}
+            </div>
+            <div class="slide" data-animation-slideshow-target="slide" aria-hidden="true">
+                {% include '_partial/animations/animation3.html.twig' %}
+            </div>
+            <div class="slide" data-animation-slideshow-target="slide" aria-hidden="true">
+                {% include '_partial/animations/animations4.html.twig' %}
+            </div>
+        </div>
     </div>
 
 {% endif %}

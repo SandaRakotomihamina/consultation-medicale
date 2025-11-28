@@ -4,15 +4,17 @@ export default class extends Controller {
     connect() {
         this.isLoading = false;
         
-        // Récupérer les éléments
         this.feed = document.getElementById('consultations-feed');
         this.loading = document.getElementById('loading-indicator');
-        
-        window.addEventListener('scroll', this.handleScroll.bind(this));
+        this._boundHandleScroll = this.handleScroll.bind(this);
+        window.addEventListener('scroll', this._boundHandleScroll);
     }
 
     disconnect() {
-        window.removeEventListener('scroll', this.handleScroll.bind(this));
+        if (this._boundHandleScroll) {
+            window.removeEventListener('scroll', this._boundHandleScroll);
+            this._boundHandleScroll = null;
+        }
     }
 
     handleScroll() {
