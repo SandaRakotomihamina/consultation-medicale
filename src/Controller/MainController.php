@@ -20,6 +20,7 @@ use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use \Symfony\Component\HttpFoundation\JsonResponse;
 
 final class MainController extends AbstractController
 {
@@ -80,23 +81,23 @@ final class MainController extends AbstractController
             }
 
             // SMS si repos
-            // if ($consultation->getRepos()) {
-            //     $message = "Repos administré : " . $consultation->getRepos() . " au personnel " . $consultation->getNom();
-            //     $client = \Symfony\Component\HttpClient\HttpClient::create();
-            //     try {
-            //         $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
-            //             'json' => [
-            //                 'apiKey' => 'CLE_API',
-            //                 'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
-            //                 'to' => 'numéro du déstinataire',
-            //                 'message' => $message
-            //             ]
-            //         $this->addFlash('success', 'Message envoyé pour le repos administré à ' . $consultation->getNom());
-            //         ]);
-            //     } catch (\Exception $e) {
-            //         $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
-            //     }
-            // }
+            /* if ($consultation->getRepos()) {
+                $message = "Repos administré : " . $consultation->getRepos() . " au personnel " . $consultation->getNom();
+                $client = \Symfony\Component\HttpClient\HttpClient::create();
+                try {
+                    $client->request('POST', 'https://api.smsmobile.mg/api/send-sms', [
+                        'json' => [
+                            'apiKey' => 'CLE_API',
+                            'sender' => 'Service santé de la GENDARMERIE toby RATSIMANDRAVA',
+                            'to' => 'numéro du déstinataire',
+                            'message' => $message
+                        ]
+                    ]);
+                    $this->addFlash('success', 'Message envoyé pour le repos administré à ' . $consultation->getNom());
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors de l\'envoi du SMS : ' . $e->getMessage());
+                }
+            } */
 
             $this->addFlash('success', 'Consultation enregistrée avec succès.');
             return $this->redirectToRoute('app_main');
@@ -296,7 +297,7 @@ final class MainController extends AbstractController
     ###################################API pour plus de consultations affichés###################################
     #############################################################################################################
     #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
-    public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse
+    public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): JsonResponse
     {
         $page = (int)$request->query->get('page', 1);
         $limit = 4;

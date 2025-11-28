@@ -11,6 +11,10 @@ use App\Repository\PersonnelRepository;
 
 class ApiController extends AbstractController
 {
+    
+    #############################################################################################################
+    #####################################API pour la version en PROD#############################################
+    #############################################################################################################
     #[Route('/api/personnel/{matricule}', name: 'api_personnel')]
     public function getPersonnelbyAPI($matricule, HttpClientInterface $http): JsonResponse {
 
@@ -58,6 +62,10 @@ class ApiController extends AbstractController
         ]);
     }
 
+
+    #############################################################################################################
+    #####################################API pour la version en DEV##############################################
+    #############################################################################################################
     #[Route('/api/personnel-local/{matricule}', name: 'api_personnel_local')]
     public function getPersonnelLocal(string $matricule, PersonnelRepository $personnelRepository): JsonResponse
     {

@@ -8,17 +8,14 @@ export default class extends Controller {
     }
 
     async searchPersonnel() {
-        // Effacer les erreurs précédentes
         this.clearErrors();
 
         const matricule = this.matriculeTarget.value.trim();
 
-        // Si le champ est vide, ne rien faire
         if (!matricule) {
             return;
         }
 
-        // Utiliser un délai pour éviter trop de requêtes
         clearTimeout(this.debounceTimer);
         this.debounceTimer = setTimeout(async () => {
             try {
@@ -27,18 +24,16 @@ export default class extends Controller {
                 const data = await response.json();
 
                 if (data.found) {
-                    // Personnel trouvé
                     this.nomTarget.value = data.nom || '';
                     this.gradeTarget.value = data.grade || '';
                     
-                    // Réinitialiser l'apparence
                     this.matriculeTarget.style.borderColor = '#d1d1d1';
                     this.matriculeTarget.style.backgroundColor = '#fafafa';
                 } else {
-                    // Personnel non trouvé
                     this.showError('Personnel non trouvé avec ce matricule.');
                     this.matriculeTarget.style.borderColor = '#dc3545';
                     this.matriculeTarget.style.backgroundColor = '#fff5f5';
+
                     this.nomTarget.value = '';
                     this.gradeTarget.value = '';
                 }
@@ -48,7 +43,7 @@ export default class extends Controller {
                 this.matriculeTarget.style.borderColor = '#dc3545';
                 this.matriculeTarget.style.backgroundColor = '#fff5f5';
             }
-        }, 500); // Délai de 500ms pour le debounce
+        }, 500);
     }
 
     showError(message) {
