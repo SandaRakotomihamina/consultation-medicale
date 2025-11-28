@@ -67,6 +67,7 @@
         .name-grade {
             display: flex;
             flex-direction: column;
+            cursor: pointer;
         }
 
         .name-grade .grade {
@@ -130,6 +131,17 @@
             border-top: 1px solid #ddd;
             padding-top: 0.3rem;
         }
+
+        .obs-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            border-top: 1px solid #ddd;
+            padding-top: 0.4rem;
+            color: #555;
+        }
         
     </style>
 
@@ -185,7 +197,18 @@
                         <div class="info-block">
                             <div class="label">Observation</div>
                             <div class="content">{{ consultation.Observation }}</div>
-                            <div class="delivreur">{{ consultation.DelivreurDObservation }}</div>
+
+                            <div class="obs-footer">
+                                <span>{{ consultation.DelivreurDObservation }}</span>
+
+                                <span style="font-weight: bold;">
+                                    {% if consultation.Repos %}
+                                        <span style="color:#d9534f">Repos administré: {{ consultation.Repos }}</span>
+                                    {% else %}
+                                        <span style="color:#28a745">Aucun repos administré</span>
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
