@@ -180,10 +180,11 @@
                 {{ form_widget(form.matricule, {
                     'attr': {
                         'data-personnel-lookup-target': 'matricule',
-                        'data-action': 'input->personnel-lookup#searchPersonnel'
+                        'data-action': 'input->personnel-lookup#searchPersonnel',
+                        'id': 'user_matricule'
                     }
                 }) }}
-                <div class="error-message" data-personnel-lookup-target="errorMessage"></div>
+                <div class="error-message" id="matricule-error"></div>
             </div>
 
             <div>
@@ -206,7 +207,16 @@
                 }) }}
             </div>
 
-            {{ form_row(form.username) }}
+            <div>
+                {{ form_label(form.username) }}
+                {{ form_widget(form.username, {
+                    'attr': {
+                        'id': 'user_username'
+                    }
+                }) }}
+                <div class="error-message" id="username-error"></div>
+            </div>
+
             {{ form_row(form.plainPassword) }}
             {{ form_row(form.roles) }}
 
@@ -220,4 +230,94 @@
     </div>
 
     {% include '_partial/footer.html.twig' %}
+
+    <script>
+        (function() {
+            const matriculeInput = document.getElementById('user_matricule');
+            const usernameInput = document.getElementById('user_username');
+            const matriculeError = document.getElementById('matricule-error');
+            const usernameError = document.getElementById('username-error');
+            const form = document.querySelector('form');
+
+            let debounceTimer;
+
+            function checkUserExists() {
+                const matricule = matriculeInput ? matriculeInput.value.trim() : '';
+                const username = usernameInput ? usernameInput.value.trim() : '';
+
+                // Clear previous messages
+                if (matriculeError) matriculeError.style.display = 'none';
+                if (usernameError) usernameError.style.display = 'none';
+
+                // Only check if at least one field has content
+                if (!matricule && !username) return;
+
+                fetch('/api/check-user-exists', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        matricule: matricule,
+                        username: username
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display matricule error if exists
+                    if (data.errors.matricule && matriculeError) {
+                        matriculeError.textContent = data.errors.matricule;
+                        matriculeError.style.display = 'block';
+                        if (matriculeInput) {
+                            matriculeInput.style.borderColor = '#dc3545';
+                            matriculeInput.style.backgroundColor = '#fff5f5';
+                        }
+                    } else if (matriculeInput) {
+                        matriculeInput.style.borderColor = '#d1d1d1';
+                        matriculeInput.style.backgroundColor = '#fafafa';
+                    }
+
+                    // Display username error if exists
+                    if (data.errors.username && usernameError) {
+                        usernameError.textContent = data.errors.username;
+                        usernameError.style.display = 'block';
+                        if (usernameInput) {
+                            usernameInput.style.borderColor = '#dc3545';
+                            usernameInput.style.backgroundColor = '#fff5f5';
+                        }
+                    } else if (usernameInput) {
+                        usernameInput.style.borderColor = '#d1d1d1';
+                        usernameInput.style.backgroundColor = '#fafafa';
+                    }
+                })
+                .catch(error => console.error('Erreur lors de la vérification:', error));
+            }
+
+            // Add event listeners with debounce
+            if (matriculeInput) {
+                matriculeInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(checkUserExists, 500);
+                });
+            }
+
+            if (usernameInput) {
+                usernameInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(checkUserExists, 500);
+                });
+            }
+
+            // Prevent form submission if there are errors
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if ((matriculeError && matriculeError.style.display === 'block') ||
+                        (usernameError && usernameError.style.display === 'block')) {
+                        e.preventDefault();
+                        alert('Veuillez corriger les erreurs affichées avant de soumettre le formulaire.');
+                    }
+                });
+            }
+        })();
+    </script>
 {% endblock %}

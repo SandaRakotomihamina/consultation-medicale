@@ -33,7 +33,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* FORMULAIRE GLOBAL */
         .consultation-form {
             display: flex;
             flex-direction: column;
@@ -41,14 +40,12 @@
             width: 100%;
         }
 
-        /* LABELS */
         .consultation-form label {
             font-weight: 600;
             color: #333;
             margin-bottom: .35rem;
         }
 
-        /* INPUTS / SELECT / TEXTAREA */
         .consultation-form input[type="text"],
         .consultation-form input[type="search"],
         .consultation-form input[type="date"],
@@ -73,7 +70,6 @@
             outline: none;
         }
 
-        /* SELECT ICON */
         .consultation-form select {
             background-color: #fff;
             appearance: none;
@@ -84,7 +80,6 @@
             background-size: 0.65rem auto;
         }
 
-        /* ------ BOUTONS MODERNES ------ */
 
         .form-actions {
             display: flex;
@@ -102,7 +97,7 @@
             border: none;
             transition: 0.25s ease;
             display: inline-block;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.12); /* Ombre douce en bas */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
         .btn {
@@ -164,7 +159,18 @@
             {{ form_row(form.DelivreurDeMotif) }}
             {{ form_row(form.Observation) }}
             {{ form_row(form.DelivreurDObservation) }}
-            {{ form_row(form.Repos) }}
+
+            {% set repos_id = form.Repos.vars.id %}
+            <div class="field">
+                <label style="display:flex; align-items:center; gap:0.5rem;">
+                    <input type="checkbox" id="enable_repos_checkbox" />
+                    <span>Repos administré</span>
+                </label>
+                <div style="margin-top:.5rem;">
+                    {{ form_widget(form.Repos, {'attr': {'disabled': true}}) }}
+                    {{ form_errors(form.Repos) }}
+                </div>
+            </div>
 
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>
@@ -173,6 +179,30 @@
         </div>
 
         {{ form_end(form) }}
+
+        <script>
+            (function(){
+                const checkbox = document.getElementById('enable_repos_checkbox');
+                const repos = document.getElementById('{{ repos_id }}');
+                if (!checkbox || !repos) return;
+
+                checkbox.checked = false;
+                repos.disabled = true;
+
+                checkbox.addEventListener('change', function(){
+                    repos.disabled = !this.checked;
+                    if (!this.checked) {
+                        if (repos.tagName.toLowerCase() === 'select') {
+                            repos.selectedIndex = -1;
+                        } else {
+                            repos.value = '';
+                        }
+                    } else {
+                        repos.focus();
+                    }
+                });
+            })();
+        </script>
     </div>
 
     {% include '_partial/footer.html.twig' %}
