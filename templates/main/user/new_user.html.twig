@@ -308,6 +308,7 @@
                         (usernameError && usernameError.style.display === 'block')) {
                         e.preventDefault();
                         alert('Veuillez corriger les erreurs affichées avant de soumettre le formulaire.');
+                        document.location.reload(true);
                     }
                 });
             }
