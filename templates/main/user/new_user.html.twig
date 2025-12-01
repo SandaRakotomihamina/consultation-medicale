@@ -77,7 +77,6 @@
             background-color: #fff;
             color: #333;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 0.65rem auto;
@@ -163,6 +162,20 @@
             background-color: #fff5f5 !important;
         }
 
+        .toggle-password {
+            position: absolute;
+            right: 0.6rem;
+            top: 70%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: #0366d6;
+        }
+
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
         }
@@ -217,7 +230,24 @@
                 <div class="error-message" id="username-error"></div>
             </div>
 
-            {{ form_row(form.plainPassword) }}
+            <div style="position: relative;">
+                {{ form_label(form.plainPassword) }}
+                {{ form_widget(form.plainPassword, {
+                    'attr': {
+                        'id': 'user_plainPassword',
+                        'autocomplete': 'new-password',
+                        'style': 'padding-right: 2.5rem;'
+                    }
+                }) }}
+                <span class="toggle-password" onclick="togglePassword()">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+                               0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+                               0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
+                    </svg>
+                </span>
+            </div>
             {{ form_row(form.roles) }}
 
             <div class="form-actions">
@@ -232,6 +262,23 @@
     {% include '_partial/footer.html.twig' %}
 
     <script>
+        function togglePassword() {
+            const input = document.getElementById("user_plainPassword");
+            const icon = document.getElementById("eyeIcon");
+            if (!input || !icon) return;
+            if (input.type === "password") {
+                input.type = "text";
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12zm10.5 3a3 3 0 100-6 3 3 0 000 6z"/>`;
+            } else {
+                input.type = "password";
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+                    0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+                    0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
+            }
+        }
+
         (function() {
             const matriculeInput = document.getElementById('user_matricule');
             const usernameInput = document.getElementById('user_username');
