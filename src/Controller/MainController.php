@@ -33,6 +33,33 @@ final class MainController extends AbstractController
             'consultations' => $consultations
         ]);
     }
+
+    #############################################################################################################
+    ###################################API pour plus de consultations listés#####################################
+    #############################################################################################################
+    #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
+    public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): JsonResponse
+    {
+        $page = (int)$request->query->get('page', 1);
+        $limit = 4;
+        $offset = ($page - 1) * $limit;
+
+        $consultations = $repository->findBy([], ['id' => 'DESC'], $limit, $offset);
+
+        $html = '';
+        foreach ($consultations as $consultation) {
+            $html .= $this->renderView('main/consultations/_card.html.twig', [
+                'consultation' => $consultation
+            ]);
+        }
+
+        return $this->json([
+            'html' => $html,
+            'count' => count($consultations)
+        ]);
+    }
+
+    
     #############################################################################################################
     ####################################Ajouter une nouvelle consultation########################################
     #############################################################################################################
@@ -152,6 +179,9 @@ final class MainController extends AbstractController
             $results = $repo->createQueryBuilder('c')
                 ->where('c.Nom LIKE :q OR c.Matricule LIKE :q')
                 ->setParameter('q', "%$query%")
+                ->orderBy('c.id', 'DESC')
+                ->setFirstResult(0)
+                ->setMaxResults(4)
                 ->getQuery()
                 ->getResult();
         }
@@ -159,6 +189,40 @@ final class MainController extends AbstractController
         return $this->render('main/search_results.html.twig', [
             'results' => $results,
             'query' => $query,
+        ]);
+    }
+
+    #############################################################################################################
+    ######################API pour charger plus de résultats de recherche########################################
+    #############################################################################################################
+    #[Route('/api/search/load-more', name: 'api_search_load_more')]
+    public function loadMoreSearchResults(Request $request, ConsultationListRepository $repo): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $query = $request->query->get('q', '');
+        $page = (int)$request->query->get('page', 1);
+        $limit = 4;
+        $offset = ($page - 1) * $limit;
+
+        $results = [];
+        if ($query) {
+            $results = $repo->createQueryBuilder('c')
+                ->where('c.Nom LIKE :q OR c.Matricule LIKE :q')
+                ->setParameter('q', "%$query%")
+                ->orderBy('c.id', 'DESC')
+                ->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
+        }
+
+        $html = '';
+        foreach ($results as $consultation) {
+            $html .= $this->renderView('main/consultations/_card.html.twig', ['consultation' => $consultation]);
+        }
+
+        return $this->json([
+            'html' => $html,
+            'count' => count($results)
         ]);
     }
 
@@ -293,28 +357,4 @@ final class MainController extends AbstractController
         ]);
     }
 
-    #############################################################################################################
-    ###################################API pour plus de consultations affichés###################################
-    #############################################################################################################
-    #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
-    public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): JsonResponse
-    {
-        $page = (int)$request->query->get('page', 1);
-        $limit = 4;
-        $offset = ($page - 1) * $limit;
-
-        $consultations = $repository->findBy([], ['id' => 'DESC'], $limit, $offset);
-
-        $html = '';
-        foreach ($consultations as $consultation) {
-            $html .= $this->renderView('main/consultations/_card.html.twig', [
-                'consultation' => $consultation
-            ]);
-        }
-
-        return $this->json([
-            'html' => $html,
-            'count' => count($consultations)
-        ]);
-    }
 }

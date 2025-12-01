@@ -12,7 +12,6 @@
         }
 
         .card {
-            position: relative;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -20,27 +19,10 @@
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
         }
 
+
         .card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        .card.edit-hover {
-            background-color: rgba(0, 123, 255, 0.15) !important;
-        }
-
-        .edit-btn {
-            cursor: pointer;
-        }
-
-        .edit-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .edit-btn.disabled {
-            pointer-events: none;
-            opacity: 0.4;
         }
 
         .card-header {
@@ -142,7 +124,23 @@
             padding-top: 0.4rem;
             color: #555;
         }
+
+        .edit-btn {
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
         
+
+        {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+        .card:has(.edit-btn:hover) {
+            background-color: rgba(130, 180, 255, 0.15) !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+        {% endif %}
     </style>
 
     {% include '_partial/nav.html.twig' %}
@@ -150,89 +148,23 @@
 
     <h1 style="text-align:left; margin-bottom:2rem;">Résultats pour : "{{ query }}"</h1>
 
-    <div class="feed">
-        {% for consultation in results %}
-            <div class="card">
-                <!-- Header -->
-                <div class="card-header">
-                    <div class="user-info">
-                        <div class="avatar">
-                            <img src="{{ asset('images/avatar.png') }}" alt="avatar">
-                        </div>
-                        <div class="name-grade">
-                            <div style="display: flex; align-items: center; gap: 0.3rem;">
-                                <span class="grade" title="{{consultation.Grade}}">{{ consultation.Grade }}</span>
-                                <span class="name" title="{{consultation.Nom}}">{{ consultation.Nom }}</span>
-                            </div>
-                            <span class="matricule">{{ consultation.Matricule }}</span>
-                        </div>
-                    </div>
+    <div data-controller="infinite-scroll">
+        <div class="feed" id="consultations-feed" data-page="1" data-search-query="{{ query }}">
+            {% if results %}
+                {% for consultation in results %}
+                    {% include 'main/consultations/_card.html.twig' %}
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center;">Aucune consultation trouvée.</p>
+            {% endif %}
+        </div>
 
-                    <div style="display: flex; align-items:center; gap:10px;">
-                        <div class="date">
-                            {{ consultation.Date ? consultation.Date|date('d/m/Y') : '' }}
-                        </div>
-
-                        {% set can_edit = 'ROLE_SUPER_ADMIN' in app.user.roles %}
-
-                        <a 
-                            href="{{ can_edit ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
-                            class="edit-btn {{ not can_edit ? 'disabled' : '' }}"
-                            title="{{ can_edit ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
-                        >
-                            <img src="{{ asset('images/editer.png') }}" alt="Editer" style="width:30px; height:auto; margin-top:5px;">
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Body -->
-                <div class="card-body">
-                    <div class="flex-container">
-                        <div class="info-block">
-                            <div class="label">Motif</div>
-                            <div class="content">{{ consultation.Motif }}</div>
-                            <div class="delivreur">{{ consultation.DelivreurDeMotif }}</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="label">Observation</div>
-                            <div class="content">{{ consultation.Observation }}</div>
-
-                            <div class="obs-footer">
-                                <span>{{ consultation.DelivreurDObservation }}</span>
-
-                                <span style="font-weight: bold;">
-                                    {% if consultation.Repos %}
-                                        <span style="color:#d9534f">Repos administré: {{ consultation.Repos }}</span>
-                                    {% else %}
-                                        <span style="color:#28a745">Aucun repos administré</span>
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <p style="text-align:center;">Aucune consultation trouvée.</p>
-        {% endfor %}
+        <div id="loading-indicator" style="display: none;">
+            {% include '_partial/animations/card_loading_animation.html.twig' %}
+            {% include '_partial/animations/card_loading_animation.html.twig' %}
+            {% include '_partial/animations/card_loading_animation.html.twig' %}
+        </div>
     </div>
 
     {% include '_partial/footer.html.twig' %}
-
-    <script>
-        // Ajout d'effet hover sur la carte lorsque l'icône d'édition est survolée
-        document.querySelectorAll('.card').forEach(card => {
-            const editBtn = card.querySelector('.edit-btn');
-
-            if (editBtn && !editBtn.classList.contains('disabled')) {
-                editBtn.addEventListener('mouseenter', () => {
-                    card.classList.add('edit-hover');
-                });
-                editBtn.addEventListener('mouseleave', () => {
-                    card.classList.remove('edit-hover');
-                });
-            }
-        });
-    </script>
 {% endblock %}

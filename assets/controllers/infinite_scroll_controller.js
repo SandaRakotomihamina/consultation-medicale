@@ -37,9 +37,17 @@ export default class extends Controller {
 
         const currentPage = parseInt(this.feed.dataset.page || '1');
         const nextPage = currentPage + 1;
+        const searchQuery = this.feed.dataset.searchQuery || ''; // Récupérer la requête de recherche
 
         try {
-            const response = await fetch(`/api/consultations/load-more?page=${nextPage}`);
+            let url = `/api/consultations/load-more?page=${nextPage}`;
+            
+            // Si on est sur une page de recherche (searchQuery non vide)
+            if (searchQuery && searchQuery.trim()) {
+                url = `/api/search/load-more?q=${encodeURIComponent(searchQuery)}&page=${nextPage}`;
+            }
+
+            const response = await fetch(url);
             const data = await response.json();
 
             if (data.html && data.count > 0) {
@@ -47,7 +55,7 @@ export default class extends Controller {
                 this.feed.dataset.page = nextPage;
                 this.loading.style.display = 'none';
             } else {
-                this.loading.innerHTML = '<p>Aucune consultation supplémentaire</p>';
+                this.loading.innerHTML = '<p style="text-align:center; padding: 2rem;">Aucune consultation supplémentaire</p>';
             }
         } catch (error) {
             console.error('Erreur lors du chargement:', error);
@@ -57,4 +65,3 @@ export default class extends Controller {
         }
     }
 }
-
