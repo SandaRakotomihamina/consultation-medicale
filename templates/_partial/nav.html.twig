@@ -183,6 +183,11 @@
         display: none;
     }
 }
+@media (max-width: 850px) {
+    .navbar-left span {
+        display: none;
+    }
+}
 </style>
 
 <nav class="navbar">
@@ -192,6 +197,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Logo de la gendarmerie" style="width: 60px; height: 80px"/>
             </a>
             <a href="{{ path('app_main') }}" class="brand">Consultation Médicale</a>
+            <span>{{ include('_partial/animations/animation_nav.html.twig') }}</span>
         </div>
         <div class="navbar-right">
             {% if app.user %}
