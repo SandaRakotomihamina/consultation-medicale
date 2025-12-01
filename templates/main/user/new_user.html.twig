@@ -174,7 +174,7 @@
 
         {{ form_start(form) }}
 
-        <div class="consultation-form" data-controller="personnel-lookup">
+        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="true">
             <div>
                 {{ form_label(form.matricule) }}
                 {{ form_widget(form.matricule, {
@@ -184,7 +184,7 @@
                         'id': 'user_matricule'
                     }
                 }) }}
-                <div class="error-message" id="matricule-error"></div>
+                <div class="error-message" id="matricule-error" data-personnel-lookup-target="errorMessage"></div>
             </div>
 
             <div>
@@ -272,7 +272,7 @@
                             matriculeInput.style.borderColor = '#dc3545';
                             matriculeInput.style.backgroundColor = '#fff5f5';
                         }
-                    } else if (matriculeInput) {
+                    } else if (matriculeInput && !data.errors.matricule) {
                         matriculeInput.style.borderColor = '#d1d1d1';
                         matriculeInput.style.backgroundColor = '#fafafa';
                     }
@@ -285,7 +285,7 @@
                             usernameInput.style.borderColor = '#dc3545';
                             usernameInput.style.backgroundColor = '#fff5f5';
                         }
-                    } else if (usernameInput) {
+                    } else if (usernameInput && !data.errors.username) {
                         usernameInput.style.borderColor = '#d1d1d1';
                         usernameInput.style.backgroundColor = '#fafafa';
                     }
@@ -293,14 +293,7 @@
                 .catch(error => console.error('Erreur lors de la vérification:', error));
             }
 
-            // Add event listeners with debounce
-            if (matriculeInput) {
-                matriculeInput.addEventListener('input', function() {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(checkUserExists, 500);
-                });
-            }
-
+            // Add event listeners with debounce for username check
             if (usernameInput) {
                 usernameInput.addEventListener('input', function() {
                     clearTimeout(debounceTimer);

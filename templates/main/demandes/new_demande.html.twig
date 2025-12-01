@@ -150,13 +150,14 @@
 
         {{ form_start(form) }}
 
-        <div class="consultation-form" data-controller="personnel-lookup">
+        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="false">
             <div>
                 {{ form_label(form.Matricule) }}
                 {{ form_widget(form.Matricule, {
                     'attr': {
                         'data-personnel-lookup-target': 'matricule',
-                        'data-action': 'input->personnel-lookup#searchPersonnel'
+                        'data-action': 'input->personnel-lookup#searchPersonnel',
+                        'id': 'demande_matricule'
                     }
                 }) }}
                 <div class="error-message" data-personnel-lookup-target="errorMessage"></div>
