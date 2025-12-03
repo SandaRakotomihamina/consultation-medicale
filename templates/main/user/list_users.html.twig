@@ -56,13 +56,6 @@
         overflow: hidden;
     }
 
-    .avatar img {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
     .name-grade {
         display: flex;
         flex-direction: column;
@@ -146,8 +139,7 @@
     }
 
     .delete-btn {
-        width: 28px;
-        height: 28px;
+        margin-top: 4px;
         cursor: pointer;
         opacity: 0.8;
         transition: opacity 0.2s, transform 0.2s;
@@ -160,49 +152,49 @@
 
 
     .flash {
-                animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                transform-origin: top center;
-            }
+        animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform-origin: top center;
+    }
 
-            .flash.fade-out {
-                animation: popupOut 0.5s ease-out forwards;
-            }
+    .flash.fade-out {
+        animation: popupOut 0.5s ease-out forwards;
+    }
 
-            @keyframes popupIn {
-                from {
-                    transform: scale(0.85) translateY(-20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: scale(1) translateY(0);
-                    opacity: 1;
-                }
-            }
+    @keyframes popupIn {
+        from {
+            transform: scale(0.85) translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+    }
 
-            @keyframes popupOut {
-                from {
-                    transform: scale(1) translateY(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: scale(0.85) translateY(-20px);
-                    opacity: 0;
-                }
-            }
+    @keyframes popupOut {
+        from {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: scale(0.85) translateY(-20px);
+            opacity: 0;
+        }
+    }
     .flash-close {
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            line-height: 20px;
-            cursor: pointer;
-            color: inherit;
-            opacity: 0.5;
-            float:right;
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        line-height: 20px;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.5;
+        float:right;
 
-        }
-        .flash-close:hover {
-            opacity: 0.7;
-        }
+    }
+    .flash-close:hover {
+        opacity: 0.7;
+    }
 
 </style>
 
@@ -228,7 +220,12 @@
             <div class="card-header">
                 <div class="user-info">
                     <div class="avatar">
-                        <img src="{{ asset('images/avatar.png') }}" alt="avatar">
+                        <!-- icon avatar -->
+                        <svg fill="#000000" width="50px" height="50px" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16,8a5,5,0,1,0,5,5A5,5,0,0,0,16,8Zm0,8a3,3,0,1,1,3-3A3.0034,3.0034,0,0,1,16,16Z"/>
+                            <path d="M16,2A14,14,0,1,0,30,16,14.0158,14.0158,0,0,0,16,2ZM10,26.3765V25a3.0033,3.0033,0,0,1,3-3h6a3.0033,3.0033,0,0,1,3,3v1.3765a11.8989,11.8989,0,0,1-12,0Zm13.9925-1.4507A5.0016,5.0016,0,0,0,19,20H13a5.0016,5.0016,0,0,0-4.9925,4.9258,12,12,0,1,1,15.985,0Z"/>
+                            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" style="fill:none;" class="cls-1" width="32" height="32"/>
+                        </svg>
                     </div>
                     <div class="name-grade">
                         <div style="display: flex; gap: .2rem;">
@@ -275,7 +272,13 @@
                         style="pointer-events: none; opacity: 0.5; cursor: default;"
                     {% endif %} 
                    >
-                    <img src="{{ asset('images/supprimer.png') }}" alt="Supprimer" class="delete-btn">
+                    <svg class="delete-btn" width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </a>
             </div>
 
