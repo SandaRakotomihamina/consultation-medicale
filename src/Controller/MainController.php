@@ -217,7 +217,9 @@ final class MainController extends AbstractController
 
         $html = '';
         foreach ($results as $consultation) {
-            $html .= $this->renderView('main/consultations/_card.html.twig', ['consultation' => $consultation]);
+            $html .= $this->renderView('main/consultations/_card.html.twig', [
+                'consultation' => $consultation
+            ]);
         }
 
         return $this->json([
