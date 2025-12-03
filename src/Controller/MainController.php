@@ -177,7 +177,7 @@ final class MainController extends AbstractController
         $results = [];
         if ($query) {
             $results = $repo->createQueryBuilder('c')
-                ->where('c.Nom LIKE :q OR c.Matricule LIKE :q')
+                ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
                 ->setParameter('q', "%$query%")
                 ->orderBy('c.id', 'DESC')
                 ->setFirstResult(0)
