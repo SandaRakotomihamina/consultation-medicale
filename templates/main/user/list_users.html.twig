@@ -17,7 +17,6 @@
         position: relative;
         display: inline-block;
         width: 400px;
-        height: 340px;
         background-color: #fff;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -35,7 +34,14 @@
     }
 
     .card:has(.delete-btn:hover) {
-        background-color: rgba(255, 166, 166, 0.15) !important;
+        background-color: rgba(255, 166, 166, 0.19) !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Harmoniser la couleur de la body et du footer lors du survol du bouton supprimer */
+    .card:has(.delete-btn:hover) .card-body,
+    .card:has(.delete-btn:hover) .card-footer {
+        background-color: rgba(255, 166, 166, 0.19) !important;
         transition: background-color 0.2s ease-in-out;
     }
 
@@ -89,6 +95,7 @@
         overflow: hidden;
         height: 170px;
         box-sizing: border-box;
+        background-color: rgb(240, 240, 240);
     }
 
     .card-body p {
@@ -101,13 +108,13 @@
     .roles-wrapper {
         margin-top: 6px;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 8px;
         overflow: hidden;
     }
 
     .roles-label {
         font-weight: bold;
-        margin-bottom: 4px;
         white-space: nowrap;
     }
 
@@ -134,12 +141,13 @@
         justify-content: flex-end;
         align-items: center;
         padding: 0.5rem 0.8rem;
-        border-top: 1px solid #eee;
         box-sizing: border-box;
+        background-color: rgb(240, 240, 240);
     }
 
     .delete-btn {
         margin-top: 4px;
+        margin-bottom: 30px;
         cursor: pointer;
         opacity: 0.8;
         transition: opacity 0.2s, transform 0.2s;
@@ -239,7 +247,7 @@
             </div>
 
             <!-- Body -->
-            <div class="card-body">
+            <div class="card-body" id="card-body">
                 <p><strong>nom d'utilisateur :</strong> {{ user.username }}</p>
 
                 <p><strong>Identifiant du compte :</strong> {{ user.id }}</p>
@@ -252,7 +260,6 @@
 
                 <div class="roles-wrapper">
                     <span class="roles-label">Rôles :</span>
-
                     <div class="roles-container">
                         {% for role in user.roles %}
                             <span class="role-badge">
@@ -272,7 +279,7 @@
                         style="pointer-events: none; opacity: 0.5; cursor: default;"
                     {% endif %} 
                    >
-                    <svg class="delete-btn" width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="delete-btn" id="delete-btn" width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
