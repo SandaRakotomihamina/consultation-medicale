@@ -13,11 +13,17 @@ export default class extends Controller {
     }
 
     async searchPersonnel() {
-        this.clearErrors();
-
         const matricule = this.matriculeTarget.value.trim();
 
         if (!matricule) {
+            clearTimeout(this.debounceTimer);
+            this.clearErrors();
+            if (this.hasNomTarget) {
+                this.nomTarget.value = '';
+            }
+            if (this.hasGradeTarget) {
+                this.gradeTarget.value = '';
+            }
             return;
         }
 
