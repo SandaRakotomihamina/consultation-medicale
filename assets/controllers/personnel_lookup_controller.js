@@ -60,6 +60,7 @@ export default class extends Controller {
                 const data = await response.json();
 
                 if (data.found) {
+                    this.hideError();
                     this.nomTarget.value = data.nom || '';
                     this.gradeTarget.value = data.grade || '';
                     
@@ -89,11 +90,15 @@ export default class extends Controller {
         }
     }
 
-    clearErrors() {
+    hideError() {
         if (this.hasErrorMessageTarget) {
             this.errorMessageTarget.textContent = '';
             this.errorMessageTarget.style.display = 'none';
         }
+    }
+
+    clearErrors() {
+        this.hideError();
         this.matriculeTarget.style.borderColor = '#d1d1d1';
         this.matriculeTarget.style.backgroundColor = '#fafafa';
     }
