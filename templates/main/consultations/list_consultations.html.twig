@@ -18,8 +18,10 @@
     }
 
 
+    /* AOS applique déjà un transform inline sur .card,
+       on force ici notre effet hover à passer au-dessus. */
     .card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-3px) !important;
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
 

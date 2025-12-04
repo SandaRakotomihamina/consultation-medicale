@@ -311,7 +311,7 @@
 
 {% else %}
 
-    <div class="alert-3d">
+    <div class="alert-3d" data-aos="zoom-in" data-aos-duration="500">
         Bienvenue sur l'application de gestion des consultations médicales de la gendarmerie nationale.
         Veuillez vous connecter pour accéder aux fonctionnalités.
     </div>
@@ -379,4 +379,5 @@
         document.addEventListener('turbo:load', initSubnav);
         initSubnav();
     })();
+    AOS.init();
 </script>
