@@ -210,7 +210,7 @@
     }
 </style>
 
-<div class="login-container">
+<div class="login-container" data-aos="zoom-in" data-aos-duration="500">
     <div class="login-header">
         <img src="{{ asset('/images/logo.png') }}" alt="Logo">
         <h1>Se connecter</h1>
@@ -282,6 +282,7 @@ function showLoading() {
     text.style.display = 'none';
     loader.style.display = 'inline-block';
 }
+AOS.init();
 </script>
 
 {% endblock %}

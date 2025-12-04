@@ -151,7 +151,7 @@
         }
     </style>
 
-    <div class="container consultation-container">
+    <div class="container consultation-container" data-aos="zoom-in" data-aos-duration="500">
         <h1>Modifier consultation</h1>
         <p>Modifiez les champs ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
 
@@ -210,6 +210,9 @@
             </div>
         </form>
     </div>
+    <script>
+        AOS.init();
+    </script>
 
     {% include '_partial/footer.html.twig' %}
 {% endblock %}

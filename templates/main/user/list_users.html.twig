@@ -222,7 +222,7 @@
 
 <div class="feed">
     {% for user in users %}
-        <div class="card">
+        <div class="card" data-aos="zoom-in" data-aos-duration="300">
 
             <!-- Header -->
             <div class="card-header">
@@ -316,6 +316,7 @@
             document.addEventListener('turbo:load', initFlashes);
             initFlashes();
         })();
+    AOS.init();
 </script>
 
 {{ include('_partial/footer.html.twig') }}
