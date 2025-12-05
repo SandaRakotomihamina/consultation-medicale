@@ -53,6 +53,7 @@
     }
 
     .name-grade {
+        cursor: pointer;
         display: flex;
         flex-direction: column;
     }
@@ -151,10 +152,10 @@
 
                     <div class="name-grade">
                         <div style="display:flex; align-items:center; gap:0.3rem;">
-                            <span class="grade">{{ demande.Grade }}</span>
-                            <span class="name">{{ demande.Nom }}</span>
+                            <span class="grade" title="Grade: {{demande.Grade}}">{{ demande.Grade }}</span>
+                            <span class="name" title="Nom: {{demande.Nom}}">{{ demande.Nom }}</span>
                         </div>
-                        <span class="matricule">{{ demande.Matricule }}</span>
+                        <span class="matricule" title= "Matricule: {{demande.Matricule}}">{{ demande.Matricule }}</span>
                     </div>
                 </div>
 
@@ -178,13 +179,8 @@
 
                 <!-- Bouton Consulter remplacé par image -->
                 <div style="margin-top: 1rem; display:flex; justify-content:flex-end;">
-                    <a href="{{ path('app_new_consultation', {
-                            'grade': demande.Grade,
-                            'nom': demande.Nom,
-                            'matricule': demande.Matricule,
-                            'motif': demande.Motif,
-                            'delivreurMotif': demande.DelivreurDeMotif,
-                            'id': demande.id
+                    <a href="{{ path('app_new_consultation_from_demande', {
+                            'demandeId': demande.id
                         }) }}"
                         class="btn-image"
                     >

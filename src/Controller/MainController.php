@@ -63,19 +63,27 @@ final class MainController extends AbstractController
     #############################################################################################################
     ####################################Ajouter une nouvelle consultation########################################
     #############################################################################################################
-    #[Route('/consultation/new', name: 'app_new_consultation')]
+    #[Route('/consultation/new/{demandeId}', name: 'app_new_consultation_from_demande')]
     #[IsGranted('ROLE_ADMIN')]
-    public function newConsultation(Request $request, EntityManagerInterface $em): Response
+    public function newConsultation(Request $request, EntityManagerInterface $em, int $demandeId): Response
     {
         $consultation = new ConsultationList();
         $consultation->setDate(new \DateTime());
 
-        // Pré-remplissage depuis la demande
-        $consultation->setGrade($request->query->get('grade'));
-        $consultation->setNom($request->query->get('nom'));
-        $consultation->setMatricule($request->query->get('matricule'));
-        $consultation->setMotif($request->query->get('motif'));
-        $consultation->setDelivreurDeMotif($request->query->get('delivreurMotif'));
+        // Récupérer la demande depuis la base de données
+        $demandeRepo = $em->getRepository(DemandeDeConsultation::class);
+        $demande = $demandeRepo->find($demandeId);
+        
+        if (!$demande) {
+            throw $this->createNotFoundException('Demande de consultation non trouvée pour l\'id ' . $demandeId);
+        }
+
+        // Pré-remplissage depuis la demande récupérée de la base de données
+        $consultation->setGrade($demande->getGrade());
+        $consultation->setNom($demande->getNom());
+        $consultation->setMatricule($demande->getMatricule());
+        $consultation->setMotif($demande->getMotif());
+        $consultation->setDelivreurDeMotif($demande->getDelivreurDeMotif());
 
         // Définir le délivreur d'observation automatiquement
         $user = $this->getUser();
@@ -96,16 +104,9 @@ final class MainController extends AbstractController
             $em->persist($consultation);
             $em->flush();
 
-            // supprimer la demande associée si existe
-            $demandeId = $request->query->get('id');
-            if ($demandeId) {
-                $demandeRepo = $em->getRepository(DemandeDeConsultation::class);
-                $demande = $demandeRepo->find($demandeId);
-                if ($demande) {
-                    $em->remove($demande);
-                    $em->flush();
-                }
-            }
+            // supprimer la demande associée
+            $em->remove($demande);
+            $em->flush();
 
             // SMS si repos
             /* if ($consultation->getRepos()) {
