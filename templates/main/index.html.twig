@@ -3,10 +3,6 @@
 {% block title %}Consultation{% endblock %}
 
 {% block body %}
-    {# Include navbar partial #}
-    {% include '_partial/nav.html.twig' %}
-
-
     <style>
         .example-wrapper { 
             margin: 1em auto; 
@@ -72,9 +68,8 @@
             opacity: 0.7;
         }
     </style>
-    <div>
-        {% include '_partial/subNav.html.twig' %}
-    </div>
+    {% include '_partial/nav.html.twig' %}
+    {% include '_partial/subNav.html.twig' %}
         
     {% for label, messages in app.flashes %}
         {% for message in messages %}
