@@ -197,7 +197,7 @@ final class MainController extends AbstractController
     ######################API pour charger plus de résultats de recherche########################################
     #############################################################################################################
     #[Route('/api/search/load-more', name: 'api_search_load_more')]
-    public function loadMoreSearchResults(Request $request, ConsultationListRepository $repo): \Symfony\Component\HttpFoundation\JsonResponse
+    public function loadMoreSearchResults(Request $request, ConsultationListRepository $repo): JsonResponse
     {
         $query = $request->query->get('q', '');
         $page = (int)$request->query->get('page', 1);
