@@ -1,21 +1,42 @@
 <style>
 
     .subnav {
-        position: relative;
+        position: fixed;
+        top: 120px;
+        left: .5rem;
+        right: .5rem;
+        box-shadow:
+            5px 5px 10px rgba(0,0,0,0.12),
+            -5px -5px 10px rgba(255,255,255,1);
+        z-index: 900;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: .5rem 0;
-        width: 100%;
-        margin-top: 140px;
+        padding: 0.75rem 1rem;
+        background: white;
+        border-radius: 16px;
+        box-sizing: border-box;
         flex-wrap: wrap;
         gap: 2em;
+
+        transform: translateY(0);
+        transition: all .25s ease;
+    }
+
+    .subnav:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            8px 8px 16px rgba(0,0,0,0.15),
+            -8px -8px 16px rgba(255,255,255,1);
+    }
+
+    .subnav.subnav-hide {
+        transform: translateY(-120%);
     }
 
     .subnav-form {
         display: flex;
         gap: 1rem;
-        margin-left: 10px;
         flex-grow: 1;
     }
 
@@ -380,4 +401,32 @@
         initSubnav();
     })();
     AOS.init();
+</script>
+
+<script>
+    (function() {
+        let lastScroll = 0;
+        const subnav = document.querySelector('.subnav');
+
+        if (!subnav) return;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+
+            if (currentScroll <= 0) {
+                subnav.classList.remove('subnav-hide');
+                return;
+            }
+
+            if (currentScroll > lastScroll) {
+                subnav.classList.add('subnav-hide');
+            } 
+            
+            else {
+                subnav.classList.remove('subnav-hide');
+            }
+
+            lastScroll = currentScroll;
+        });
+    })();
 </script>
