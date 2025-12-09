@@ -4,31 +4,22 @@
 
 {% block body %}
     <style>
-        .example-wrapper { 
-            margin: 1em auto; 
-            max-width: 800px; 
-            width: 95%; 
-            font: 18px/1.5 sans-serif; 
-        }
-        .example-wrapper code { 
-            background: #F5F5F5; 
-            padding: 2px 6px; 
-        }
-        .flash-close {
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            line-height: 20px;
-            cursor: pointer;
-            color: inherit;
-            opacity: 0.5;
-            float:right;
-
-        }
-
         .flash {
-            animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform-origin: top center;
+            animation: popupIn 0.4s ease-out forwards;
+            transform-origin: center;
+            border-radius: 8px;
+            position: fixed;
+            bottom: 20px;
+            left: 10px;
+            box-sizing: border-box;
+            box-shadow:
+                3px 3px 6px rgba(0,0,0,0.12),
+                -3px -3px 6px rgba(255,255,255,1);
+            font-size: 16px;
+            z-index: 1100;
+            text-align: center;
+            max-width: 90vw;
+            padding: 0.8rem 1.2rem;
         }
 
         .flash.fade-out {
@@ -36,54 +27,41 @@
         }
 
         @keyframes popupIn {
-            from {
-                transform: scale(0.85) translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
+            from { transform: scale(0.85) translateX(-50px); opacity: 0; }
+            to   { transform: scale(1) translateX(0); opacity: 1; }
         }
 
         @keyframes popupOut {
-            from {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-            to {
-                transform: scale(0.85) translateY(-20px);
-                opacity: 0;
-            }
+            from { transform: scale(1) translateX(0); opacity: 1; }
+            to   { transform: scale(0.85) translateX(-50px); opacity: 0; }
         }
 
         .flash:hover {
-            transform: translateY(-2px);
+            transform: translateX(0) translateY(-2px);
             transition: all .25s ease;
             box-shadow:
                 3px 3px 6px rgba(0,0,0,0.12),
                 -3px -3px 6px rgba(255,255,255,1);
         }
-        .flash-close:hover {
-            opacity: 0.7;
-        }
     </style>
+
     {% include '_partial/nav.html.twig' %}
     {% include '_partial/subNav.html.twig' %}
-        
+
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="flash flash-{{ label }}">
                 <span>{{ message }}</span>
-                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
             </div>
         {% endfor %}
     {% endfor %}
+
     {% if app.user %}
         <div data-controller="infinite-scroll">
             {% include 'main/consultations/list_consultations.html.twig' %}
         </div>        
     {% endif %}
+
     {% include '_partial/footer.html.twig' %}
 
     <script>
@@ -109,5 +87,3 @@
         })();
     </script>
 {% endblock %}
-
-

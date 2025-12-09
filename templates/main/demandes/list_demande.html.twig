@@ -131,9 +131,28 @@
         transform: scale(1.1);
     }
 
+    @media (max-width: 1000px) {
+        h1.page-title {
+            margin-top: 4.3em !important;
+        }
+    }
+
+    @media (max-width: 500px) {
+        h1.page-title {
+            font-size: 1.5rem !important;
+        }
+    }
+    @media (max-width: 450px) {
+        h1.page-title {
+            margin-top: 5em !important;
+        }
+    }
+
 </style>
 
-<h1 style="text-align:left; margin-bottom:2rem; margin-top:140px;">Liste des consultations en attente</h1>   
+<h1 class="page-title" style="text-align:left; margin:10rem 0 2rem 0; font-size:1.8rem; transition:.3s ease-in-out; ">
+    Liste des consultations en attente
+</h1>   
 
 <div class="feed">
     {% for demande in Demandes %}
