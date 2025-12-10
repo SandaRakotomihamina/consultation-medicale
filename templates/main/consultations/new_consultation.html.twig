@@ -143,6 +143,74 @@
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
         }
+
+        .check {
+            cursor: pointer;
+            position: relative;
+            margin: auto;
+            width: 18px;
+            height: 18px;
+            -webkit-tap-highlight-color: transparent;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .check:before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(34, 50, 84, 0.03);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .check svg {
+            position: relative;
+            z-index: 1;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #c8ccd4;
+            stroke-width: 1.5;
+            transform: translate3d(0, 0, 0);
+            transition: all 0.2s ease;
+        }
+
+        .check svg path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 0;
+        }
+
+        .check svg polyline {
+            stroke-dasharray: 22;
+            stroke-dashoffset: 66;
+        }
+
+        .check:hover:before {
+            opacity: 1;
+        }
+
+        .check:hover svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_repos_checkbox:checked + .check svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_repos_checkbox:checked + .check svg path {
+            stroke-dashoffset: 60;
+            transition: all 0.3s linear;
+        }
+
+        #enable_repos_checkbox:checked + .check svg polyline {
+            stroke-dashoffset: 42;
+            transition: all 0.2s linear;
+            transition-delay: 0.15s;
+        }
     </style>
 
     <div class="container consultation-container" data-aos="zoom-in" data-aos-duration="500">
@@ -163,7 +231,16 @@
             {% set repos_id = form.Repos.vars.id %}
             <div class="field">
                 <label style="display:flex; align-items:center; gap:0.5rem;">
-                    <input type="checkbox" id="enable_repos_checkbox" />
+                    <!-- Checkbox to enable/disable Repos field -->
+                    <div class="container">
+                        <input type="checkbox" id="enable_repos_checkbox" style="display: none;">
+                        <label for="enable_repos_checkbox" class="check">
+                            <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                <polyline points="1 9 7 14 15 4"></polyline>
+                            </svg>
+                        </label>
+                    </div>
                     <span>Repos administré</span>
                 </label>
                 <div style="margin-top:.5rem;">
