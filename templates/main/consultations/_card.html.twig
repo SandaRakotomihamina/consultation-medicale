@@ -130,8 +130,12 @@
 }
 
 
+
 {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
-.card:has(.edit-btn:hover) {
+.card:has(.edit-btn:hover),
+.card:has(.edit-btn:hover) .label,
+.card:has(.edit-btn:hover) .info-block,
+.card:has(.edit-btn:hover) .card-footer {
     background-color: rgba(130, 180, 255, 0.15) !important;
     transition: background-color 0.2s ease-in-out;
 }

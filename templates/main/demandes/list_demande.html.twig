@@ -25,8 +25,10 @@
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
-
-    .card:has(.btn-image:hover) {
+    .card:has(.btn-image:hover),
+    .card:has(.btn-image:hover) .label,
+    .card:has(.btn-image:hover) .info-block,
+    .card:has(.btn-image:hover) .card-footer {
         background-color: rgba(140, 230, 160, 0.29);
         transition: background-color 0.5s ease;
     }
@@ -196,8 +198,8 @@
 
                 </div>
 
-                <!-- Bouton Consulter remplacé par image -->
                 <div style="margin-top: 1rem; display:flex; justify-content:flex-end;">
+                    <!-- bouton de consultation -->
                     <a href="{{ path('app_new_consultation_from_demande', {
                             'demandeId': demande.id
                         }) }}"
