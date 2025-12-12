@@ -44,9 +44,11 @@ body {
 
 
 .scroll-to-top-btn:hover .svgIcon {
-    transition-duration: 0.3s;
+    opacity: 0;
     transform: translateY(-200%);
+    transition-duration: 0.3s;
 }
+
 
 .scroll-to-top-btn::before {
     position: absolute;
