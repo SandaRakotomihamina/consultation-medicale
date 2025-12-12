@@ -86,7 +86,6 @@
             initFlashes();
         })();
         
-        // Système de polling pour les nouvelles consultations
         (function() {
             const feed = document.getElementById('consultations-feed');
             if (!feed) return;
@@ -151,8 +150,8 @@
                     });
             }
             
-            // Vérifier toutes les 5 secondes
-            setInterval(checkNewConsultations, 5000);
+            // Vérifier toutes les 7 secondes
+            setInterval(checkNewConsultations, 10000);
             
             // Arrêter le polling quand la page n'est plus visible
             document.addEventListener('visibilitychange', () => {
