@@ -92,6 +92,15 @@
             
             let lastId = parseInt(feed.dataset.lastId) || 0;
             let isPolling = true;
+            let isLoading = false;
+            let lastRequestTime = 0;
+            let pollingInterval = null;
+            const POLLING_INTERVAL_MS = 10000;
+            
+            // Nettoyer l'intervalle existant s'il y en a un (évite les doublons)
+            if (window.consultationPollingInterval) {
+                clearInterval(window.consultationPollingInterval);
+            }
             
             function showFlashMessage(message, type = 'info') {
                 const flash = document.createElement('div');
@@ -121,7 +130,25 @@
             }
             
             function checkNewConsultations() {
-                if (!isPolling) return;
+                // Ne pas exécuter si le polling est désactivé ou si une requête est déjà en cours
+                if (!isPolling || isLoading) {
+                    return;
+                }
+                
+                // Vérifier qu'au moins 10 secondes se sont écoulées depuis la dernière requête
+                const now = Date.now();
+                const timeSinceLastRequest = now - lastRequestTime;
+                
+                if (timeSinceLastRequest < POLLING_INTERVAL_MS) {
+                    // Attendre le temps restant avant de relancer
+                    const remainingTime = POLLING_INTERVAL_MS - timeSinceLastRequest;
+                    setTimeout(checkNewConsultations, remainingTime);
+                    return;
+                }
+                
+                // Marquer comme en cours de chargement
+                isLoading = true;
+                lastRequestTime = now;
                 
                 fetch(`/api/consultations/check-new?lastId=${lastId}`)
                     .then(response => response.json())
@@ -142,20 +169,39 @@
                             // Mettre à jour le lastId
                             lastId = data.lastId;
                             feed.dataset.lastId = lastId;
-                            
                         }
                     })
                     .catch(error => {
                         console.error('Erreur lors de la vérification des nouvelles consultations:', error);
+                    })
+                    .finally(() => {
+                        // Réinitialiser le flag de chargement
+                        isLoading = false;
                     });
             }
             
-            // Vérifier toutes les 7 secondes
-            setInterval(checkNewConsultations, 10000);
+            // Vérifier toutes les 10 secondes
+            pollingInterval = setInterval(checkNewConsultations, POLLING_INTERVAL_MS);
+            window.consultationPollingInterval = pollingInterval;
             
             // Arrêter le polling quand la page n'est plus visible
             document.addEventListener('visibilitychange', () => {
                 isPolling = !document.hidden;
+                if (!isPolling && pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                } else if (isPolling && !pollingInterval) {
+                    pollingInterval = setInterval(checkNewConsultations, POLLING_INTERVAL_MS);
+                    window.consultationPollingInterval = pollingInterval;
+                }
+            });
+            
+            // Nettoyer l'intervalle lors de la navigation Turbo
+            document.addEventListener('turbo:before-cache', () => {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
             });
         })();
     </script>
