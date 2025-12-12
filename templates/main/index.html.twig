@@ -85,5 +85,79 @@
             document.addEventListener('turbo:load', initFlashes);
             initFlashes();
         })();
+        
+        // Système de polling pour les nouvelles consultations
+        (function() {
+            const feed = document.getElementById('consultations-feed');
+            if (!feed) return;
+            
+            let lastId = parseInt(feed.dataset.lastId) || 0;
+            let isPolling = true;
+            
+            function showFlashMessage(message, type = 'info') {
+                const flash = document.createElement('div');
+                flash.className = `flash flash-${type}`;
+                flash.style.cssText = `
+                    animation: popupIn 0.4s ease-out forwards;
+                    transform-origin: center;
+                    border-radius: 8px;
+                    position: fixed;
+                    bottom: 20px;
+                    left: 10px;
+                    box-sizing: border-box;
+                    box-shadow: 3px 3px 6px rgba(0,0,0,0.12), -3px -3px 6px rgba(255,255,255,1);
+                    font-size: 16px;
+                    z-index: 1100;
+                    text-align: center;
+                    max-width: 90vw;
+                    padding: 0.8rem 1.2rem;
+                `;
+                flash.innerHTML = `<span>${message}</span>`;
+                document.body.appendChild(flash);
+                
+                setTimeout(() => {
+                    flash.classList.add('fade-out');
+                    setTimeout(() => flash.remove(), 500);
+                }, 5000);
+            }
+            
+            function checkNewConsultations() {
+                if (!isPolling) return;
+                
+                fetch(`/api/consultations/check-new?lastId=${lastId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.new && data.count > 0) {
+                            // Insérer les nouvelles consultations en haut de la liste
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = data.html;
+                            const newCards = Array.from(tempDiv.children);
+                            
+                            newCards.forEach((card, index) => {
+                                setTimeout(() => {
+                                    feed.insertBefore(card, feed.firstChild);
+                                    AOS.refresh();
+                                }, index * 100);
+                            });
+                            
+                            // Mettre à jour le lastId
+                            lastId = data.lastId;
+                            feed.dataset.lastId = lastId;
+                            
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la vérification des nouvelles consultations:', error);
+                    });
+            }
+            
+            // Vérifier toutes les 5 secondes
+            setInterval(checkNewConsultations, 5000);
+            
+            // Arrêter le polling quand la page n'est plus visible
+            document.addEventListener('visibilitychange', () => {
+                isPolling = !document.hidden;
+            });
+        })();
     </script>
 {% endblock %}

@@ -127,7 +127,7 @@ final class MainController extends AbstractController
                 }
             } */
 
-            $this->addFlash('success', 'Consultation enregistrée avec succès.');
+            $this->addFlash('success', 'Nouvelle consultation enregistrée avec succès.');
             return $this->redirectToRoute('app_main');
         }
 
@@ -334,7 +334,7 @@ final class MainController extends AbstractController
             $em->persist($demande);
             $em->flush();
 
-            $this->addFlash('success', 'Demande de consultation enregistrée avec succès.');
+            $this->addFlash('success', 'Nouvelle demande de consultation enregistrée avec succès.');
             return $this->redirectToRoute('app_main');
         }
 
@@ -353,7 +353,7 @@ final class MainController extends AbstractController
     public function listdemande(DemandeDeConsultationRepository $demandeDeConsultationRepository): Response
     {
 
-        $demandes = $demandeDeConsultationRepository->findAll();
+        $demandes = $demandeDeConsultationRepository->findBy([], ['id' => 'DESC']);
 
         return $this->render('main/demandes/list_demande.html.twig', [
             'Demandes' => $demandes,

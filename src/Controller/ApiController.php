@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\PersonnelRepository;
 use App\Repository\UserRepository;
+use App\Repository\DemandeDeConsultationRepository;
+use App\Repository\ConsultationListRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiController extends AbstractController
@@ -125,6 +127,80 @@ class ApiController extends AbstractController
         return new JsonResponse([
             'exists' => !empty($errors),
             'errors' => $errors
+        ]);
+    }
+
+    #############################################################################################################
+    #######################API pour vérifier les nouvelles demandes de consultation##############################
+    #############################################################################################################
+    #[Route('/api/demandes/check-new', name: 'api_check_new_demandes', methods: ['GET'])]
+    public function checkNewDemandes(Request $request, DemandeDeConsultationRepository $demandeRepository): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $lastId = (int) $request->query->get('lastId', 0);
+        
+        $newDemandes = $demandeRepository->createQueryBuilder('d')
+            ->where('d.id > :lastId')
+            ->setParameter('lastId', $lastId)
+            ->orderBy('d.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $html = '';
+        $maxId = $lastId;
+        foreach ($newDemandes as $demande) {
+            if ($demande->getId() > $maxId) {
+                $maxId = $demande->getId();
+            }
+            $html .= $this->renderView('main/demandes/_card.html.twig', [
+                'demande' => $demande
+            ]);
+        }
+
+        return new JsonResponse([
+            'new' => count($newDemandes) > 0,
+            'count' => count($newDemandes),
+            'html' => $html,
+            'lastId' => $maxId
+        ]);
+    }
+
+    #############################################################################################################
+    #######################API pour vérifier les nouvelles consultations#########################################
+    #############################################################################################################
+    #[Route('/api/consultations/check-new', name: 'api_check_new_consultations', methods: ['GET'])]
+    public function checkNewConsultations(Request $request, ConsultationListRepository $consultationRepository): JsonResponse
+    {
+
+        $lastId = (int) $request->query->get('lastId', 0);
+        
+        $newConsultations = $consultationRepository->createQueryBuilder('c')
+            ->where('c.id > :lastId')
+            ->setParameter('lastId', $lastId)
+            ->orderBy('c.id', 'DESC')
+            ->setMaxResults(4)
+            ->getQuery()
+            ->getResult();
+
+        $html = '';
+        $maxId = $lastId;
+        foreach ($newConsultations as $consultation) {
+            if ($consultation->getId() > $maxId) {
+                $maxId = $consultation->getId();
+            }
+            $html .= $this->renderView('main/consultations/_card.html.twig', [
+                'consultation' => $consultation
+            ]);
+        }
+
+        return new JsonResponse([
+            'new' => count($newConsultations) > 0,
+            'count' => count($newConsultations),
+            'html' => $html,
+            'lastId' => $maxId
         ]);
     }
 }

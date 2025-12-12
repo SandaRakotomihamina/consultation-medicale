@@ -24,7 +24,7 @@
 </h1>
 
 
-<div class="feed" id="consultations-feed" data-page="1">
+<div class="feed" id="consultations-feed" data-page="1" data-last-id="{{ consultations|length > 0 ? consultations|first.id : 0 }}">
     {% if consultations %}
         {% for consultation in consultations %}
             {% include 'main/consultations/_card.html.twig' %}
