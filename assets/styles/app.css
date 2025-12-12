@@ -2,7 +2,6 @@ body {
     background: linear-gradient(135deg, #f0f4ff, #eff3ffff);
 }
 
-/* Scroll to Top Button */
 .scroll-to-top-btn {
     position: fixed;
     bottom: 30px;
@@ -31,10 +30,44 @@ body {
     color: #ffff;
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    width: 140px;
+    border-radius: 50px;
+    transition-duration: 0.3s;
+    align-items: center;
 }
 
 .scroll-to-top-btn.visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+
+.scroll-to-top-btn:hover .svgIcon {
+    transition-duration: 0.3s;
+    transform: translateY(-200%);
+}
+
+.scroll-to-top-btn::before {
+    position: absolute;
+    bottom: -20px;
+    content: "Retour en haut";
+    color: white;
+    font-size: 0px;
+}
+
+.scroll-to-top-btn:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    bottom: unset;
+    transition-duration: 0.3s;
+}
+
+.svgIcon {
+    width: 12px;
+    transition-duration: 0.3s;
+}
+
+.svgIcon path {
+    fill: white;
 }
