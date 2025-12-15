@@ -271,8 +271,8 @@
                             
                             // Afficher le message flash
                             const message = data.count === 1 
-                                ? 'Nouvelle demande de consultation reçue !' 
-                                : `${data.count} Nouvelles demandes de consultation reçues !`;
+                                ? 'Nouvelle demande de consultation reçue' 
+                                : `${data.count} Nouvelles demandes de consultation reçues`;
                             showFlashMessage(message, 'info');
                         }
                     })
