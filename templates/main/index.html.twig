@@ -154,21 +154,28 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.new && data.count > 0) {
-                            // Insérer les nouvelles consultations en haut de la liste
                             const tempDiv = document.createElement('div');
                             tempDiv.innerHTML = data.html;
                             const newCards = Array.from(tempDiv.children);
-                            
+
                             newCards.forEach((card, index) => {
                                 setTimeout(() => {
                                     feed.insertBefore(card, feed.firstChild);
                                     AOS.refresh();
                                 }, index * 100);
                             });
-                            
+
                             // Mettre à jour le lastId
                             lastId = data.lastId;
                             feed.dataset.lastId = lastId;
+
+                            // Message flash
+                            showFlashMessage(
+                                data.count === 1
+                                    ? 'Nouvelle consultation reçue'
+                                    : `${data.count} nouvelles consultations reçues`,
+                                'info'
+                            );
                         }
                     })
                     .catch(error => {

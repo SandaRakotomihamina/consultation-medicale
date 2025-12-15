@@ -12,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Repository\DemandeDeConsultationRepository;
 use App\Repository\ConsultationListRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ApiController extends AbstractController
 {
@@ -133,12 +134,10 @@ class ApiController extends AbstractController
     #############################################################################################################
     #######################API pour vérifier les nouvelles demandes de consultation##############################
     #############################################################################################################
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/api/demandes/check-new', name: 'api_check_new_demandes', methods: ['GET'])]
     public function checkNewDemandes(Request $request, DemandeDeConsultationRepository $demandeRepository): JsonResponse
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
 
         $lastId = (int) $request->query->get('lastId', 0);
         
