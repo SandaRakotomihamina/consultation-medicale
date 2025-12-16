@@ -4,7 +4,6 @@
 
 {% block body %}
     {% include '_partial/nav.html.twig' %}
-
     <style>
         .consultation-container {
             max-width: 900px;
@@ -79,7 +78,6 @@
             background-position: right 0.75rem center;
             background-size: 0.65rem auto;
         }
-
 
         .form-actions {
             display: flex;
@@ -231,7 +229,6 @@
             {% set repos_id = form.Repos.vars.id %}
             <div class="field">
                 <label style="display:flex; align-items:center; gap:0.5rem;">
-                    <!-- Checkbox to enable/disable Repos field -->
                     <div class="container">
                         <input type="checkbox" id="enable_repos_checkbox" style="display: none;">
                         <label for="enable_repos_checkbox" class="check">

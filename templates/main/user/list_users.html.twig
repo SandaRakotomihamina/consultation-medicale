@@ -6,7 +6,6 @@
     {% include "_partial/nav.html.twig" %}
 
 <style>
-
     .feed {
         display: block;
         margin-top: 2rem;
@@ -82,6 +81,7 @@
         font-size: 0.85rem;
         color: #666;
     }
+
     .grade {
         font-weight: bold;
         color: #4267B2;
@@ -305,25 +305,25 @@
 
 <script>
    (function() {
-            function initFlashes() {
-                const flashes = document.querySelectorAll('.flash:not([data-flash-initialized])');
-                flashes.forEach(function(flash) {
-                    flash.dataset.flashInitialized = 'true';
+        function initFlashes() {
+            const flashes = document.querySelectorAll('.flash:not([data-flash-initialized])');
+            flashes.forEach(function(flash) {
+                flash.dataset.flashInitialized = 'true';
+
+                setTimeout(function() {
+                    flash.classList.add('fade-out');
 
                     setTimeout(function() {
-                        flash.classList.add('fade-out');
+                        flash.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+        }
 
-                        setTimeout(function() {
-                            flash.style.display = 'none';
-                        }, 500);
-                    }, 5000);
-                });
-            }
-
-            document.addEventListener('DOMContentLoaded', initFlashes);
-            document.addEventListener('turbo:load', initFlashes);
-            initFlashes();
-        })();
+        document.addEventListener('DOMContentLoaded', initFlashes);
+        document.addEventListener('turbo:load', initFlashes);
+        initFlashes();
+    })();
     AOS.init();
 </script>
 

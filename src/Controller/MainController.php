@@ -158,7 +158,7 @@ final class MainController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            $this->addFlash('success', 'Utilisateur créé.');
+            $this->addFlash('success', 'Utilisateur créé avec succès.');
             return $this->redirectToRoute('app_main');
         }
 
@@ -273,7 +273,6 @@ final class MainController extends AbstractController
     #[Route('/users', name: 'app_list_user')]
     public function listUser(UserRepository $userRepository): Response
     {
-        // Autoriser si SUPER_ADMIN ou ROLE_USER
         if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_USER')) {
             throw $this->createAccessDeniedException('Accès réservé aux super-admins et utilisateurs simples.');
         }
@@ -304,7 +303,7 @@ final class MainController extends AbstractController
 
         $this->addFlash('success', 'Utilisateur supprimé avec succès.');
 
-        return $this->redirectToRoute('app_list_user'); // Remplace par ta vraie route
+        return $this->redirectToRoute('app_list_user');
     }
 
 

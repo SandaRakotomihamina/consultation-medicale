@@ -1,215 +1,213 @@
 <style>
-.navbar { 
-    position: fixed;
-    top: .5rem;
-    left: .5rem;
-    right: .5rem;
+    .navbar { 
+        position: fixed;
+        top: .5rem;
+        left: .5rem;
+        right: .5rem;
 
-    background: #ffffffff;
-    padding: 0.75rem 1rem;
-    border-radius: 16px;
+        background: #ffffffff;
+        padding: 0.75rem 1rem;
+        border-radius: 16px;
 
-    margin-bottom: 1rem;
-    z-index: 1000;
-    box-sizing: border-box;
+        margin-bottom: 1rem;
+        z-index: 1000;
+        box-sizing: border-box;
 
-    box-shadow:
-        5px 5px 10px rgba(0,0,0,0.12),
-        -5px -5px 10px rgba(255,255,255,1);
-    transition: all .25s ease;
-}
+        box-shadow:
+            5px 5px 10px rgba(0,0,0,0.12),
+            -5px -5px 10px rgba(255,255,255,1);
+        transition: all .25s ease;
+    }
 
-.navbar:hover {
-    transform: translateY(-3px);
-    box-shadow:
-    8px 8px 16px rgba(0,0,0,0.15),
-    -8px -8px 16px rgba(255,255,255,1);
+    .navbar:hover {
+        transform: translateY(-3px);
+        box-shadow:
+        8px 8px 16px rgba(0,0,0,0.15),
+        -8px -8px 16px rgba(255,255,255,1);
+            
+    }
+
+    .navbar .container { 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+    }
+
+    .navbar .brand { 
+        color: #0366d6;
+        text-decoration:none;
+        font-weight:1000;
+        font-size:1.5rem;
+    }
+
+    .navbar-left{
+        display:flex;
+        align-items: center;
+        gap:0.75rem;
+    }
+
+    .brand{
+        vertical-align: middle;
+        transition: font-size .25s ease;
+    }
+
+    .navbar-right { 
+        display:flex;
+        gap:0.75rem;
+        align-items:center;
+        position: relative;
+    }
+
+    .navbar-right span { 
+        color:#333;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .btn-logout {
+        color:#444;
+        background:#f0f0f0;
+        padding:0.45rem 0.9rem;
+        border-radius:10px;
+        text-decoration:none;
         
-}
+        box-shadow:
+            6px 6px 14px rgba(0,0,0,0.15),
+            -6px -6px 14px rgba(255,255,255,1);
+        transition: .2s;
+    }
 
-.navbar .container { 
-    display:flex; 
-    justify-content:space-between; 
-    align-items:center; 
-}
+    .btn-logout:hover { 
+        color:#222;
+    }
 
-.navbar .brand { 
-    color: #0366d6;
-    text-decoration:none;
-    font-weight:1000;
-    font-size:1.5rem;
-}
+    .btn-logout:active {
+        box-shadow:
+            inset 4px 4px 10px rgba(0,0,0,0.18),
+            inset -4px -4px 10px rgba(255,255,255,1);
+        transform: translateY(2px);
+    }
 
-.navbar-left{
-    display:flex;
-    align-items: center;
-    gap:0.75rem;
-}
+    .btn-logout svg {
+        animation: moveUpDown 0.6s ease-in-out infinite;
+    }
 
-.brand{
-    vertical-align: middle;
-    transition: font-size .25s ease;
-}
-
-.navbar-right { 
-    display:flex;
-    gap:0.75rem;
-    align-items:center;
-    position: relative;
-}
-
-.navbar-right span { 
-    color:#333;
-    cursor: pointer;
-    position: relative;
-}
-
-.btn-logout {
-    color:#444;
-    background:#f0f0f0;
-    padding:0.45rem 0.9rem;
-    border-radius:10px;
-    text-decoration:none;
-    
-    box-shadow:
-        6px 6px 14px rgba(0,0,0,0.15),
-        -6px -6px 14px rgba(255,255,255,1);
-    transition: .2s;
-}
-
-.btn-logout:hover { 
-    color:#222;
-}
-
-.btn-logout:active {
-    box-shadow:
-        inset 4px 4px 10px rgba(0,0,0,0.18),
-        inset -4px -4px 10px rgba(255,255,255,1);
-    transform: translateY(2px);
-}
-
-.btn-logout svg {
-    animation: moveUpDown 0.6s ease-in-out infinite;
-}
-
-@keyframes moveUpDown {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-}
+    @keyframes moveUpDown {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
 
 
-.user-card {
-    display: none;
-    position: absolute;
-    top: 110%;
-    right: 0;
-    width: 280px;
-
-    background-color: #f0f0f0;
-    border-radius: 18px;
-
-    box-shadow:
-        10px 10px 18px rgba(0,0,0,0.15),
-        -10px -10px 18px rgba(255,255,255,1);
-
-    z-index: 1001;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.navbar-right span:hover .user-card {
-    display: block;
-}
-
-.user-card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.8rem;
-    background-color: #fafafa;
-}
-
-.user-card-header .avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-
-    box-shadow:
-        4px 4px 8px rgba(0,0,0,0.15),
-        -4px -4px 8px rgba(255,255,255,1);
-}
-
-.user-card-header .name-grade {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.user-card-header .name-grade span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.matricule{
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.user-card-body {
-    padding: 0.8rem 1rem;
-    font-size: 0.85rem;
-}
-
-.user-card-body strong {
-    color: #333;
-}
-
-.user-card-body .role-badge {
-    background: #4267B2;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-
-    box-shadow:
-        2px 2px 5px rgba(0,0,0,0.15),
-        -2px -2px 5px rgba(255,255,255,1);
-}
-
-@media (max-width: 960px) {
-    .navbar-right span {
+    .user-card {
         display: none;
+        position: absolute;
+        top: 110%;
+        right: 0;
+        width: 280px;
+
+        background-color: #f0f0f0;
+        border-radius: 18px;
+
+        box-shadow:
+            10px 10px 18px rgba(0,0,0,0.15),
+            -10px -10px 18px rgba(255,255,255,1);
+
+        z-index: 1001;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    .icon-user {
-        display: block !important;
+
+    .navbar-right span:hover .user-card {
+        display: block;
     }
-}
-@media (max-width: 870px) {
-    .navbar-left span {
-        display: none;
+
+    .user-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.8rem;
+        background-color: #fafafa;
     }
-}
-@media (max-width: 600px) {
+
+    .user-card-header .avatar img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+
+        box-shadow:
+            4px 4px 8px rgba(0,0,0,0.15),
+            -4px -4px 8px rgba(255,255,255,1);
+    }
+
+    .user-card-header .name-grade {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .user-card-header .name-grade span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .matricule{
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .user-card-body {
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .user-card-body strong {
+        color: #333;
+    }
+
+    .user-card-body .role-badge {
+        background: #4267B2;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+
+        box-shadow:
+            2px 2px 5px rgba(0,0,0,0.15),
+            -2px -2px 5px rgba(255,255,255,1);
+    }
+
+    @media (max-width: 960px) {
+        .navbar-right span {
+            display: none;
+        }
+        .icon-user {
+            display: block !important;
+        }
+    }
+    @media (max-width: 870px) {
+        .navbar-left span {
+            display: none;
+        }
+    }
+    @media (max-width: 600px) {
+        .icon {
+            width: 40px !important;
+            height: 60px !important;
+            transition: font-size .25s ease;
+        }
+        .brand {
+            font-size: 1rem !important;
+            transition: font-size .25s ease;
+        }
+    }
+
     .icon {
-        width: 40px !important;
-        height: 60px !important;
+        width: 60px; 
+        height: 80px;
         transition: font-size .25s ease;
     }
-    .brand {
-        font-size: 1rem !important;
-        transition: font-size .25s ease;
-    }
-}
-
-.icon {
-    width: 60px; 
-    height: 80px;
-    transition: font-size .25s ease;
-}
-
-
 </style>
 
 <nav class="navbar">
