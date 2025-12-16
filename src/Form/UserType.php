@@ -16,6 +16,8 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['is_edit'] ?? false;
+        
         $builder
             ->add('matricule', TextType::class, [
                 'required' => true,
@@ -35,9 +37,11 @@ class UserType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
-                'label' => 'Mot de passe',
-                'required' => true,
-                'constraints' => [
+                'label' => $isEdit ? 'Nouveau mot de passe' : 'Mot de passe',
+                'required' => !$isEdit,
+                'constraints' => $isEdit ? [
+                    new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères']),
+                ] : [
                     new NotBlank(['message' => 'Veuillez renseigner un mot de passe']),
                     new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères']),
                 ],
@@ -63,6 +67,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'is_edit' => false,
         ]);
     }
 }

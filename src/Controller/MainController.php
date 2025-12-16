@@ -235,7 +235,7 @@ final class MainController extends AbstractController
     #############################################################################################################
     #[Route('/consultation/edit/{id}', name: 'app_consultation_edit')]
     #[IsGranted('ROLE_SUPER_ADMIN')]
-    public function edit(ManagerRegistry $doctrine, Request $request, string $id): Response
+    public function editConsultation(ManagerRegistry $doctrine, Request $request, string $id): Response
     {
         $em = $doctrine->getManager();
         $consultation = $doctrine->getRepository(ConsultationList::class)->find($id);
@@ -263,6 +263,43 @@ final class MainController extends AbstractController
 
         return $this->render('main/consultations/edit_consultation.html.twig', [
             'consultation' => $consultation
+        ]);
+    }
+
+    #############################################################################################################
+    #########################################Modifier une utilisateur############################################
+    #############################################################################################################
+    #[Route('/users/edit/{id}', name: 'app_user_edit')]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    public function editUser(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher, string $id): Response
+    {
+        $user = $em->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvée pour l\'id '.$id);
+        }
+
+        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Ne mettre à jour le mot de passe que s'il est fourni
+            $plain = $form->get('plainPassword')->getData();
+            if ($plain) {
+                $hashed = $passwordHasher->hashPassword($user, $plain);
+                $user->setPassword($hashed);
+            }
+
+            $em->persist($user);
+            $em->flush();
+
+            $this->addFlash('success', 'Utilisateur mise à jour avec succès !');
+            return $this->redirectToRoute('app_list_user');
+        }
+
+        return $this->render('main/user/edit_user.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
         ]);
     }
 
