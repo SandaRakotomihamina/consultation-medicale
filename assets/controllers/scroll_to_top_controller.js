@@ -13,8 +13,8 @@ export default class extends Controller {
     }
     
     handleScroll() {
-        // Afficher le bouton si on a scrollé plus de 300px vers le bas
-        if (window.pageYOffset > 300) {
+        // Afficher le bouton si on a scrollé plus de 500px vers le bas
+        if (window.pageYOffset > 500) {
             this.buttonTarget.classList.add('visible');
         } else {
             this.buttonTarget.classList.remove('visible');

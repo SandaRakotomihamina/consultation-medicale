@@ -55,7 +55,7 @@ export default class extends Controller {
                     }
                 }
 
-                // Chercher dans l'API personnel-local
+                // Chercher dans l'API personnel(-local)
                 const response = await fetch(`/api/personnel-local/${encodeURIComponent(matricule)}`);
                 const data = await response.json();
 

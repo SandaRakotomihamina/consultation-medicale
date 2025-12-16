@@ -12,7 +12,7 @@ export default class extends Controller {
 
         // Afficher le loader sur la soumission de formulaire
         this.handleSubmit = (event) => {
-            // Vérifier que ce n'est pas un formulaire annulé (ex: dans une pop-up)
+            // Vérifier que ce n'est pas un formulaire annulé
             const form = event.target;
             if (form && form.tagName === 'FORM') {
                 this.showLoading();
@@ -20,7 +20,7 @@ export default class extends Controller {
         };
         document.addEventListener('submit', this.handleSubmit);
 
-        // Afficher le loader sur les clics de lien (navigation)
+        // Afficher le loader sur les clics de lien 
         this.handleLinkClick = (event) => {
             const link = event.target.closest('a');
             if (link && !link.hasAttribute('data-turbo') && !link.getAttribute('href')?.startsWith('#')) {
