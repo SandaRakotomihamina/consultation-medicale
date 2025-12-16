@@ -178,6 +178,73 @@
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
         }
+
+        .check {
+            cursor: pointer;
+            position: relative;
+            margin: auto;
+            width: 18px;
+            height: 18px;
+            -webkit-tap-highlight-color: transparent;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .check:before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .check svg {
+            position: relative;
+            z-index: 1;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #c8ccd4;
+            stroke-width: 1.5;
+            transform: translate3d(0, 0, 0);
+            transition: all 0.2s ease;
+        }
+
+        .check svg path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 0;
+        }
+
+        .check svg polyline {
+            stroke-dasharray: 22;
+            stroke-dashoffset: 66;
+        }
+
+        .check:hover:before {
+            opacity: 1;
+        }
+
+        .check:hover svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_password_checkbox:checked + .check svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_password_checkbox:checked + .check svg path {
+            stroke-dashoffset: 60;
+            transition: all 0.3s linear;
+        }
+
+        #enable_password_checkbox:checked + .check svg polyline {
+            stroke-dashoffset: 42;
+            transition: all 0.2s linear;
+            transition-delay: 0.15s;
+        }
     </style>
 
 <div class="container consultation-container" data-aos="zoom-in" data-aos-duration="500ms">
@@ -225,7 +292,19 @@
                 </div>
                 
             <div style="position: relative;">
-                {{ form_label(form.plainPassword) }}
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="container" style="margin-top: .1rem;">
+                        <input type="checkbox" id="enable_password_checkbox" style="display: none;">
+                        <label for="enable_password_checkbox" class="check">
+                            <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                <polyline points="1 9 7 14 15 4"></polyline>
+                            </svg>
+                        </label>
+                    </div>
+                    {{ form_label(form.plainPassword) }}
+                </div>
+                
                 {{ form_widget(form.plainPassword, {
                     'attr': {
                         'id': 'user_plainPassword',
@@ -233,7 +312,7 @@
                         'style': 'padding-right: 2.5rem;'
                     }
                 }) }}
-                <span class="toggle-password" onclick="togglePassword()">
+                <span class="toggle-password" onclick="togglePassword()" id="togglePassword">
                     <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                             d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
@@ -272,6 +351,33 @@
                     0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
             }
         }
+        (function () {
+            const checkbox = document.getElementById('enable_password_checkbox');
+            const passwordInput = document.getElementById('user_plainPassword');
+            const toggleIcon = document.getElementById('togglePassword');
+
+            if (!checkbox || !passwordInput) return;
+
+            checkbox.checked = false;
+            toggleIcon.style.display = 'none';
+
+            // Champ mot de passe désactivé par défaut
+            passwordInput.disabled = true;
+            passwordInput.value = '';
+
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    passwordInput.disabled = false;
+                    passwordInput.focus();
+                    toggleIcon.style.display = 'block';
+                } else {
+                    passwordInput.disabled = true;
+                    passwordInput.value = '';
+                    passwordInput.type = 'password';
+                    toggleIcon.style.display = 'none';
+                }
+            });
+        })();
         AOS.init();
     </script>
 {% endblock %}

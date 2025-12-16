@@ -160,7 +160,6 @@
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: rgba(34, 50, 84, 0.03);
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -229,7 +228,7 @@
             {% set repos_id = form.Repos.vars.id %}
             <div class="field">
                 <label style="display:flex; align-items:center; gap:0.5rem;">
-                    <div class="container">
+                    <div class="container" style="margin-top: .1rem;">
                         <input type="checkbox" id="enable_repos_checkbox" style="display: none;">
                         <label for="enable_repos_checkbox" class="check">
                             <svg width="18px" height="18px" viewBox="0 0 18 18">
