@@ -194,13 +194,6 @@
             // Arrêter le polling quand la page n'est plus visible
             document.addEventListener('visibilitychange', () => {
                 isPolling = !document.hidden;
-                if (!isPolling && pollingInterval) {
-                    clearInterval(pollingInterval);
-                    pollingInterval = null;
-                } else if (isPolling && !pollingInterval) {
-                    pollingInterval = setInterval(checkNewConsultations, POLLING_INTERVAL_MS);
-                    window.consultationPollingInterval = pollingInterval;
-                }
             });
             
             // Nettoyer l'intervalle lors de la navigation Turbo
