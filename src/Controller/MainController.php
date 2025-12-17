@@ -187,7 +187,7 @@ final class MainController extends AbstractController
                 ->getResult();
         }
 
-        return $this->render('main/search_results.html.twig', [
+        return $this->render('main/consultations/search_consultations.html.twig', [
             'results' => $results,
             'query' => $query,
         ]);
