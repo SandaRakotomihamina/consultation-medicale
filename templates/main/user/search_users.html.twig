@@ -144,9 +144,26 @@
             opacity: 1;
             transform: scale(1.1);
         }
+
+        @media (max-width: 1000px) {
+            h1.page-title {
+                margin-top: 18rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1.page-title {
+                font-size: 1.5rem !important;
+            }
+        }
+        @media (max-width: 450px) {
+            h1.page-title {
+                margin-top: 15rem !important;
+            }
+        }
     </style>
 
-    <h1 class="page-title" style="text-align:left; margin:10rem 0 2rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    <h1 class="page-title" style="text-align:left; margin:13rem 0 2rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
         Résultats pour : "<span style="font-style: italic;">{{ query }}"</span>
     </h1>
 
@@ -154,7 +171,7 @@
         <div class="feed" id="users-feed" data-page="1" data-search-query="{{ query }}" data-search-type="users">
             {% if results %}
                 {% for user in results %}
-                    {% include 'main/user/_user_card.html.twig' %}
+                    {% include 'main/user/_card.html.twig' %}
                 {% endfor %}
             {% else %}
                 <p style="text-align:center; color: var(--text-primary);">Aucun utilisateur trouvé.</p>

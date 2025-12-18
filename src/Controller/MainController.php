@@ -294,7 +294,7 @@ final class MainController extends AbstractController
         foreach ($results as $item) {
             if ($type === 'users') {
                 // Pour les utilisateurs, on utilise le même format que dans la liste
-                $html .= $this->renderView('main/user/_user_card.html.twig', [
+                $html .= $this->renderView('main/user/_card.html.twig', [
                     'user' => $item
                 ]);
             } elseif ($type === 'demandes') {
