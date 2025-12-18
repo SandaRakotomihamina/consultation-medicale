@@ -4,6 +4,7 @@
 
 {% block body %}
 {% include '_partial/nav.html.twig' %}
+{% include '_partial/subNav.html.twig' with {'search_type': 'demandes'} %}
 <style>
     @keyframes popupIn {
         from { transform: scale(0.85) translateX(-50px); opacity: 0; }
@@ -16,9 +17,10 @@
     }
 
     .flash-info {
-        background: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
+        background: var(--info-bg);
+        color: var(--info-text);
+        border: 1px solid var(--info-border);
+        transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .flash.fade-out {
@@ -32,17 +34,17 @@
     }
 
     .card {
-        background-color: #fff;
+        background-color: var(--bg-primary);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px var(--shadow-dark);
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-        border: 1px solid #949090ff;
+        border: 1px solid var(--border-color);
     }
 
     .card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        box-shadow: 0 8px 20px var(--shadow-dark-hover);
     }
     .card:has(.btn-image:hover),
     .card:has(.btn-image:hover) .label,
@@ -56,7 +58,8 @@
         justify-content: space-between;
         align-items: center;
         padding: 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
+        transition: border-color 0.3s ease;
     }
 
     .user-info {
@@ -86,16 +89,20 @@
 
     .name-grade .name {
         font-weight: 600;
+        color: var(--text-primary);
+        transition: color 0.3s ease;
     }
 
     .name-grade .matricule {
         font-size: 0.85rem;
-        color: #666;
+        color: var(--text-tertiary);
+        transition: color 0.3s ease;
     }
 
     .date {
         font-size: 0.85rem;
-        color: #999;
+        color: var(--text-muted);
+        transition: color 0.3s ease;
     }
 
     .card-body {
@@ -111,34 +118,39 @@
     .info-block {
         flex: 1;
         min-width: 200px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         position: relative;
         padding: 1.5rem 1rem 1rem 1rem;
-        background-color: #f9f9f9;
+        background-color: var(--bg-tertiary);
+        transition: border-color 0.3s ease, background-color 0.3s ease;
     }
 
     .info-block .label {
         position: absolute;
         top: -0.8rem;
         left: 1rem;
-        background-color: #f9f9f9;
+        background-color: var(--bg-tertiary);
         padding: 0 0.5rem;
         font-weight: bold;
         font-size: 0.85rem;
-        color: #333;
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .info-block .content {
         margin-bottom: 0.8rem;
         white-space: pre-wrap;
+        color: var(--text-primary);
+        transition: color 0.3s ease;
     }
 
     .info-block .delivreur {
         font-size: 0.85rem;
-        color: #555;
-        border-top: 1px solid #ddd;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--border-color);
         padding-top: 0.3rem;
+        transition: color 0.3s ease, border-color 0.3s ease;
     }
 
     .btn-image {
@@ -170,7 +182,7 @@
 
 </style>
 
-<h1 class="page-title" style="text-align:left; margin:10rem 0 2rem 0; font-size:1.8rem; transition:.3s ease-in-out; ">
+<h1 class="page-title" style="text-align:left; margin:10rem 0 2rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
     Liste des consultations en attente
 </h1>   
 
@@ -178,7 +190,7 @@
     {% for demande in Demandes %}
         {% include 'main/demandes/_card.html.twig' %}
     {% else %}
-        <p style="text-align:center;">Aucune demande de consultation pour l'instant.</p>
+        <p style="text-align:center; color: var(--text-primary);">Aucune demande de consultation pour l'instant.</p>
     {% endfor %}
 </div>
 <script>

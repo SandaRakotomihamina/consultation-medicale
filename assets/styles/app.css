@@ -1,5 +1,67 @@
+/* Variables CSS pour le thème light (par défaut) */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f0f0f0;
+    --bg-tertiary: #f5f5f5;
+    --bg-body: linear-gradient(135deg, #f0f4ff, #eff3ffff);
+    --text-primary: #333333;
+    --text-secondary: #555555;
+    --text-tertiary: #666666;
+    --text-muted: #777777;
+    --border-color: #d1d1d1;
+    --shadow-light: rgba(255, 255, 255, 1);
+    --shadow-dark: rgba(0, 0, 0, 0.12);
+    --shadow-dark-hover: rgba(0, 0, 0, 0.15);
+    --accent-color: #0366d6;
+    --accent-hover: #0b5ed7;
+    --error-color: #dc3545;
+    --error-bg: #fff5f5;
+    --success-bg: #d4edda;
+    --success-text: #155724;
+    --success-border: #c3e6cb;
+    --error-bg-flash: #f8d7da;
+    --error-text-flash: #721c24;
+    --error-border-flash: #f5c6cb;
+    --info-bg: #d1ecf1;
+    --info-text: #0c5460;
+    --info-border: #bee5eb;
+    --loading-overlay: rgba(255, 255, 255, 0.5);
+}
+
+/* Variables CSS pour le thème dark */
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --bg-body: linear-gradient(135deg, #1a1a2e, #16213e);
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #999999;
+    --text-muted: #888888;
+    --border-color: #444444;
+    --shadow-light: rgba(45, 45, 45, 0.8);
+    --shadow-dark: rgba(0, 0, 0, 0.5);
+    --shadow-dark-hover: rgba(0, 0, 0, 0.7);
+    --accent-color: #4a9eff;
+    --accent-hover: #6bb0ff;
+    --error-color: #ff6b6b;
+    --error-bg: #3a1f1f;
+    --success-bg: #1e3a1e;
+    --success-text: #90ee90;
+    --success-border: #2d5a2d;
+    --error-bg-flash: #3a1f1f;
+    --error-text-flash: #ff6b6b;
+    --error-border-flash: #5a2f2f;
+    --info-bg: #1e2a3a;
+    --info-text: #6bb0ff;
+    --info-border: #2d3f5a;
+    --loading-overlay: rgba(0, 0, 0, 0.7);
+}
+
 body {
-    background: linear-gradient(135deg, #f0f4ff, #eff3ffff);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .scroll-to-top-btn {
@@ -8,7 +70,7 @@ body {
     right: 30px;
     width: 50px;
     height: 50px;
-    background-color: rgb(3, 102, 214);
+    background-color: var(--accent-color);
     color: white;
     border: none;
     border-radius: 50%;
@@ -21,15 +83,15 @@ body {
     visibility: hidden;
     transform: translateY(20px);
     transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px var(--shadow-dark);
     z-index: 999;
 }
 
 .scroll-to-top-btn:hover {
-    background-color: rgb(0, 56, 121);
+    background-color: var(--accent-hover);
     color: #ffff;
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 12px var(--shadow-dark-hover);
     width: 140px;
     border-radius: 50px;
     transition-duration: 0.3s;

@@ -5,28 +5,28 @@
         left: .5rem;
         right: .5rem;
         box-shadow:
-            5px 5px 10px rgba(0,0,0,0.12),
-            -5px -5px 10px rgba(255,255,255,1);
+            5px 5px 10px var(--shadow-dark),
+            -5px -5px 10px var(--shadow-light);
         z-index: 900;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem 1rem;
-        background: white;
+        background: var(--bg-primary);
         border-radius: 16px;
         box-sizing: border-box;
         flex-wrap: wrap;
         gap: 2em;
 
         transform: translateY(0);
-        transition: all .25s ease;
+        transition: all .25s ease, background 0.3s ease;
     }
 
     .subnav:hover {
         transform: translateY(-3px);
         box-shadow:
-            8px 8px 16px rgba(0,0,0,0.15),
-            -8px -8px 16px rgba(255,255,255,1);
+            8px 8px 16px var(--shadow-dark-hover),
+            -8px -8px 16px var(--shadow-light);
     }
 
     .subnav.subnav-hide {
@@ -45,14 +45,14 @@
         border-radius: 10px;
         font-weight: 600;
         font-size: .9rem;
-        color: #333;
-        background: #f5f5f5;
+        color: var(--text-primary);
+        background: var(--bg-tertiary);
         min-width: 300px;
         flex-grow: 1;
         box-shadow:
-            3px 3px 7px rgba(0, 0, 0, 0.16),
-            -3px -3px 7px rgba(255, 255, 255, 0.9);
-        transition: all .25s ease;
+            3px 3px 7px var(--shadow-dark),
+            -3px -3px 7px var(--shadow-light);
+        transition: all .25s ease, background 0.3s ease, color 0.3s ease;
     }
 
     .subnav-input:focus {
@@ -63,23 +63,23 @@
     .subnav-input:hover {
         transform: translateY(-3px);
         box-shadow:
-            5px 5px 10px rgba(0,0,0,0.12),
-            -5px -5px 10px rgba(255,255,255,1);
+            5px 5px 10px var(--shadow-dark),
+            -5px -5px 10px var(--shadow-light);
     }
 
     .button-3d {
         padding: 10px 18px;
-        background: #f5f5f5;
+        background: var(--bg-tertiary);
         border-radius: 10px;
         border: none;
         cursor: pointer;
         font-weight: 600;
         font-size: .9rem;
-        color: #333;
-        transition: .15s ease-in-out;
+        color: var(--text-primary);
+        transition: .15s ease-in-out, background 0.3s ease, color 0.3s ease;
         box-shadow:
-            3px 3px 7px rgba(0, 0, 0, 0.16),
-            -3px -3px 7px rgba(255, 255, 255, 0.9);
+            3px 3px 7px var(--shadow-dark),
+            -3px -3px 7px var(--shadow-light);
         text-decoration: none;
         display: inline-block;
     }
@@ -91,16 +91,17 @@
     .button-3d:active {
         transform: translateY(2px);
         box-shadow:
-            inset 3px 3px 7px rgba(0, 0, 0, 0.18),
-            inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+            inset 3px 3px 7px var(--shadow-dark),
+            inset -3px -3px 7px var(--shadow-light);
     }
 
     .options {
         width: 100%;
         margin-bottom: .5rem;
         text-align: center;
-        color: #444 !important;
+        color: var(--text-secondary) !important;
         text-decoration: none;
+        transition: color 0.3s ease;
     }
 
 
@@ -141,9 +142,9 @@
         width: 25px;
         height: 4px;
         margin: 4px 0;
-        background-color: #333;
+        background-color: var(--text-primary);
         border-radius: 2px;
-        transition: all 0.4s ease;
+        transition: all 0.4s ease, background-color 0.3s ease;
     }
 
     .hamburger-menu.open span:nth-child(1) {
@@ -162,35 +163,37 @@
         position: absolute;
         right: 0;
         top: calc(100% + 8px);
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.08);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 6px 18px var(--shadow-dark);
         border-radius: 6px;
         min-width: 180px;
         padding: 0.4rem 0;
         display: none;
         z-index: 999;
+        transition: background 0.3s ease;
     }
     
     .alert-3d {
         margin-top: 140px;
         padding: 1.5rem;
         border-radius: 16px;
-        background: #f5f5f5;
-        color: #222;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
         font-size: 1.1rem;
         text-align: center;
         box-shadow:
-            4px 4px 12px rgba(0,0,0,0.18),
-            -4px -4px 12px rgba(255,255,255,0.9);
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        transition: all .25s ease, background 0.3s ease, color 0.3s ease;
     }
 
     .alert-3d:hover{
         transform: translateY(-3px);
         transition: all .25s ease;
         box-shadow:
-            5px 5px 10px rgba(0,0,0,0.12),
-            -5px -5px 10px rgba(255,255,255,1);
+            5px 5px 10px var(--shadow-dark),
+            -5px -5px 10px var(--shadow-light);
     }
 
     .subnav-dropdown.open {
@@ -293,8 +296,12 @@
 {% if app.user %}
     <div class="subnav">
 
+        {% set _search_type = search_type|default('consultations') %}
         <form action="{{ path('app_search') }}" method="get" class="subnav-form">
-            <input type="search" id="search-input" name="q" placeholder="Rechercher..." class="subnav-input" title="Rechercher par Matricule, par Grade ou par Nom" required />
+            <input type="hidden" name="type" value="{{ _search_type }}" />
+            {% set placeholder_text = _search_type == 'demandes' ? 'Rechercher une demande...' : (_search_type == 'users' ? 'Rechercher un utilisateur...' : 'Rechercher une consultation...') %}
+            {% set title_text = _search_type == 'demandes' ? 'Rechercher par Matricule, Grade ou Nom' : (_search_type == 'users' ? 'Rechercher par Matricule, Grade, Nom ou Nom d\'utilisateur' : 'Rechercher par Matricule, Grade ou Nom') %}
+            <input type="search" id="search-input" name="q" placeholder="{{ placeholder_text }}" class="subnav-input" title="{{ title_text }}" required />
             <button type="submit" id="search-button" class="button-3d" title="Rechercher">Rechercher</button>
         </form>
 

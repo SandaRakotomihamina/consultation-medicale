@@ -171,25 +171,62 @@ final class MainController extends AbstractController
     ###########################################Recherche de consultation#########################################
     #############################################################################################################
     #[Route('/search', name: 'app_search')]
-    public function search(Request $request, ConsultationListRepository $repo): Response
+    public function search(
+        Request $request, 
+        ConsultationListRepository $consultationRepo,
+        DemandeDeConsultationRepository $demandeRepo,
+        UserRepository $userRepo
+    ): Response
     {
         $query = $request->query->get('q', '');
+        $type = $request->query->get('type', 'consultations'); // consultations, demandes, users
 
         $results = [];
+        $template = 'main/consultations/search_consultations.html.twig';
+        
         if ($query) {
-            $results = $repo->createQueryBuilder('c')
-                ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
-                ->setParameter('q', "%$query%")
-                ->orderBy('c.id', 'DESC')
-                ->setFirstResult(0)
-                ->setMaxResults(4)
-                ->getQuery()
-                ->getResult();
+            switch ($type) {
+                case 'demandes':
+                    $results = $demandeRepo->createQueryBuilder('d')
+                        ->where('d.Nom LIKE :q OR d.Matricule LIKE :q OR d.Grade LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('d.id', 'DESC')
+                        ->setFirstResult(0)
+                        ->setMaxResults(4)
+                        ->getQuery()
+                        ->getResult();
+                    $template = 'main/demandes/search_demandes.html.twig';
+                    break;
+                    
+                case 'users':
+                    $results = $userRepo->createQueryBuilder('u')
+                        ->where('u.name LIKE :q OR u.Matricule LIKE :q OR u.title LIKE :q OR u.username LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('u.id', 'DESC')
+                        ->setFirstResult(0)
+                        ->setMaxResults(4)
+                        ->getQuery()
+                        ->getResult();
+                    $template = 'main/user/search_users.html.twig';
+                    break;
+                    
+                default: // consultations
+                    $results = $consultationRepo->createQueryBuilder('c')
+                        ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('c.id', 'DESC')
+                        ->setFirstResult(0)
+                        ->setMaxResults(4)
+                        ->getQuery()
+                        ->getResult();
+                    break;
+            }
         }
 
-        return $this->render('main/consultations/search_consultations.html.twig', [
+        return $this->render($template, [
             'results' => $results,
             'query' => $query,
+            'type' => $type,
         ]);
     }
 
@@ -197,30 +234,78 @@ final class MainController extends AbstractController
     ######################API pour charger plus de résultats de recherche########################################
     #############################################################################################################
     #[Route('/api/search/load-more', name: 'api_search_load_more')]
-    public function loadMoreSearchResults(Request $request, ConsultationListRepository $repo): JsonResponse
+    public function loadMoreSearchResults(
+        Request $request, 
+        ConsultationListRepository $consultationRepo,
+        DemandeDeConsultationRepository $demandeRepo,
+        UserRepository $userRepo
+    ): JsonResponse
     {
         $query = $request->query->get('q', '');
+        $type = $request->query->get('type', 'consultations');
         $page = (int)$request->query->get('page', 1);
         $limit = 4;
         $offset = ($page - 1) * $limit;
 
         $results = [];
+        $cardTemplate = 'main/consultations/_card.html.twig';
+        
         if ($query) {
-            $results = $repo->createQueryBuilder('c')
-                ->where('c.Nom LIKE :q OR c.Matricule LIKE :q')
-                ->setParameter('q', "%$query%")
-                ->orderBy('c.id', 'DESC')
-                ->setFirstResult($offset)
-                ->setMaxResults($limit)
-                ->getQuery()
-                ->getResult();
+            switch ($type) {
+                case 'demandes':
+                    $results = $demandeRepo->createQueryBuilder('d')
+                        ->where('d.Nom LIKE :q OR d.Matricule LIKE :q OR d.Grade LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('d.id', 'DESC')
+                        ->setFirstResult($offset)
+                        ->setMaxResults($limit)
+                        ->getQuery()
+                        ->getResult();
+                    $cardTemplate = 'main/demandes/_card.html.twig';
+                    break;
+                    
+                case 'users':
+                    $results = $userRepo->createQueryBuilder('u')
+                        ->where('u.name LIKE :q OR u.Matricule LIKE :q OR u.title LIKE :q OR u.username LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('u.id', 'DESC')
+                        ->setFirstResult($offset)
+                        ->setMaxResults($limit)
+                        ->getQuery()
+                        ->getResult();
+                    // Pour les utilisateurs, on doit créer un template de card ou réutiliser celui de la liste
+                    $cardTemplate = null; // On va gérer ça différemment
+                    break;
+                    
+                default: // consultations
+                    $results = $consultationRepo->createQueryBuilder('c')
+                        ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
+                        ->setParameter('q', "%$query%")
+                        ->orderBy('c.id', 'DESC')
+                        ->setFirstResult($offset)
+                        ->setMaxResults($limit)
+                        ->getQuery()
+                        ->getResult();
+                    break;
+            }
         }
 
         $html = '';
-        foreach ($results as $consultation) {
-            $html .= $this->renderView('main/consultations/_card.html.twig', [
-                'consultation' => $consultation
-            ]);
+        foreach ($results as $item) {
+            if ($type === 'users') {
+                // Pour les utilisateurs, on utilise le même format que dans la liste
+                $html .= $this->renderView('main/user/_user_card.html.twig', [
+                    'user' => $item
+                ]);
+            } elseif ($type === 'demandes') {
+                $html .= $this->renderView($cardTemplate, [
+                    'demande' => $item
+                ]);
+            } else {
+                $html .= $this->renderView($cardTemplate, [
+                    'consultation' => $item
+                ]);
+            }
         }
 
         return $this->json([

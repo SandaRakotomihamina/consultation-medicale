@@ -23,14 +23,14 @@
     </style>
 
     {% include '_partial/nav.html.twig' %}
-    {% include '_partial/subNav.html.twig' %}
+    {% include '_partial/subNav.html.twig' with {'search_type': 'consultations'} %}
 
-    <h1 class="page-title" style="text-align:left; margin:13rem 0 2rem 0; transition:.3s ease-in-out; ">
-        Résultats pour : "<span style="font-style: italic;">{{ query }}"<span>
+    <h1 class="page-title" style="text-align:left; margin:13rem 0 2rem 0; transition:.3s ease-in-out; color: var(--text-primary);">
+        Résultats pour : "<span style="font-style: italic;">{{ query }}"</span>
     </h1>
 
     <div data-controller="infinite-scroll">
-        <div class="feed" id="consultations-feed" data-page="1" data-search-query="{{ query }}">
+        <div class="feed" id="consultations-feed" data-page="1" data-search-query="{{ query }}" data-search-type="consultations">
             {% if results %}
                 {% for consultation in results %}
                     {% include 'main/consultations/_card.html.twig' %}
@@ -53,7 +53,7 @@
                         stroke-linejoin="round"
                     />
                 </svg>
-                <p style="text-align:center;">Aucune consultation trouvée.</p>
+                <p style="text-align:center; color: var(--text-primary);">Aucune consultation trouvée.</p>
             {% endif %}
         </div>
 

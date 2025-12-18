@@ -13,10 +13,11 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background: linear-gradient(135deg, #f0f4ff, #eff3ffff);
+        background: var(--bg-body);
         font-family: 'Inter', sans-serif;
         margin: 0;
         position: relative;
+        transition: background 0.3s ease;
     }
 
     .login-container {
@@ -24,15 +25,15 @@
         max-width: 400px;
         padding: 2rem;
         border-radius: 12px;
-        background: #ffffff;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
+        background: var(--bg-primary);
+        box-shadow: 0 10px 25px var(--shadow-dark);
+        transition: transform 0.2s, box-shadow 0.2s, background 0.3s ease;
         overflow: hidden;
     }
 
     .login-container:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        box-shadow: 0 15px 30px var(--shadow-dark-hover);
     }
 
     .login-header {
@@ -49,7 +50,8 @@
     .login-header h1 {
         font-size: 1.8rem;
         margin: 0;
-        color: #0366d6;
+        color: var(--accent-color);
+        transition: color 0.3s ease;
     }
 
     .floating-group {
@@ -61,16 +63,17 @@
         width: 100%;
         padding: 0.85rem 0.75rem;
         padding-right: 2.5rem;
-        border: 1px solid #ccc;
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         outline: none;
         font-size: 1rem;
-        transition: border 0.2s, box-shadow 0.2s;
-        background: none;
+        transition: border 0.2s, box-shadow 0.2s, border-color 0.3s ease;
+        background: var(--bg-primary);
+        color: var(--text-primary);
     }
 
     .floating-group input:focus {
-        border-color: #0366d6;
+        border-color: var(--accent-color);
         box-shadow: 0 0 0 3px rgba(3,102,214,0.1);
     }
 
@@ -79,10 +82,10 @@
         top: 50%;
         left: 0.75rem;
         transform: translateY(-50%);
-        color: #777;
+        color: var(--text-muted);
         pointer-events: none;
-        transition: 0.2s ease all;
-        background: #fff;
+        transition: 0.2s ease all, color 0.3s ease;
+        background: var(--bg-primary);
         padding: 0 0.25rem;
     }
 
@@ -91,7 +94,7 @@
         top: -0.6rem;
         left: 0.6rem;
         font-size: 0.75rem;
-        color: #0366d6;
+        color: var(--accent-color);
     }
 
     .toggle-password {
@@ -100,12 +103,12 @@
         top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
-        color: #777;
+        color: var(--text-muted);
         transition: color 0.2s;
     }
 
     .toggle-password:hover {
-        color: #0366d6;
+        color: var(--accent-color);
     }
 
     .login-actions {
@@ -146,11 +149,12 @@
     }
 
     .btn-login {
-        background: #0366d6;
+        background: var(--accent-color);
+        transition: background 0.3s ease;
     }
 
     .btn-login:hover {
-        background: #0254a2;
+        background: var(--accent-hover);
     }
 
     .btn-reset {
@@ -162,7 +166,7 @@
     }
 
     .loader {
-        border: 3px solid #f3f3f3;
+        border: 3px solid var(--bg-tertiary);
         border-top: 3px solid #fff; 
         border-radius: 50%;
         width: 18px;
@@ -180,9 +184,9 @@
         width: 100%;
         max-width: 400px;
         padding: 1rem;
-        background: #ffe6e6;
-        color: #c33;
-        border: 1px solid #fcc;
+        background: var(--error-bg-flash);
+        color: var(--error-text-flash);
+        border: 1px solid var(--error-border-flash);
         border-radius: 8px;
         text-align: left;
         position: absolute;
@@ -190,6 +194,7 @@
         left: 50%;
         transform: translateX(-50%);
         z-index: 1000;
+        transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .flash-close {

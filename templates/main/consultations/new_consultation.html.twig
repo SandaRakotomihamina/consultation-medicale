@@ -9,27 +9,29 @@
             max-width: 900px;
             margin: 2rem auto;
             padding: 2rem;
-            background: #ffffff;
+            background: var(--bg-primary);
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px var(--shadow-dark);
             margin-top: 140px;
-            transition: .3s ease;
+            transition: .3s ease, background 0.3s ease;
         }
 
         .consultation-container:hover {
-            box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+            box-shadow: 0 6px 28px var(--shadow-dark-hover);
         }
 
         .consultation-container h1 {
             margin-top: 0;
             font-size: 1.7rem;
             font-weight: 700;
-            color: #222;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
 
         .consultation-container p {
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form {
@@ -41,8 +43,9 @@
 
         .consultation-form label {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: .35rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form input[type="text"],
@@ -51,26 +54,27 @@
         .consultation-form textarea,
         .consultation-form select {
             padding: .75rem 1rem;
-            border: 1px solid #d1d1d1;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             width: 100%;
             font-size: 1rem;
-            background: #fafafa;
-            transition: .2s ease;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transition: .2s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
             box-sizing: border-box;
         }
 
         .consultation-form input:focus,
         .consultation-form select:focus,
         .consultation-form textarea:focus {
-            border-color: #0d6efd;
-            background: #fff;
+            border-color: var(--accent-color);
+            background: var(--bg-primary);
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
             outline: none;
         }
 
         .consultation-form select {
-            background-color: #fff;
+            background-color: var(--bg-tertiary);
             appearance: none;
             cursor: pointer;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E");
@@ -99,43 +103,44 @@
         }
 
         .btn {
-            background: #0d6efd;
+            background: var(--accent-color);
             color: #fff;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            box-shadow: 0 6px 18px var(--shadow-dark);
+            transition: background 0.3s ease;
 
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.22);
-            background: #0b5ed7;
+            box-shadow: 0 10px 25px var(--shadow-dark-hover);
+            background: var(--accent-hover);
         }
 
         .btn:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         .btn--muted {
             background: #6c757d;
             color: #fff;
             text-decoration: none;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            box-shadow: 0 6px 18px var(--shadow-dark);
         }
 
         .btn--muted:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+            box-shadow: 0 10px 25px var(--shadow-dark-hover);
             background: #5a6268;
         }
 
         .btn--muted:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         @media (max-width: 640px) {

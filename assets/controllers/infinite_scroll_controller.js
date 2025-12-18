@@ -4,7 +4,10 @@ export default class extends Controller {
     connect() {
         this.isLoading = false;
         
-        this.feed = document.getElementById('consultations-feed');
+        // Détecter le feed (peut être consultations-feed, demandes-feed, ou users-feed)
+        this.feed = document.getElementById('consultations-feed') || 
+                    document.getElementById('demandes-feed') || 
+                    document.getElementById('users-feed');
         this.loading = document.getElementById('loading-indicator');
         this._boundHandleScroll = this.handleScroll.bind(this);
         window.addEventListener('scroll', this._boundHandleScroll);
@@ -38,13 +41,14 @@ export default class extends Controller {
         const currentPage = parseInt(this.feed.dataset.page || '1');
         const nextPage = currentPage + 1;
         const searchQuery = this.feed.dataset.searchQuery || '';
+        const searchType = this.feed.dataset.searchType || 'consultations';
 
         try {
             let url = `/api/consultations/load-more?page=${nextPage}`;
             
             // Si on est sur une page de recherche (searchQuery non vide)
             if (searchQuery && searchQuery.trim()) {
-                url = `/api/search/load-more?q=${encodeURIComponent(searchQuery)}&page=${nextPage}`;
+                url = `/api/search/load-more?q=${encodeURIComponent(searchQuery)}&type=${searchType}&page=${nextPage}`;
             }
 
             const response = await fetch(url);
@@ -54,8 +58,13 @@ export default class extends Controller {
                 this.feed.insertAdjacentHTML('beforeend', data.html);
                 this.feed.dataset.page = nextPage;
                 this.loading.style.display = 'none';
+                // Réinitialiser AOS pour les nouvelles cartes
+                if (window.AOS) {
+                    AOS.refresh();
+                }
             } else {
-                this.loading.innerHTML = '<p style="text-align:center; padding: 1rem;">Aucune consultation supplémentaire</p>';
+                const typeLabel = searchType === 'demandes' ? 'demande' : (searchType === 'users' ? 'utilisateur' : 'consultation');
+                this.loading.innerHTML = `<p style="text-align:center; padding: 1rem; color: var(--text-primary);">Aucune ${typeLabel} supplémentaire</p>`;
             }
         } catch (error) {
             console.error('Erreur lors du chargement:', error);

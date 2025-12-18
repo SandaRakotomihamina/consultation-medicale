@@ -10,27 +10,29 @@
             max-width: 900px;
             margin: 2rem auto;
             padding: 2rem;
-            background: #ffffff;
+            background: var(--bg-primary);
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px var(--shadow-dark);
             margin-top: 140px;
-            transition: .3s ease;
+            transition: .3s ease, background 0.3s ease;
         }
 
         .consultation-container:hover {
-            box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+            box-shadow: 0 6px 28px var(--shadow-dark-hover);
         }
 
         .consultation-container h1 {
             margin-top: 0;
             font-size: 1.7rem;
             font-weight: 700;
-            color: #222;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
 
         .consultation-container p {
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form {
@@ -42,8 +44,9 @@
 
         .consultation-form label {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: .35rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form input[type="text"],
@@ -51,40 +54,41 @@
         .consultation-form input[type="password"],
         .consultation-form textarea {
             padding: .75rem 1rem;
-            border: 1px solid #d1d1d1;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             width: 100%;
             font-size: 1rem;
-            background: #fafafa;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             box-sizing: border-box;
-            transition: .2s ease;
+            transition: .2s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .consultation-form input:focus,
         .consultation-form textarea:focus {
-            border-color: #0d6efd;
-            background: #fff;
+            border-color: var(--accent-color);
+            background: var(--bg-primary);
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
             outline: none;
         }
 
         .consultation-form select.form-select-custom {
             padding: .75rem 1rem;
-            border: 1px solid #d1d1d1;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             width: 100%;
             font-size: 1rem;
-            background: #fafafa;
-            color: #333;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             appearance: none;
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 0.65rem auto;
-            transition: .2s ease;
+            transition: .2s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .consultation-form select:focus {
-            border-color: #0d6efd;
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
             outline: none;
         }
@@ -109,21 +113,22 @@
         }
 
         .btn {
-            background: #0d6efd;
+            background: var(--accent-color);
             color: #fff;
+            transition: background 0.3s ease;
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-            background: #0b5ed7;
+            box-shadow: 0 6px 16px var(--shadow-dark-hover);
+            background: var(--accent-hover);
         }
 
         .btn:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         .btn--muted {
@@ -134,31 +139,32 @@
 
         .btn--muted:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+            box-shadow: 0 6px 16px var(--shadow-dark-hover);
             background: #5a6268;
         }
 
         .btn--muted:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(44, 41, 41, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         .error-message {
             display: none;
-            color: #dc3545;
+            color: var(--error-color);
             font-size: 0.8rem;
             margin-top: 0.1rem;
             padding: 0.5rem 0.2rem;
             background-color: transparent;
             border: none;
             border-radius: 4px;
+            transition: color 0.3s ease;
         }
 
         .consultation-form input[style*="border-color: rgb(220, 53, 69)"] {
-            border-color: #dc3545 !important;
-            background-color: #fff5f5 !important;
+            border-color: var(--error-color) !important;
+            background-color: var(--error-bg) !important;
         }
 
         .toggle-password {
@@ -167,12 +173,12 @@
             top: 70%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #777;
+            color: var(--text-muted);
             transition: color 0.2s;
         }
 
         .toggle-password:hover {
-            color: #0366d6;
+            color: var(--accent-color);
         }
 
         @media (max-width: 640px) {
@@ -315,12 +321,12 @@
                         matriculeError.textContent = data.errors.matricule;
                         matriculeError.style.display = 'block';
                         if (matriculeInput) {
-                            matriculeInput.style.borderColor = '#dc3545';
-                            matriculeInput.style.backgroundColor = '#fff5f5';
+                            matriculeInput.style.borderColor = 'var(--error-color)';
+                            matriculeInput.style.backgroundColor = 'var(--error-bg)';
                         }
                     } else if (matriculeInput && !data.errors.matricule) {
-                        matriculeInput.style.borderColor = '#d1d1d1';
-                        matriculeInput.style.backgroundColor = '#fafafa';
+                        matriculeInput.style.borderColor = '';
+                        matriculeInput.style.backgroundColor = '';
                     }
 
                     // Display username error if exists
@@ -328,12 +334,12 @@
                         usernameError.textContent = data.errors.username;
                         usernameError.style.display = 'block';
                         if (usernameInput) {
-                            usernameInput.style.borderColor = '#dc3545';
-                            usernameInput.style.backgroundColor = '#fff5f5';
+                            usernameInput.style.borderColor = 'var(--error-color)';
+                            usernameInput.style.backgroundColor = 'var(--error-bg)';
                         }
                     } else if (usernameInput && !data.errors.username) {
-                        usernameInput.style.borderColor = '#d1d1d1';
-                        usernameInput.style.backgroundColor = '#fafafa';
+                        usernameInput.style.borderColor = '';
+                        usernameInput.style.backgroundColor = '';
                     }
                 })
                 .catch(error => console.error('Erreur lors de la vérification:', error));
