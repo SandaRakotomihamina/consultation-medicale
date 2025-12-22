@@ -39,6 +39,12 @@
         font-weight: 700;
     }
 
+    .total-users {
+        font-size: 4rem;
+        font-weight: 1000;
+        color: var(--accent-color);
+    }
+
     .role-pill {
         display: inline-block;
         margin-top: .35rem;
@@ -68,7 +74,7 @@
 <div class="user-stats-grid" data-aos="fade-up" data-aos-duration="400">
     <div class="user-stat-card">
         <div class="user-stat-label">Nombre total d'utilisateurs</div>
-        <div class="user-stat-value">{{ totalUsers ?? 0 }}</div>
+        <div class="user-stat-value total-users">{{ totalUsers ?? 0 }}</div>
     </div>
 
     <div class="user-stat-card">
@@ -76,7 +82,7 @@
         <div class="user-stat-value">
             {{ rolesCount.ROLE_SUPER_ADMIN ?? 0 }}
         </div>
-        <span class="role-pill role-super-admin">ROLE_SUPER_ADMIN</span>
+        <span class="role-pill role-super-admin">SUPERVISEURS DU SITE</span>
     </div>
 
     <div class="user-stat-card">
@@ -84,7 +90,7 @@
         <div class="user-stat-value">
             {{ rolesCount.ROLE_ADMIN ?? 0 }}
         </div>
-        <span class="role-pill role-admin">ROLE_ADMIN</span>
+        <span class="role-pill role-admin">MEDECINS</span>
     </div>
 
     <div class="user-stat-card">
@@ -92,7 +98,7 @@
         <div class="user-stat-value">
             {{ rolesCount.ROLE_USER ?? 0 }}
         </div>
-        <span class="role-pill role-user">ROLE_USER</span>
+        <span class="role-pill role-user">RESPONSABLE CONSULTANT</span>
     </div>
 </div>
 
