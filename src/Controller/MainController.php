@@ -63,8 +63,9 @@ final class MainController extends AbstractController
     #############################################################################################################
     ####################################Ajouter une nouvelle consultation########################################
     #############################################################################################################
-    #[Route('/consultation/new/{demandeId}', name: 'app_new_consultation_from_demande')]
     #[IsGranted('ROLE_ADMIN')]
+    #[Route('/consultation/new/{demandeId}', name: 'app_new_consultation_from_demande')]
+    
     public function newConsultation(Request $request, EntityManagerInterface $em, int $demandeId): Response
     {
         $consultation = new ConsultationList();

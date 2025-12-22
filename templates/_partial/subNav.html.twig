@@ -354,6 +354,15 @@
                            {% endif %}
                         >Liste des utilisateurs</a>
                     </li>
+
+                    <li>
+                        <a href="{{ path('app_statistique_consiltations') }}"
+                            class="options"
+                           {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
+                               style="pointer-events: none; opacity: 0.5;"
+                           {% endif %}
+                        >Statistiques</a>
+                    </li>
                 </ul>
             </div>
 

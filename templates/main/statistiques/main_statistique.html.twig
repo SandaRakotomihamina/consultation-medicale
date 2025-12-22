@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title %}Statistiques{% endblock %}
+
+{% block body %}
+
+{% include '_partial/nav.html.twig' %}
+{% include '_partial/subNav.html.twig' %}
+
+{% include '_partial/statistiques/consultation_statistiques.html.twig' %}
+{% include '_partial/statistiques/demande_statistiques.html.twig' %}
+{% include '_partial/statistiques/user_statistiques.html.twig' %}
+
+
+{% include '_partial/footer.html.twig' %}
+
+{% endblock %}

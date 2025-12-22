@@ -1,0 +1,98 @@
+<h1 class="page-title" style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Utilisateurs
+</h1>
+
+<style>
+    .user-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .user-stat-card {
+        background: var(--bg-tertiary);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        color: var(--text-primary);
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .user-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .user-stat-label {
+        font-size: .9rem;
+        color: var(--text-secondary);
+        margin-bottom: .35rem;
+    }
+
+    .user-stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+
+    .role-pill {
+        display: inline-block;
+        margin-top: .35rem;
+        padding: .1rem .6rem;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-super-admin {
+        background: rgba(231, 76, 60, 0.08);
+        color: #e74c3c;
+    }
+
+    .role-admin {
+        background: rgba(52, 152, 219, 0.08);
+        color: #3498db;
+    }
+
+    .role-user {
+        background: rgba(46, 204, 113, 0.08);
+        color: #2ecc71;
+    }
+</style>
+
+<div class="user-stats-grid" data-aos="fade-up" data-aos-duration="400">
+    <div class="user-stat-card">
+        <div class="user-stat-label">Nombre total d'utilisateurs</div>
+        <div class="user-stat-value">{{ totalUsers ?? 0 }}</div>
+    </div>
+
+    <div class="user-stat-card">
+        <div class="user-stat-label">Super administrateurs</div>
+        <div class="user-stat-value">
+            {{ rolesCount.ROLE_SUPER_ADMIN ?? 0 }}
+        </div>
+        <span class="role-pill role-super-admin">ROLE_SUPER_ADMIN</span>
+    </div>
+
+    <div class="user-stat-card">
+        <div class="user-stat-label">Administrateurs</div>
+        <div class="user-stat-value">
+            {{ rolesCount.ROLE_ADMIN ?? 0 }}
+        </div>
+        <span class="role-pill role-admin">ROLE_ADMIN</span>
+    </div>
+
+    <div class="user-stat-card">
+        <div class="user-stat-label">Utilisateurs simples</div>
+        <div class="user-stat-value">
+            {{ rolesCount.ROLE_USER ?? 0 }}
+        </div>
+        <span class="role-pill role-user">ROLE_USER</span>
+    </div>
+</div>
+

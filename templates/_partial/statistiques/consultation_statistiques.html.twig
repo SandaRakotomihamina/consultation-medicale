@@ -1,0 +1,170 @@
+<h1 class="page-title" style="text-align:left; margin:13rem 0 1.5rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Consultations
+</h1>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-tertiary);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        color: var(--text-primary);
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .stat-label {
+        font-size: .9rem;
+        color: var(--text-secondary);
+        margin-bottom: .4rem;
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+
+    .stat-tag {
+        display: inline-block;
+        margin-top: .35rem;
+        padding: .1rem .5rem;
+        border-radius: 999px;
+        font-size: .75rem;
+        color: var(--text-secondary);
+        background: rgba(255,255,255,0.02);
+    }
+
+    .chart-card {
+        margin-top: 1rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: var(--bg-tertiary);
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .chart-title {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 600px) {
+        .chart-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="stats-grid" data-aos="fade-up" data-aos-duration="400">
+    <div class="stat-card">
+        <div class="stat-label">Nombre total de consultations</div>
+        <div class="stat-value">{{ totalConsultations ?? 0 }}</div>
+        <span class="stat-tag">Depuis le début</span>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Consultations du jour</div>
+        <div class="stat-value">{{ todayConsultations ?? 0 }}</div>
+        <span class="stat-tag">Aujourd'hui</span>
+    </div>
+</div>
+
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="80">
+    <div class="chart-title">Nombre de consultations sur les 30 derniers jours</div>
+    <canvas id="consultationsChart" style="width: 100%; max-height: 320px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const ctx = document.getElementById('consultationsChart');
+        if (!ctx) return;
+
+        const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
+        const data = {{ consultationsChartData|default([])|json_encode|raw }};
+
+        if (!labels.length) {
+            ctx.insertAdjacentHTML('beforebegin',
+                '<p style="color: var(--text-secondary); font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
+            );
+            ctx.style.display = 'none';
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Consultations par jour',
+                    data: data,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888'
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)'
+                    }
+                }
+            }
+        });
+    })();
+</script>

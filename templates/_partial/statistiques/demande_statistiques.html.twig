@@ -1,0 +1,80 @@
+<h1 class="page-title" style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Demandes de consultations
+</h1>
+
+<style>
+    .demande-stat-card {
+        max-width: 420px;
+        background: var(--bg-tertiary);
+        border-radius: 16px;
+        padding: 1.5rem 1.75rem;
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .demande-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .demande-stat-content {
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+    }
+
+    .demande-stat-label {
+        font-size: .9rem;
+        color: var(--text-secondary);
+    }
+
+    .demande-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .demande-stat-tag {
+        font-size: .8rem;
+        color: var(--text-secondary);
+        margin-top: .2rem;
+    }
+
+    .demande-pill {
+        padding: .35rem .8rem;
+        border-radius: 999px;
+        font-size: .8rem;
+        background: rgba(241, 196, 15, 0.08);
+        color: #f1c40f;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+        .demande-stat-card {
+            padding: 1.25rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="demande-stat-card" data-aos="fade-up" data-aos-duration="400">
+    <div class="demande-stat-content">
+        <div class="demande-stat-label">Demandes de consultation en attente</div>
+        <div class="demande-stat-value">{{ pendingDemandes ?? 0 }}</div>
+        <div class="demande-stat-tag">Demandes non encore transformées en consultation</div>
+    </div>
+    <div class="demande-pill">
+        En attente
+    </div>
+</div>
