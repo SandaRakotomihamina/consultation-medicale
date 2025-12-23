@@ -1,10 +1,12 @@
-<h1 class="page-title" style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
-    Statistiques des Demandes de consultations
-</h1>
-
 <style>
+    .demande-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
     .demande-stat-card {
-        max-width: 420px;
         background: var(--bg-tertiary);
         border-radius: 16px;
         padding: 1.5rem 1.75rem;
@@ -17,7 +19,6 @@
         justify-content: space-between;
         gap: 1.5rem;
         transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
-        margin-bottom: 2rem;
     }
 
     .demande-stat-card:hover {
@@ -31,6 +32,7 @@
         display: flex;
         flex-direction: column;
         gap: .25rem;
+        flex: 1;
     }
 
     .demande-stat-label {
@@ -59,22 +61,173 @@
         white-space: nowrap;
     }
 
+    .conversion-pill {
+        padding: .35rem .8rem;
+        border-radius: 999px;
+        font-size: .8rem;
+        background: rgba(46, 204, 113, 0.08);
+        color: #2ecc71;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .delai-pill {
+        padding: .35rem .8rem;
+        border-radius: 999px;
+        font-size: .8rem;
+        background: rgba(52, 152, 219, 0.08);
+        color: #3498db;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .chart-card {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: var(--bg-tertiary);
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .chart-title {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
     @media (max-width: 480px) {
         .demande-stat-card {
             padding: 1.25rem;
             flex-direction: column;
             align-items: flex-start;
         }
+        .demande-stats-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
+<h1  style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Demandes de consultations
+</h1>
 
-<div class="demande-stat-card" data-aos="fade-up" data-aos-duration="400">
-    <div class="demande-stat-content">
-        <div class="demande-stat-label">Demandes de consultation en attente</div>
-        <div class="demande-stat-value">{{ pendingDemandes ?? 0 }}</div>
-        <div class="demande-stat-tag">Demandes non encore transformées en consultation</div>
+<div class="demande-stats-grid" data-aos="fade-up" data-aos-duration="400" data-aos-anchor-placement="top-bottom">
+    <div class="demande-stat-card">
+        <div class="demande-stat-content">
+            <div class="demande-stat-label">Demandes en attente</div>
+            <div class="demande-stat-value">{{ pendingDemandes ?? 0 }}</div>
+            <div class="demande-stat-tag">Non encore transformées en consultation</div>
+        </div>
+        <div class="demande-pill">
+            En attente
+        </div>
     </div>
-    <div class="demande-pill">
-        En attente
+
+    <div class="demande-stat-card">
+        <div class="demande-stat-content">
+            <div class="demande-stat-label">Taux de conversion</div>
+            <div class="demande-stat-value">{{ conversionRate ?? 0 }}%</div>
+            <div class="demande-stat-tag">Demandes → Consultations</div>
+        </div>
+        <div class="conversion-pill">
+            Conversion
+        </div>
+    </div>
+
+    <div class="demande-stat-card">
+        <div class="demande-stat-content">
+            <div class="demande-stat-label">Délai moyen</div>
+            <div class="demande-stat-value">{{ moyenneDelai ?? 0 }}</div>
+            <div class="demande-stat-tag">Jours entre demande et consultation</div>
+        </div>
+        <div class="delai-pill">
+            Jours
+        </div>
     </div>
 </div>
+
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
+    <div class="chart-title">Demandes de consultation négligées sur les 30 derniers jours</div>
+    <canvas id="demandesChart" style="width: 100%; max-height: 320px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
+
+        const ctx = document.getElementById('demandesChart');
+        if (!ctx) return;
+
+        const labels = {{ demandesChartLabels|default([])|json_encode|raw }};
+        const data = {{ demandesChartData|default([])|json_encode|raw }};
+
+        if (!labels.length) {
+            ctx.insertAdjacentHTML('beforebegin',
+                '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
+            );
+            ctx.style.display = 'none';
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Demandes par jour',
+                    data: data,
+                    borderColor: '#f1c40f',
+                    backgroundColor: 'rgba(241, 196, 15, 0.15)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            color: textColor
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: textColor
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)'
+                    }
+                }
+            }
+        });
+    })();
+</script>

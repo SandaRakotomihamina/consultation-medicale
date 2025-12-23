@@ -1,6 +1,3 @@
-<h1 class="page-title" style="text-align:left; margin:13rem 0 1.5rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
-    Statistiques des Consultations
-</h1>
 
 <style>
     .stats-grid {
@@ -49,8 +46,34 @@
         background: rgba(255,255,255,0.02);
     }
 
+    .evolution-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        margin-top: .4rem;
+        padding: .2rem .6rem;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .evolution-positive {
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+
+    .evolution-negative {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+
+    .evolution-neutral {
+        background: rgba(149, 165, 166, 0.1);
+        color: #95a5a6;
+    }
+
     .chart-card {
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         padding: 1.5rem;
         border-radius: 16px;
         background: var(--bg-tertiary);
@@ -74,14 +97,46 @@
         color: var(--text-primary);
     }
 
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
     @media (max-width: 600px) {
         .chart-card {
             padding: 1rem;
         }
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 1000px) {
+        h1.page-title {
+            margin-top: 18rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1.page-title {
+            font-size: 1.5rem !important;
+        }
+    }
+    @media (max-width: 450px) {
+        h1.page-title {
+            margin-top: 15rem !important;
+        }
     }
 </style>
 
-<div class="stats-grid" data-aos="fade-up" data-aos-duration="400">
+<h1 class="page-title" style="text-align:left; margin:13rem 0 1.5rem 0; font-size:1.8rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Consultations
+</h1>
+
+{# Cards principales #}
+<div class="stats-grid" data-aos="fade-up" data-aos-duration="400" data-aos-anchor-placement="top-bottom">
     <div class="stat-card">
         <div class="stat-label">Nombre total de consultations</div>
         <div class="stat-value">{{ totalConsultations ?? 0 }}</div>
@@ -93,78 +148,341 @@
         <div class="stat-value">{{ todayConsultations ?? 0 }}</div>
         <span class="stat-tag">Aujourd'hui</span>
     </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Ce mois</div>
+        <div class="stat-value">{{ currentMonthCount ?? 0 }}</div>
+        {% if monthEvolution is defined %}
+            <div class="evolution-badge {{ monthEvolution > 0 ? 'evolution-positive' : (monthEvolution < 0 ? 'evolution-negative' : 'evolution-neutral') }}">
+                <span>{{ monthEvolution > 0 ? '↑' : (monthEvolution < 0 ? '↓' : '→') }}</span>
+                <span>{{ monthEvolution|abs }}%</span>
+                <span>vs mois dernier</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Consultations avec repos</div>
+        <div class="stat-value">{{ totalAvecRepos ?? 0 }}</div>
+        <span class="stat-tag" style="background: rgba(241, 196, 15, 0.08);color: #f1c40f; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.8rem;">{{ pourcentageAvecRepos ?? 0 }}% du total</span>
+    </div>
 </div>
 
-<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="80">
+{# Graphique 30 jours #}
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
     <div class="chart-title">Nombre de consultations sur les 30 derniers jours</div>
     <canvas id="consultationsChart" style="width: 100%; max-height: 320px;"></canvas>
+</div>
+
+{# Graphiques en grille #}
+<div class="charts-grid" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
+    {# Graphique mensuel #}
+    <div class="chart-card">
+        <div class="chart-title">Consultations par mois (12 derniers mois)</div>
+        <canvas id="monthlyChart" style="width: 100%; max-height: 300px;"></canvas>
+    </div>
+
+    {# Graphique repos (camembert) #}
+    <div class="chart-card">
+        <div class="chart-title">Répartition des repos administrés</div>
+        <canvas id="reposChart" style="width: 100%; max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<div class="charts-grid" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
+    {# Graphique par grade #}
+    <div class="chart-card">
+        <div class="chart-title">Consultations par grade</div>
+        <canvas id="gradesChart" style="width: 100%; max-height: 400px;"></canvas>
+    </div>
+
+    {# Graphique hebdomadaire #}
+    <div class="chart-card">
+        <div class="chart-title">Consultations par jour de la semaine</div>
+        <canvas id="weekdayChart" style="width: 100%; max-height: 300px;"></canvas>
+    </div>
+</div>
+
+{# Graphique avec/sans repos #}
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
+    <div class="chart-title">Répartition consultations avec/sans repos</div>
+    <canvas id="reposRepartitionChart" style="width: 100%; max-height: 300px;"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (function () {
-        const ctx = document.getElementById('consultationsChart');
-        if (!ctx) return;
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#333';
 
-        const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
-        const data = {{ consultationsChartData|default([])|json_encode|raw }};
+        // ========== GRAPHIQUE 30 JOURS ==========
+        const ctx30 = document.getElementById('consultationsChart');
+        if (ctx30) {
+            const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
+            const data = {{ consultationsChartData|default([])|json_encode|raw }};
 
-        if (!labels.length) {
-            ctx.insertAdjacentHTML('beforebegin',
-                '<p style="color: var(--text-secondary); font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
-            );
-            ctx.style.display = 'none';
-            return;
+            if (labels.length) {
+                new Chart(ctx30, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Consultations par jour',
+                            data: data,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, color: textColor },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                        }
+                    }
+                });
+            } else {
+                ctx30.insertAdjacentHTML('beforebegin',
+                    '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
+                );
+                ctx30.style.display = 'none';
+            }
         }
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Consultations par jour',
-                    data: data,
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.15)',
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        ticks: {
-                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888'
-                        },
-                        grid: {
-                            display: false
-                        }
+        // ========== GRAPHIQUE MENSUEL ==========
+        const ctxMonth = document.getElementById('monthlyChart');
+        if (ctxMonth) {
+            const monthLabels = {{ monthLabels|default([])|json_encode|raw }};
+            const monthData = {{ monthData|default([])|json_encode|raw }};
+
+            if (monthLabels.length) {
+                new Chart(ctxMonth, {
+                    type: 'bar',
+                    data: {
+                        labels: monthLabels,
+                        datasets: [{
+                            label: 'Consultations',
+                            data: monthData,
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: '#3498db',
+                            borderWidth: 1
+                        }]
                     },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, color: textColor },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            }
                         },
-                        grid: {
-                            color: 'rgba(0,0,0,0.05)'
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.8)'
-                    }
-                }
+                });
             }
-        });
+        }
+
+        // ========== GRAPHIQUE REPOS (CAMEMBERT) ==========
+        const ctxRepos = document.getElementById('reposChart');
+        if (ctxRepos) {
+            const repos24h = {{ repos24h ?? 0 }};
+            const repos48h = {{ repos48h ?? 0 }};
+            const repos72h = {{ repos72h ?? 0 }};
+
+            if (repos24h > 0 || repos48h > 0 || repos72h > 0) {
+                new Chart(ctxRepos, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['24h', '48h', '72h'],
+                        datasets: [{
+                            data: [repos24h, repos48h, repos72h],
+                            backgroundColor: [
+                                'rgba(241, 196, 15, 0.8)',
+                                'rgba(230, 126, 34, 0.8)',
+                                'rgba(231, 76, 60, 0.8)'
+                            ],
+                            borderColor: [
+                                '#f1c40f',
+                                '#e67e22',
+                                '#e74c3c'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor, padding: 15 }
+                            },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========== GRAPHIQUE PAR GRADE ==========
+        const ctxGrades = document.getElementById('gradesChart');
+        if (ctxGrades) {
+            const gradesLabels = {{ gradesLabels|default([])|json_encode|raw }};
+            const gradesData = {{ gradesData|default([])|json_encode|raw }};
+
+            if (gradesLabels.length) {
+                new Chart(ctxGrades, {
+                    type: 'bar',
+                    data: {
+                        labels: gradesLabels,
+                        datasets: [{
+                            label: 'Consultations',
+                            data: gradesData,
+                            backgroundColor: 'rgba(155, 89, 182, 0.6)',
+                            borderColor: '#9b59b6',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, color: textColor },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            },
+                            y: {
+                                ticks: { color: textColor },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========== GRAPHIQUE HEBDOMADAIRE ==========
+        const ctxWeekday = document.getElementById('weekdayChart');
+        if (ctxWeekday) {
+            const weekdayLabels = {{ weekdayLabels|default([])|json_encode|raw }};
+            const weekdayData = {{ weekdayData|default([])|json_encode|raw }};
+
+            if (weekdayLabels.length) {
+                new Chart(ctxWeekday, {
+                    type: 'bar',
+                    data: {
+                        labels: weekdayLabels,
+                        datasets: [{
+                            label: 'Consultations',
+                            data: weekdayData,
+                            backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                            borderColor: '#2ecc71',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, color: textColor },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========== GRAPHIQUE AVEC/SANS REPOS ==========
+        const ctxReposRepartition = document.getElementById('reposRepartitionChart');
+        if (ctxReposRepartition) {
+            const avecRepos = {{ totalAvecRepos ?? 0 }};
+            const sansRepos = {{ totalSansRepos ?? 0 }};
+
+            if (avecRepos > 0 || sansRepos > 0) {
+                new Chart(ctxReposRepartition, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Avec repos', 'Sans repos'],
+                        datasets: [{
+                            data: [avecRepos, sansRepos],
+                            backgroundColor: [
+                                'rgba(231, 76, 60, 0.8)',
+                                'rgba(52, 152, 219, 0.8)'
+                            ],
+                            borderColor: [
+                                '#e74c3c',
+                                '#3498db'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor, padding: 15 }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return label + ': ' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
     })();
 </script>

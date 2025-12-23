@@ -1,7 +1,3 @@
-<h1 class="page-title" style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
-    Statistiques des Utilisateurs
-</h1>
-
 <style>
     .user-stats-grid {
         display: grid;
@@ -69,9 +65,43 @@
         background: rgba(46, 204, 113, 0.08);
         color: #2ecc71;
     }
-</style>
 
-<div class="user-stats-grid" data-aos="fade-up" data-aos-duration="400">
+    .chart-card {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: var(--bg-tertiary);
+        box-shadow:
+            4px 4px 12px var(--shadow-dark),
+            -4px -4px 12px var(--shadow-light);
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            6px 6px 14px var(--shadow-dark-hover),
+            -6px -6px 14px var(--shadow-light);
+    }
+
+    .chart-title {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 600px) {
+        .chart-card {
+            padding: 1rem;
+        }
+    }
+</style>
+<h1  style="text-align:left; margin:3rem 0 1.5rem 0; font-size:1.6rem; transition:.3s ease-in-out; color: var(--text-primary);">
+    Statistiques des Utilisateurs
+</h1>
+
+<div class="user-stats-grid" data-aos="fade-up" data-aos-duration="400" data-aos-anchor-placement="top-bottom">
     <div class="user-stat-card">
         <div class="user-stat-label">Nombre total d'utilisateurs</div>
         <div class="user-stat-value total-users">{{ totalUsers ?? 0 }}</div>
@@ -101,4 +131,77 @@
         <span class="role-pill role-user">RESPONSABLE CONSULTANT</span>
     </div>
 </div>
+
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
+    <div class="chart-title">Top 5 des médecins par nombre de consultations délivrées</div>
+    <canvas id="medecinsChart" style="width: 100%; max-height: 350px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
+
+        const ctx = document.getElementById('medecinsChart');
+        if (!ctx) return;
+
+        const labels = {{ medecinsLabels|default([])|json_encode|raw }};
+        const data = {{ medecinsData|default([])|json_encode|raw }};
+
+        if (!labels.length) {
+            ctx.insertAdjacentHTML('beforebegin',
+                '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les médecins.</p>'
+            );
+            ctx.style.display = 'none';
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Consultations',
+                    data: data,
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    borderColor: '#3498db',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: textColor
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: textColor
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)'
+                    }
+                }
+            }
+        });
+    })();
+</script>
 
