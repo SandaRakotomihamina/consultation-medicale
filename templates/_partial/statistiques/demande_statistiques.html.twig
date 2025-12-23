@@ -101,9 +101,44 @@
 
     .chart-title {
         margin-bottom: 1rem;
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 1.15rem;
+        font-weight: 700;
         color: var(--text-primary);
+    }
+
+    .chart-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: .5rem;
+    }
+
+    .save-pdf-btn {
+        padding: 0.45rem 0.9rem;
+        border: none;
+        border-radius: 12px;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        box-shadow:
+            3px 3px 7px var(--shadow-dark),
+            -3px -3px 7px var(--shadow-light);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        font-weight: 600;
+        transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .save-pdf-btn:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            5px 5px 10px var(--shadow-dark),
+            -5px -5px 10px var(--shadow-light);
+    }
+
+    .save-pdf-btn svg {
+        width: 16px;
+        height: 16px;
     }
 
     @media (max-width: 480px) {
@@ -157,14 +192,66 @@
 </div>
 
 <div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
-    <div class="chart-title">Demandes de consultation négligées sur les 30 derniers jours</div>
+    <div class="chart-title">Demandes de consultation sur les 30 derniers jours</div>
+    <div class="chart-actions">
+        <button class="save-pdf-btn" data-target="demandesChart" data-title="Demandes de consultation - 30 derniers jours">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3H7a2 2 0 0 0-2 2v14l5-3 5 3V5a2 2 0 0 0-2-2Z"/>
+                <path d="M9 9h6"/>
+            </svg>
+            Enregistrer en PDF
+        </button>
+    </div>
     <canvas id="demandesChart" style="width: 100%; max-height: 320px;"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
     (function () {
         const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
+
+        function attachSavePdf() {
+            const buttons = document.querySelectorAll('.save-pdf-btn');
+            buttons.forEach((btn) => {
+                if (btn.dataset.pdfBound === 'true') return;
+                btn.addEventListener('click', () => {
+                    const targetId = btn.dataset.target;
+                    const title = btn.dataset.title || 'Graphique';
+                    const canvas = document.getElementById(targetId);
+                    if (!canvas || !window.jspdf) return;
+
+                    const imgData = canvas.toDataURL('image/png', 1.0);
+                    const orientation = canvas.width >= canvas.height ? 'l' : 'p';
+                    const margin = 15; // mm
+                    const pdf = new window.jspdf.jsPDF({
+                        orientation,
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    pdf.setFontSize(16);
+                    pdf.text(title, margin, margin + 2);
+
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const maxWidth = pageWidth - margin * 2;
+                    const maxHeight = pageHeight - (margin * 3);
+                    const ratio = Math.min(maxWidth / imgProps.width, maxHeight / imgProps.height);
+                    const imgWidth = imgProps.width * ratio;
+                    const imgHeight = imgProps.height * ratio;
+                    const x = (pageWidth - imgWidth) / 2;
+                    const y = margin + 8;
+                    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                    const defaultName = (title || 'statistiques') + '.pdf';
+                    const fileName = prompt('Nom du fichier PDF ?', defaultName) || defaultName;
+                    pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                });
+                btn.dataset.pdfBound = 'true';
+            });
+        }
 
         const ctx = document.getElementById('demandesChart');
         if (!ctx) return;
@@ -229,6 +316,7 @@
                 }
             }
         });
+        attachSavePdf();
         AOS.init();
     })();
 </script>
