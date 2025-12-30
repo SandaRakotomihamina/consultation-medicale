@@ -33,14 +33,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 128)]
+    #[ORM\Column(length: 128, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 16)]
+    #[ORM\Column(length: 16, nullable: true)]
     private ?string $Matricule = null;
+
+    #[ORM\Column(length: 35, nullable: true)]
+    private ?string $LIBUTE = null;
+
+    #[ORM\Column(length: 35, nullable: true)]
+    private ?string $LOCAL = null;
+
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $CODUTE = null;
 
     public function getId(): ?int
     {
@@ -127,7 +136,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 
@@ -139,7 +148,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
         $this->name = $name;
 
@@ -151,9 +160,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->Matricule;
     }
 
-    public function setMatricule(string $Matricule): static
+    public function setMatricule(?string $Matricule): static
     {
         $this->Matricule = $Matricule;
+
+        return $this;
+    }
+
+    public function getLIBUTE(): ?string
+    {
+        return $this->LIBUTE;
+    }
+
+    public function setLIBUTE(?string $LIBUTE): static
+    {
+        $this->LIBUTE = $LIBUTE;
+
+        return $this;
+    }
+
+    public function getLOCAL(): ?string
+    {
+        return $this->LOCAL;
+    }
+
+    public function setLOCAL(?string $LOCAL): static
+    {
+        $this->LOCAL = $LOCAL;
+
+        return $this;
+    }
+
+    public function getCODUTE(): ?string
+    {
+        return $this->CODUTE;
+    }
+
+    public function setCODUTE(?string $CODUTE): static
+    {
+        $this->CODUTE = $CODUTE;
 
         return $this;
     }

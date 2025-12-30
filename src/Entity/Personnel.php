@@ -18,6 +18,9 @@ class Personnel
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $nom = null;
 
+    #[ORM\Column(type: 'string', length: 35, nullable: true)]
+    private ?string $LIBUTE = null;
+
     public function getMatricule(): string
     {
         return $this->matricule;
@@ -50,6 +53,18 @@ class Personnel
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getLIBUTE(): ?string
+    {
+        return $this->LIBUTE;
+    }
+
+    public function setLIBUTE(?string $LIBUTE): self
+    {
+        $this->LIBUTE = $LIBUTE;
 
         return $this;
     }

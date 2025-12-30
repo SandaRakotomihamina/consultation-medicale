@@ -155,12 +155,12 @@
     </style>
 
     <div class="container consultation-container" data-aos="zoom-in" data-aos-duration="500ms">
-        <h1>Nouvelle consultation</h1>
+        <h1>Nouvelle demande de consultation</h1>
         <p>Remplissez les champs ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
 
         {{ form_start(form) }}
 
-        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="false">
+        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="false" data-personnel-lookup-user-libute-value="{{ app.user.libute }}">
             <div>
                 {{ form_label(form.Matricule) }}
                 {{ form_widget(form.Matricule, {
@@ -192,9 +192,24 @@
                     }
                 }) }}
             </div>
+
+            <div>
+                {{ form_label(form.LIBUTE) }}
+                {{ form_widget(form.LIBUTE, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'libute',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
             
             {{ form_row(form.Motif) }}
-            {{ form_row(form.DelivreurDeMotif) }}
+            {{ form_row(form.DelivreurDeMotif, {
+                'attr': {
+                    'readonly': 'readonly',
+                    'value': app.user.libute
+                }
+            }) }}
 
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>

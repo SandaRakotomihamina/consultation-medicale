@@ -7,3 +7,5 @@ import AnimationSlideshowController from './controllers/animation_slideshow_cont
 app.register('animation-slideshow', AnimationSlideshowController);
 import ThemeController from './controllers/theme_controller.js';
 app.register('theme', ThemeController);
+import ConsultationOptionsController from './controllers/consultation_options_controller.js';
+app.register('consultation-options', ConsultationOptionsController);

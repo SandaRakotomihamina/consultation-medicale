@@ -14,7 +14,7 @@ class DemandeDeConsultation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 32)]
+    #[ORM\Column(length: 255)]
     private ?string $Grade = null;
 
     #[ORM\Column(length: 255)]
@@ -22,6 +22,9 @@ class DemandeDeConsultation
 
     #[ORM\Column(length: 16)]
     private ?string $Matricule = null;
+
+    #[ORM\Column(length: 35, nullable: true)]
+    private ?string $LIBUTE = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $Motif = null;
@@ -69,6 +72,18 @@ class DemandeDeConsultation
     public function setMatricule(string $Matricule): static
     {
         $this->Matricule = $Matricule;
+
+        return $this;
+    }
+
+    public function getLIBUTE(): ?string
+    {
+        return $this->LIBUTE;
+    }
+
+    public function setLIBUTE(?string $LIBUTE): static
+    {
+        $this->LIBUTE = $LIBUTE;
 
         return $this;
     }

@@ -15,12 +15,12 @@ class DemandeType extends AbstractType
             ->add('Grade')
             ->add('Nom')
             ->add('Matricule')
-            ->add('Motif')
-            ->add('DelivreurDeMotif', null , [
-                'attr' => [
-                    'readonly' => true
-                ]
+            ->add('LIBUTE', null, [
+                'required' => false,
+                'label' => 'libelé unité',
             ])
+            ->add('Motif')
+            ->add('DelivreurDeMotif', null)
         ;
     }
 

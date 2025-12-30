@@ -131,6 +131,11 @@
         transition: color 0.3s ease, border-color 0.3s ease;
     }
 
+    .content-observation {
+        background: rgba(15, 120, 241, 0.08);
+        border-radius: 4px;
+    }
+
     .edit-btn {
         cursor: pointer;
     }
@@ -169,7 +174,7 @@
                     <span class="grade" title="Grade: {{consultation.Grade}}">{{ consultation.Grade }}</span>
                     <span class="name" title="Nom: {{consultation.Nom}}">{{ consultation.Nom }}</span>
                 </div>
-                <span class="matricule" title="Matricule: {{consultation.Matricule}}">{{ consultation.Matricule }}</span>
+                <span class="matricule" title="Matricule: {{consultation.Matricule}}">{{ consultation.Matricule }}{% if consultation.LIBUTE %} <span class="libute" title="LIBUTE: {{ consultation.LIBUTE }}" style="margin-left:0.4rem; font-weight:600; color:var(--text-secondary);">({{ consultation.LIBUTE }})</span>{% endif %}</span>
             </div>
         </div>
 
@@ -204,6 +209,28 @@
             <div class="info-block">
                 <div class="label">Observation</div>
                 <div class="content">{{ consultation.Observation }}</div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                    {% if consultation.Exemption %}
+                        <div class="content-observation" style="display: flex; flex-wrap: wrap; gap: 5px;">
+                            <div><strong>Exemption:</strong> {{ consultation.Exemption|join(', ') }}</div>
+                            <div><strong>de </strong> {{ consultation.debutExemption|date('d/m/Y') }}</div>
+                            <div><strong>à</strong> {{ consultation.finExemption|date('d/m/Y') }}.</div>
+                        </div>
+                    {% endif %}
+                    {% if consultation.Adrresse %}
+                        <div class="content-observation"><strong>Adressé au service:</strong> {{ consultation.Adrresse|join(', ') }}.</div>
+                    {% endif %}
+                    {% if consultation.PATC is not null %}
+                        <div class="content-observation "><strong>Permission à titre convalessence:</strong> {{ consultation.PATC }} 
+                            {% if consultation.PATC > 1 %}
+                                jours.
+                            {% else %}
+                                jour.
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
 
                 <div class="obs-footer">
                     <span>{{ consultation.DelivreurDObservation }}</span>

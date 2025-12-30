@@ -193,8 +193,20 @@
         {{ form_start(form) }}
 
         <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="true">
+            {# Role #}
             <div>
-                {{ form_label(form.matricule) }}
+                {{ form_label(form.roles) }}
+                {{ form_widget(form.roles, {
+                    'attr': {
+                        'class': 'form-select-custom',
+                        'data-action': 'change->personnel-lookup#onRoleChange',
+                        'data-personnel-lookup-target': 'roles'
+                    }
+                }) }}
+            </div>
+            {# Matricule #}
+            <div data-personnel-lookup-target="matriculeField">
+                <label for="user_matricule" data-personnel-lookup-target="matriculeLabel">Matricule</label>
                 {{ form_widget(form.matricule, {
                     'attr': {
                         'data-personnel-lookup-target': 'matricule',
@@ -205,8 +217,9 @@
                 <div class="error-message" id="matricule-error" data-personnel-lookup-target="errorMessage"></div>
             </div>
 
-            <div>
-                {{ form_label(form.title) }}
+            {# Grade #}
+            <div data-personnel-lookup-target="gradeField">
+                <label data-personnel-lookup-target="gradeLabel">Titre</label>
                 {{ form_widget(form.title, {
                     'attr': {
                         'data-personnel-lookup-target': 'grade',
@@ -215,8 +228,9 @@
                 }) }}
             </div>
 
-            <div>
-                {{ form_label(form.name) }}
+            {# Nom #}
+            <div data-personnel-lookup-target="nomField">
+                <label data-personnel-lookup-target="nomLabel">Nom</label>
                 {{ form_widget(form.name, {
                     'attr': {
                         'data-personnel-lookup-target': 'nom',
@@ -225,6 +239,40 @@
                 }) }}
             </div>
 
+            {# CODUTE #}
+            <div style="display: none;" data-personnel-lookup-target="coduteField">
+                {{ form_label(form.CODUTE) }}
+                {{ form_widget(form.CODUTE, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'codute',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+
+            {# LIBUTE #}
+            <div style="display: none;" data-personnel-lookup-target="libuteField">
+                {{ form_widget(form.LIBUTE, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'libute',
+                        'readonly': 'readonly',
+                        'style': 'display:none;'
+                    }
+                }) }}
+            </div>
+
+            {# LOCAL #}
+            <div style="display: none;" data-personnel-lookup-target="localField">
+                {{ form_label(form.LOCAL) }}
+                {{ form_widget(form.LOCAL, {
+                    'attr': {
+                        'data-personnel-lookup-target': 'local',
+                        'readonly': 'readonly'
+                    }
+                }) }}
+            </div>
+
+            {# Username #}
             <div>
                 {{ form_label(form.username) }}
                 {{ form_widget(form.username, {
@@ -235,6 +283,7 @@
                 <div class="error-message" id="username-error"></div>
             </div>
 
+            {# Mot de passe #}
             <div style="position: relative;">
                 {{ form_label(form.plainPassword) }}
                 {{ form_widget(form.plainPassword, {
@@ -253,7 +302,6 @@
                     </svg>
                 </span>
             </div>
-            {{ form_row(form.roles) }}
 
             <div class="form-actions">
                 <button class="btn" type="submit">Créer</button>

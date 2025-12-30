@@ -281,10 +281,20 @@
                             </div>
                             <div class="name-grade">
                                 <div style="display: flex; gap: .2rem;">
-                                    <span class="grade" style="color: #4267B2;" title="Titre: {{app.user.title}}">{{ app.user.title }}</span>
-                                    <span class="name" title="Nom: {{app.user.name}}">{{ app.user.name }}</span>
+                                    {% if "ROLE_USER" in app.user.roles %}
+                                        <span class="grade" style="color: #4267B2;" title="libelé unité: {{app.user.libute}}">{{ app.user.libute }}</span>
+                                        <span class="name" title="Localisation: {{app.user.local}}">{{ app.user.local }}</span>
+                                    {% else %}
+                                        <span class="grade" style="color: #4267B2;" title="Titre: {{app.user.title}}">{{ app.user.title }}</span>
+                                        <span class="name" title="Nom: {{app.user.name}}">{{ app.user.name }}</span>
+                                    {% endif %}
+                                    
                                 </div>
-                                <span class="matricule" title="Matricule: {{app.user.Matricule}}">{{ app.user.Matricule }}</span>
+                                {% if "ROLE_USER" in app.user.roles %}
+                                    <span class="matricule" title="Code unité: {{app.user.codute}}">{{ app.user.codute }}</span>
+                                {% else %}
+                                    <span class="matricule" title="Matricule: {{app.user.Matricule}}">{{ app.user.codute }}</span>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="user-card-body">

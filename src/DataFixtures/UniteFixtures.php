@@ -2,36 +2,32 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Personnel;
+use App\Entity\Unite;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class PersonnelFixtures extends Fixture
+class UniteFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $grades = [
-            'NON RENSEIGNE','Elève Gendarme','Gendarme Stagiaire','Gendarme de Deuxième Classe','Médecin Colonel','Médecin Général',
-            'Gendarme de Première Classe','Gendarme Hors Classe','Gendarme Principal de Deuxième Classe','Médecin Lieutenant-Colonel',
-            'Gendarme Principal de Première Classe','Gendarme Principal Hors Classe','Gendarme Principal de Classe Exceptionnelle',
-            'Sous-Lieutenant','Lieutenant','Capitaine','Chef d\'Escadron','Lieutenant-Colonel','Colonel','General de Brigade',
-            'General de Division','General de Corps d\'Arme','General d\'Arme','EMPLOYE DE SERVICE','ASSISTANT DE SERVICE',
-            'ADJOINTS DE SERVICE','TECHNICIEN SUPERIEUR CHARGE D\'ENSEIGNEMENT','ATTACHE DE SERVICE','EMPLOYE D\'ADMINISTRATION',
-            'OPERATEUR OU ASSISTANT D\'ADMINISTRATION','INSTITUTEUR','ADJOINTS OU ENCADREURS','A3','ATTACHES D\'ADMINISTRATION OU REALISATEUR ADJOINT',
-            'MEDECIN DE L\'AM','PROF LICENCIE','ADMINISTRATEUR','MED DE OU MAGISTRAT','OUVRIER SPECIALISE DE LA PREMIERE CATEGORIE','OUVRIER SPECIALISE DE LA DEUXIEME CATEGORIE',
-            'OUVRIER PROFESSIONNEL DE LA  CATEGORIE 1A','OUVRIER PROFESSIONNEL DE LA CATEGORIE 1B','Médecin Lieutenant','Médecin Capitaine','Médecin Commandant',
-        ];
-
-        $firstNames = [
-            'Rasoa', 'Rabe', 'Ravo', 'Andry', 'Hery', 'Lala', 'Miora', 'Tiana', 'Nono', 'Faly',
-            'Jean', 'Pierre', 'Marie', 'Luc', 'Sophie', 'Paul', 'Julie', 'Michel', 'Nina', 'David',
-            'Alice', 'Bob', 'Chloe', 'David', 'Eva', 'Frank', 'Grace', 'Hannah', 'Ian', 'Jack'
-        ];
-        $lastNames = [
-            'RAKOTONDRABE', 'ANDRIANARIVO', 'RANDRIANASOLO', 'RAKOTOARIMANANA', 'RABEMANANJARA',
-            'ANDRIAMANJATO', 'RAKOTOMALALA', 'RANDRIAMAMPIONONA', 'RABEARIMANANA', 'ANDRIANJAKA', 
-            'RAKOTOVAO', 'RANDRIATSARAFARA', 'RABENIRINA', 'ANDRIANASOLO', 'RAKOTOBE',
-            'RANDRIANARIMANANA', 'RABEMANJAKA', 'ANDRIANJATO', 'RAKOTOMANGA', 'RANDRIAMPIANINA'
+        $CODUTES = [
+            'A00000','A10000','A11000','A11A00','A11B00','A11C00','A11D00','A11E00','A12000','A13000',
+            'A15000','A16000','A16010','A16020','A16030','A16040','A16050','A16060','A16070','A160A0',
+            'A160A1','A160A4','A19000','A20000','A20A00','A20B00','A21000','A22000','A22A00','A22B00',
+            'A22C00','A23000','A24000','A25000','A26000','A27000','A28000','A29000','A2A000','A2B000',
+            'A30000','A31000','A32000','A33000','A34000','A35000','A350A0','A36000','A40000','A40B00',
+            'A40C00','A40D00','A41000','A41A00','A41B00','A41C00','A41D00','A42000','A43000','A43010',
+            'A43020','A44000','A45000','A46000','A47000','A47100','A50000','A51000','A52000','A53000',
+            'A54000','A55000','A56000','A56A00','A56B00','A57000','A57A00','A57B00','A57C00','A57D00',
+            'A57E00','A58000','A59000','A5A000','A5B000','A5C000','A5D000','A5D0A0','A5E000','A5F000',
+            'A5G000','A5H000','A60000','A60B00','A60C00','A60D00','A61000','A62000','A62B00','A63000',
+            'A63100','A63A00','A63B00','A63C00','A63D00','A64000','A64A00','A64B00','A64C00','A64D00',
+            'A64E00','A64F00','A64G00','A64H00','A64I00','A64J00','A66000','A67000','A70000','A71000',
+            'A72000','A80000','A80100','A80300','A80310','A80320','A80400','A80410','A80500','A80510',
+            'A80520','A80530','A80540','A805A0','A80600','A80700','A807A0','A80800','A90000','A90100',
+            'A90200','A90300','A90400','A90500','B10000','B1A000','B1A010','B1A020','B1B000','B1B010',
+            'B1C000','B1C010','B1D000','B1D100','B1E000','B1F000','B1F001','B1F002','B1G000','B1G010',
+            'B1G020','B1G021','B1G030','B1G040','B1G0A0','B1H000','B1I000','B1J000','B1K000','B1L000'
         ];
 
         $LIBUTES = [
@@ -69,22 +65,21 @@ class PersonnelFixtures extends Fixture
             'CIRGN/ST/TELECOM','CIRGN/ST/INFRA','CIRGN/ST/INFRA/ATB','CIRGN/ST/MATR',
             'CIRGN/ST/ARMS','CIRGN/ST/PIF','CCSR','CIRGN/INS','CIRGN/AS','SRC'
         ];
+        $LOCALS = [
+            'ANTANANARIVO',
+            'T. RATSIMANDRAVA',
+            'ARIVONIMAMO',
+            'IVATO'
+        ];
 
-        for ($i = 1; $i <= 200; $i++) {
-            $personnel = new Personnel();
 
-            $mat = sprintf('%05d', $i);
-            $personnel->setMatricule((string)$mat);
+        for ($i = 0; $i <= 169; $i++) {
+            $unite = new Unite();
+            $unite->setCODUTE((string)$CODUTES[$i]);
+            $unite->setLIBUTE($LIBUTES[array_rand($LIBUTES)]);
+            $unite->setLOCAL($LOCALS[array_rand($LOCALS)]);
 
-            $grade = $grades[array_rand($grades)];
-            $nom = $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
-            $libute = $LIBUTES[array_rand($LIBUTES)];
-
-            $personnel->setGrade($grade);
-            $personnel->setNom($nom);
-            $personnel->setLIBUTE($libute);
-
-            $manager->persist($personnel);
+            $manager->persist($unite);
         }
 
         $manager->flush();

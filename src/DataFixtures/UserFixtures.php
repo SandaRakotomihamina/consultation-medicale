@@ -50,9 +50,9 @@ class UserFixtures extends Fixture
         // Create a default user user for development/testing
         $user = new User();
         $user->setUsername('user');
-        $user->setMatricule('000002');
-        $user->setTitle('Dr.');
-        $user->setName('User');
+        $user->setCODUTE('A00000');
+        $user->setLIBUTE('COM/DSR/PJ/PT');
+        $user->setLOCAL('ANTANANARIVO');
         $user->setRoles(['ROLE_USER']);
 
         // Hash the password using the project's configured hasher

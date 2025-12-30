@@ -27,7 +27,26 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(ConsultationListRepository $repository): Response
     {
-        $consultations = $repository->findBy([], ['id' => 'DESC'], 4, 0);
+        // Si l'utilisateur est ROLE_USER, ne montrer que les consultations de la même LIBUTE
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+
+            if ($libute) {
+                $consultations = $repository->createQueryBuilder('c')
+                    ->where('c.LIBUTE = :libute')
+                    ->setParameter('libute', $libute)
+                    ->orderBy('c.id', 'DESC')
+                    ->setMaxResults(4)
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                // Si pas de LIBUTE connue, ne rien afficher
+                $consultations = [];
+            }
+        } else {
+            $consultations = $repository->findBy([], ['id' => 'DESC'], 4, 0);
+        }
 
         return $this->render('main/index.html.twig', [
             'consultations' => $consultations
@@ -44,7 +63,26 @@ final class MainController extends AbstractController
         $limit = 4;
         $offset = ($page - 1) * $limit;
 
-        $consultations = $repository->findBy([], ['id' => 'DESC'], $limit, $offset);
+        // Si ROLE_USER, filtrer par LIBUTE
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+
+            if ($libute) {
+                $consultations = $repository->createQueryBuilder('c')
+                    ->where('c.LIBUTE = :libute')
+                    ->setParameter('libute', $libute)
+                    ->orderBy('c.id', 'DESC')
+                    ->setFirstResult($offset)
+                    ->setMaxResults($limit)
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $consultations = [];
+            }
+        } else {
+            $consultations = $repository->findBy([], ['id' => 'DESC'], $limit, $offset);
+        }
 
         $html = '';
         foreach ($consultations as $consultation) {
@@ -85,6 +123,10 @@ final class MainController extends AbstractController
         $consultation->setMatricule($demande->getMatricule());
         $consultation->setMotif($demande->getMotif());
         $consultation->setDelivreurDeMotif($demande->getDelivreurDeMotif());
+        // Pré-remplir la LIBUTE depuis la demande si disponible
+        if (method_exists($demande, 'getLIBUTE')) {
+            $consultation->setLIBUTE($demande->getLIBUTE());
+        }
 
         // Définir le délivreur d'observation automatiquement
         $user = $this->getUser();
@@ -156,6 +198,22 @@ final class MainController extends AbstractController
                 $user->setPassword($hashed);
             }
 
+            // Gestion conditionnelle selon le rôle
+            $roles = $user->getRoles();
+            $isUserSimple = in_array('ROLE_USER', $roles) && !in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_SUPER_ADMIN', $roles);
+            
+            if ($isUserSimple) {
+                // Pour utilisateur simple : CODUTE, LIBUTE, LOCAL sont remplis, matricule, grade, nom sont null
+                $user->setMatricule(null);
+                $user->setTitle(null);
+                $user->setName(null);
+            } else {
+                // Pour admin/super-admin : matricule, grade, nom sont remplis, CODUTE, LIBUTE, LOCAL sont null
+                $user->setCODUTE(null);
+                $user->setLIBUTE(null);
+                $user->setLOCAL(null);
+            }
+
             $em->persist($user);
             $em->flush();
 
@@ -212,14 +270,25 @@ final class MainController extends AbstractController
                     break;
                     
                 default: // consultations
-                    $results = $consultationRepo->createQueryBuilder('c')
+                    $qb = $consultationRepo->createQueryBuilder('c')
                         ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
                         ->setParameter('q', "%$query%")
                         ->orderBy('c.id', 'DESC')
                         ->setFirstResult(0)
-                        ->setMaxResults(4)
-                        ->getQuery()
-                        ->getResult();
+                        ->setMaxResults(4);
+
+                    if ($this->isGranted('ROLE_USER')) {
+                        $user = $this->getUser();
+                        $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+                        if ($libute) {
+                            $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+                        } else {
+                            $results = [];
+                            break;
+                        }
+                    }
+
+                    $results = $qb->getQuery()->getResult();
                     break;
             }
         }
@@ -279,14 +348,25 @@ final class MainController extends AbstractController
                     break;
                     
                 default: // consultations
-                    $results = $consultationRepo->createQueryBuilder('c')
+                    $qb = $consultationRepo->createQueryBuilder('c')
                         ->where('c.Nom LIKE :q OR c.Matricule LIKE :q OR c.Grade LIKE :q')
                         ->setParameter('q', "%$query%")
                         ->orderBy('c.id', 'DESC')
                         ->setFirstResult($offset)
-                        ->setMaxResults($limit)
-                        ->getQuery()
-                        ->getResult();
+                        ->setMaxResults($limit);
+
+                    if ($this->isGranted('ROLE_USER')) {
+                        $user = $this->getUser();
+                        $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+                        if ($libute) {
+                            $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+                        } else {
+                            $results = [];
+                            break;
+                        }
+                    }
+
+                    $results = $qb->getQuery()->getResult();
                     break;
             }
         }

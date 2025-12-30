@@ -13,11 +13,22 @@
             </div>
             <div class="name-grade">
                 <div style="display: flex; gap: .2rem;">
-                    <span class="grade" title="Titre: {{user.title}}">{{ user.title }}</span>
-                    <span class="name" title="Nom: {{user.name}}">{{ user.name }}</span>
+                    
+                    {% if 'ROLE_USER' in user.roles %}
+                        <span class="grade" title="{{user.libute}}">{{ user.libute }}</span>
+                        <span class="name" title="{{user.local}}">{{ user.local }}</span>
+                    {% else %}
+                        <span class="grade" title="{{user.title}}">{{ user.title }}</span>
+                        <span class="name" title="{{user.name}}">{{ user.name }}</span>
+                    {% endif %}
+                    
                 </div>
 
-                <span class="matricule" title="Matricule: {{user.matricule}}">{{ user.matricule }}</span>
+                {% if 'ROLE_USER' in user.roles %}
+                    <span class="matricule" title="{{user.title}}">{{ user.codute }}</span>
+                {% else %}
+                    <span class="matricule" title="{{user.matricule}}">{{ user.matricule }}</span>
+                {% endif %}
             </div>
         </div>
     </div>

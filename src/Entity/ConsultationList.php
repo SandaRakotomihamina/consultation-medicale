@@ -17,7 +17,7 @@ class ConsultationList
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $Date = null;
 
-    #[ORM\Column(length: 32)]
+    #[ORM\Column(length: 255)]
     private ?string $Grade = null;
 
     #[ORM\Column(length: 255)]
@@ -40,6 +40,24 @@ class ConsultationList
 
     #[ORM\Column(length: 16, nullable: true)]
     private ?string $Repos = null;
+
+    #[ORM\Column(type: 'string', length: 35, nullable: true)]
+    private ?string $LIBUTE = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $Exemption = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $debutExemption = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $finExemption = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $Adrresse = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $PATC = null;
 
     public function getId(): ?int
     {
@@ -157,6 +175,78 @@ class ConsultationList
     public function setRepos(?string $Repos): static
     {
         $this->Repos = $Repos;
+
+        return $this;
+    }
+
+    public function getExemption(): ?array
+    {
+        return $this->Exemption;
+    }
+
+    public function setExemption(?array $Exemption): static
+    {
+        $this->Exemption = $Exemption;
+
+        return $this;
+    }
+
+    public function getDebutExemption(): ?\DateTime
+    {
+        return $this->debutExemption;
+    }
+
+    public function setDebutExemption(?\DateTime $debutExemption): static
+    {
+        $this->debutExemption = $debutExemption;
+
+        return $this;
+    }
+
+    public function getFinExemption(): ?\DateTime
+    {
+        return $this->finExemption;
+    }
+
+    public function setFinExemption(?\DateTime $finExemption): static
+    {
+        $this->finExemption = $finExemption;
+
+        return $this;
+    }
+
+    public function getAdrresse(): ?array
+    {
+        return $this->Adrresse;
+    }
+
+    public function setAdrresse(?array $Adrresse): static
+    {
+        $this->Adrresse = $Adrresse;
+
+        return $this;
+    }
+
+    public function getPATC(): ?int
+    {
+        return $this->PATC;
+    }
+
+    public function setPATC(?int $PATC): static
+    {
+        $this->PATC = $PATC;
+
+        return $this;
+    }
+
+        public function getLIBUTE(): ?string
+    {
+        return $this->LIBUTE;
+    }
+
+    public function setLIBUTE(?string $LIBUTE): self
+    {
+        $this->LIBUTE = $LIBUTE;
 
         return $this;
     }

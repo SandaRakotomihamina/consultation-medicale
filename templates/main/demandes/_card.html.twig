@@ -16,7 +16,7 @@
                     <span class="grade" title="Grade: {{demande.Grade}}">{{ demande.Grade }}</span>
                     <span class="name" title="Nom: {{demande.Nom}}">{{ demande.Nom }}</span>
                 </div>
-                <span class="matricule" title= "Matricule: {{demande.Matricule}}">{{ demande.Matricule }}</span>
+                <span class="matricule" title= "Matricule: {{demande.Matricule}}">{{ demande.Matricule }}{% if demande.LIBUTE %} <span class="libute" title="LIBUTE: {{ demande.LIBUTE }}" style="margin-left:0.4rem; font-weight:600; color:var(--text-secondary);">({{ demande.LIBUTE }})</span>{% endif %}</span>
             </div>
         </div>
 

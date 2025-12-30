@@ -20,16 +20,28 @@ class UserType extends AbstractType
         
         $builder
             ->add('matricule', TextType::class, [
-                'required' => true,
+                'required' => false,
                 'label' => 'Matricule',
             ])
             ->add('title', TextType::class, [
-                'required' => true,
+                'required' => false,
                 'label' => 'Titre',
             ])
             ->add('name', TextType::class, [
-                'required' => true,
+                'required' => false,
                 'label' => 'Nom',
+            ])
+            ->add('CODUTE', TextType::class, [
+                'required' => false,
+                'label' => 'Code utinté',
+            ])
+            ->add('LIBUTE', TextType::class, [
+                'required' => false,
+                'label' => 'Libelé unité',
+            ])
+            ->add('LOCAL', TextType::class, [
+                'required' => false,
+                'label' => 'Localisation',
             ])
             ->add('username', TextType::class, [
                 'required' => true,

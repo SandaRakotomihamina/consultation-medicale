@@ -91,6 +91,7 @@ class ApiController extends AbstractController
         return new JsonResponse([
             'nom' => $personnel->getNom(),
             'grade' => $personnel->getGrade(),
+            'LIBUTE' => $personnel->getLIBUTE(),
             'found' => true,
         ]);
     }
@@ -128,6 +129,57 @@ class ApiController extends AbstractController
         return new JsonResponse([
             'exists' => !empty($errors),
             'errors' => $errors
+        ]);
+    }
+
+    #[Route('/api/unite/{codute}', name: 'api_unite')]
+    public function getUnite(string $codute, \App\Repository\UniteRepository $uniteRepository): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        if (!$codute) {
+            return new JsonResponse(['error' => 'CODUTE manquant'], 400);
+        }
+
+        $unite = $uniteRepository->find($codute);
+
+        if (!$unite) {
+            return new JsonResponse(['found' => false], 404);
+        }
+
+        return new JsonResponse([
+            'LIBUTE' => $unite->getLIBUTE(),
+            'LOCAL' => $unite->getLOCAL(),
+            'found' => true,
+        ]);
+    }
+
+    #[Route('/api/unite-search', name: 'api_unite_search')]
+    public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $libte = $request->query->get('libte');
+
+        if (!$libte) {
+            return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
+        }
+
+        // Chercher par LIBUTE exact. On prend le premier résultat trouvé.
+        $unite = $uniteRepository->findOneBy(['LIBUTE' => $libte]);
+
+        if (!$unite) {
+            return new JsonResponse(['found' => false], 404);
+        }
+
+        return new JsonResponse([
+            'CODUTE' => $unite->getCODUTE(),
+            'LOCAL' => $unite->getLOCAL(),
+            'found' => true,
         ]);
     }
 
@@ -176,13 +228,27 @@ class ApiController extends AbstractController
 
         $lastId = (int) $request->query->get('lastId', 0);
         
-        $newConsultations = $consultationRepository->createQueryBuilder('c')
+        $qb = $consultationRepository->createQueryBuilder('c')
             ->where('c.id > :lastId')
             ->setParameter('lastId', $lastId)
             ->orderBy('c.id', 'DESC')
-            ->setMaxResults(4)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults(4);
+
+        // Si l'utilisateur est ROLE_USER, ne retourner que les consultations de la même LIBUTE
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+
+            if ($libute) {
+                $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+                $newConsultations = $qb->getQuery()->getResult();
+            } else {
+                // Pas de LIBUTE déclaré pour l'utilisateur => aucune nouvelle consultation
+                $newConsultations = [];
+            }
+        } else {
+            $newConsultations = $qb->getQuery()->getResult();
+        }
 
         $html = '';
         $maxId = $lastId;

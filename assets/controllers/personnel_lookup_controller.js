@@ -1,14 +1,96 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ['matricule', 'nom', 'grade', 'errorMessage'];
-    static values = { checkUserExists: Boolean };
+    static targets = ['matricule', 'nom', 'grade', 'libute', 'codute', 'local', 'errorMessage', 'roles', 'matriculeLabel', 'gradeLabel', 'nomLabel', 'matriculeField', 'gradeField', 'nomField', 'coduteField', 'libuteField', 'localField'];
+    static values = { checkUserExists: Boolean, userLibute: String };
     
     connect() {
         this.debounceTimer = null;
+        this.isUniteMode = false; // false = recherche personnel, true = recherche unité
+        this.matriculeAllowed = true; // sera false si le personnel ne peut pas faire de demande ici
+
+        // Attacher une protection de soumission si on est dans un formulaire
+        this.formElement = this.element.closest('form');
+        if (this.formElement) {
+            this.formElement.addEventListener('submit', (e) => {
+                if (!this.matriculeAllowed) {
+                    e.preventDefault();
+                    this.showError('Ce personnel ne peut pas faire de demande dans cette unité.');
+                    if (this.hasMatriculeTarget) {
+                        this.matriculeTarget.style.borderColor = '#dc3545';
+                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                    }
+                }
+            });
+        }
+
         // Par défaut, on vérifie l'existence dans User (pour new_user)
         if (this.hasCheckUserExistsValue === false) {
             this.checkUserExistsValue = true;
+        }
+
+        // Si la cible roles est présente, initialiser l'état selon la sélection actuelle
+        if (this.hasRolesTarget) {
+            this.updateModeFromRoles();
+        }
+
+        // Mettre à jour les labels au chargement
+        this.updateLabels();
+    }
+
+    onRoleChange() {
+        this.updateModeFromRoles();
+        this.updateLabels();
+        // clear fields when switching mode
+        if (this.hasMatriculeTarget) {
+            this.matriculeTarget.value = '';
+            this.matriculeTarget.style.borderColor = '';
+            this.matriculeTarget.style.backgroundColor = '';
+        }
+        if (this.hasNomTarget) this.nomTarget.value = '';
+        if (this.hasGradeTarget) this.gradeTarget.value = '';
+        if (this.hasLibuteTarget) this.libuteTarget.value = '';
+        if (this.hasCoduteTarget) this.coduteTarget.value = '';
+        if (this.hasLocalTarget) this.localTarget.value = '';
+        this.matriculeAllowed = true;
+    }
+
+    updateModeFromRoles() {
+        try {
+            const select = this.rolesTarget;
+            if (!select) return;
+            const values = Array.from(select.selectedOptions || []).map(o => o.value);
+            this.isUniteMode = values.includes('ROLE_USER');
+        } catch (e) {
+            this.isUniteMode = false;
+        }
+    }
+
+    updateLabels() {
+        if (this.isUniteMode) {
+            if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'LIBUTE';
+            if (this.hasGradeLabelTarget) this.gradeLabelTarget.textContent = 'CODUTE';
+            if (this.hasNomLabelTarget) this.nomLabelTarget.textContent = 'LOCAL';
+            
+            // Afficher les champs CODUTE, LIBUTE, LOCAL et masquer matricule, grade, nom
+            if (this.hasMatriculeFieldTarget) this.matriculeFieldTarget.style.display = 'block';
+            if (this.hasGradeFieldTarget) this.gradeFieldTarget.style.display = 'none';
+            if (this.hasNomFieldTarget) this.nomFieldTarget.style.display = 'none';
+            if (this.hasCoduteFieldTarget) this.coduteFieldTarget.style.display = 'block';
+            if (this.hasLibuteFieldTarget) this.libuteFieldTarget.style.display = 'block';
+            if (this.hasLocalFieldTarget) this.localFieldTarget.style.display = 'block';
+        } else {
+            if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'Matricule';
+            if (this.hasGradeLabelTarget) this.gradeLabelTarget.textContent = 'Titre';
+            if (this.hasNomLabelTarget) this.nomLabelTarget.textContent = 'Nom';
+            
+            // Afficher les champs matricule, grade, nom et masquer CODUTE, LIBUTE, LOCAL
+            if (this.hasMatriculeFieldTarget) this.matriculeFieldTarget.style.display = 'block';
+            if (this.hasGradeFieldTarget) this.gradeFieldTarget.style.display = 'block';
+            if (this.hasNomFieldTarget) this.nomFieldTarget.style.display = 'block';
+            if (this.hasCoduteFieldTarget) this.coduteFieldTarget.style.display = 'none';
+            if (this.hasLibuteFieldTarget) this.libuteFieldTarget.style.display = 'none';
+            if (this.hasLocalFieldTarget) this.localFieldTarget.style.display = 'none';
         }
     }
 
@@ -24,6 +106,15 @@ export default class extends Controller {
             if (this.hasGradeTarget) {
                 this.gradeTarget.value = '';
             }
+            if (this.hasLibuteTarget) {
+                this.libuteTarget.value = '';
+            }
+            if (this.hasCoduteTarget) {
+                this.coduteTarget.value = '';
+            }
+            if (this.hasLocalTarget) {
+                this.localTarget.value = '';
+            }
             return;
         }
 
@@ -31,52 +122,153 @@ export default class extends Controller {
         this.debounceTimer = setTimeout(async () => {
             try {
                 // Vérifier si l'utilisateur existe déjà dans la table User (si activé)
-                if (this.checkUserExistsValue) {
-                    const checkResponse = await fetch('/api/check-user-exists', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            matricule: matricule,
-                            username: ''
-                        })
-                    });
-                    const checkData = await checkResponse.json();
+                // Quand on est en mode unité (recherche par LIBUTE), on ne fait pas cette vérification
+                if (this.checkUserExistsValue && !this.isUniteMode) {
+                    try {
+                        const checkResponse = await fetch('/api/check-user-exists', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                matricule: matricule,
+                                username: ''
+                            })
+                        });
 
-                    // Si l'utilisateur existe déjà avec ce matricule, afficher une erreur
-                    if (checkData.errors.matricule) {
-                        this.showError(checkData.errors.matricule);
+                        // Si l'API refuse l'accès (ex: pas super-admin), on ignore et on continue
+                        if (!checkResponse.ok) {
+                            // pas d'arrêt ici: on continue la recherche principale
+                            console.warn('check-user-exists non OK', checkResponse.status);
+                        } else {
+                            const checkData = await checkResponse.json();
+                            // Si l'utilisateur existe déjà avec ce matricule, afficher une erreur
+                            if (checkData && checkData.errors && checkData.errors.matricule) {
+                                this.showError(checkData.errors.matricule);
+                                this.matriculeTarget.style.borderColor = '#dc3545';
+                                this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                                this.nomTarget.value = '';
+                                this.gradeTarget.value = '';
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        // En cas d'erreur réseau, on ne bloque pas la recherche principale
+                        console.warn('Erreur lors de la vérification d\'existance utilisateur:', e);
+                    }
+                }
+
+                // Si on est en mode unité, chercher dans les unités par LIBUTE (libellé)
+                if (this.isUniteMode) {
+                    const response = await fetch(`/api/unite-search?libte=${encodeURIComponent(matricule)}`);
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            this.showError('Unité non trouvée avec ce LIBUTE.');
+                        } else if (response.status === 403) {
+                            this.showError('Accès refusé lors de la recherche de l\'unité.');
+                        } else {
+                            this.showError('Erreur lors de la recherche de l\'unité.');
+                        }
+
                         this.matriculeTarget.style.borderColor = '#dc3545';
                         this.matriculeTarget.style.backgroundColor = '#fff5f5';
                         this.nomTarget.value = '';
                         this.gradeTarget.value = '';
+                        if (this.hasLibuteTarget) this.libuteTarget.value = '';
+
                         return;
                     }
+
+                    const data = await response.json();
+
+                    if (data.found) {
+                        this.hideError();
+                        // Remplir CODUTE -> coduteTarget, LOCAL -> localTarget, et LIBUTE caché -> libuteTarget
+                        if (this.hasCoduteTarget) this.coduteTarget.value = data.CODUTE || '';
+                        if (this.hasLocalTarget) this.localTarget.value = data.LOCAL || '';
+                        if (this.hasLibuteTarget) this.libuteTarget.value = matricule || data.LIBUTE || '';
+
+                        this.matriculeTarget.style.borderColor = '#28a745';
+                        this.matriculeTarget.style.backgroundColor = '#f0fff4';
+                    } else {
+                        this.showError('Unité non trouvée avec ce LIBUTE.');
+                        this.matriculeTarget.style.borderColor = '#dc3545';
+                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+
+                        this.nomTarget.value = '';
+                        this.gradeTarget.value = '';
+                        if (this.hasLibuteTarget) this.libuteTarget.value = '';
+                    }
+
+                    return;
                 }
 
-                // Chercher dans l'API personnel(-local)
+                // Sinon, comportement précédent : chercher le personnel
                 const response = await fetch(`/api/personnel-local/${encodeURIComponent(matricule)}`);
-                const data = await response.json();
 
-                if (data.found) {
-                    this.hideError();
-                    this.nomTarget.value = data.nom || '';
-                    this.gradeTarget.value = data.grade || '';
-                    
-                    this.matriculeTarget.style.borderColor = '#28a745';
-                    this.matriculeTarget.style.backgroundColor = '#f0fff4'; 
-                } else {
-                    this.showError('Personnel non trouvé avec ce matricule.');
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        this.showError('Personnel non trouvé avec ce matricule.');
+                    } else if (response.status === 403) {
+                        this.showError('Accès refusé lors de la recherche du personnel.');
+                    } else {
+                        this.showError('Erreur lors de la recherche du personnel.');
+                    }
+
                     this.matriculeTarget.style.borderColor = '#dc3545';
                     this.matriculeTarget.style.backgroundColor = '#fff5f5';
-
                     this.nomTarget.value = '';
                     this.gradeTarget.value = '';
+                    if (this.hasLibuteTarget) this.libuteTarget.value = '';
+                    this.matriculeAllowed = false;
+                } else {
+                    const data = await response.json();
+
+                    if (data.found) {
+                        this.hideError();
+
+                        // Préparer la LIBUTE du personnel
+                        const personLibute = (data.LIBUTE || '').toString();
+
+                        // Vérifier que la LIBUTE du personnel correspond à celle de l'utilisateur connecté
+                        if (this.hasUserLibuteValue && this.userLibuteValue) {
+                            const userLibute = (this.userLibuteValue || '').toString();
+
+                            if (personLibute !== '' && userLibute !== '' && personLibute !== userLibute) {
+                                // Ne pas remplir les champs et bloquer la soumission
+                                if (this.hasNomTarget) this.nomTarget.value = '';
+                                if (this.hasGradeTarget) this.gradeTarget.value = '';
+                                if (this.hasLibuteTarget) this.libuteTarget.value = '';
+
+                                this.showError('Ce personnel ne peut pas faire de demande dans cette unité.');
+                                this.matriculeTarget.style.borderColor = '#dc3545';
+                                this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                                this.matriculeAllowed = false;
+                                return;
+                            }
+                        }
+
+                        // Autorisé : remplir les champs
+                        this.nomTarget.value = data.nom || '';
+                        this.gradeTarget.value = data.grade || '';
+                        if (this.hasLibuteTarget) this.libuteTarget.value = personLibute || '';
+
+                        this.matriculeAllowed = true;
+                        this.matriculeTarget.style.borderColor = '#28a745';
+                        this.matriculeTarget.style.backgroundColor = '#f0fff4'; 
+                    } else {
+                        this.showError('Personnel non trouvé avec ce matricule.');
+                        this.matriculeTarget.style.borderColor = '#dc3545';
+                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+
+                        this.nomTarget.value = '';
+                        this.gradeTarget.value = '';
+                    }
                 }
             } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
-                this.showError('Erreur lors de la recherche du personnel.');
+                this.showError('Erreur lors de la recherche.');
                 this.matriculeTarget.style.borderColor = '#dc3545';
                 this.matriculeTarget.style.backgroundColor = '#fff5f5';
             }

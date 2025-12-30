@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\ConsultationListRepository;
@@ -12,14 +13,17 @@ use App\Repository\UserRepository;
 
 class StatistiqueController extends AbstractController
 {
-    #[IsGranted('ROLE_SUPER_ADMIN')]
     #[Route('/statistique', name: 'app_statistique_consiltations')]
     public function index(
         ConsultationListRepository $consultationRepo,
         DemandeDeConsultationRepository $demandeRepo,
         UserRepository $userRepo
     ): Response {
-
+        
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé aux super-admins, administrateurs et utilisateurs simples.');
+        }
+        
         // Statistiques consultations
         $today = new \DateTime();
         $today->setTime(0, 0, 0);
@@ -196,10 +200,27 @@ class StatistiqueController extends AbstractController
             : ($currentMonthCount > 0 ? 100 : 0);
 
         // ========== STATISTIQUES HEBDOMADAIRES (par jour de semaine) ==========
-        $allConsultations = $consultationRepo->findAll();
+        // Si l'utilisateur est ROLE_USER, on filtre par sa LIBUTE pour l'ensemble des statistiques
+        $filteredConsultations = [];
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+            if ($libute) {
+                $filteredConsultations = $consultationRepo->createQueryBuilder('c')
+                    ->where('c.LIBUTE = :libute')
+                    ->setParameter('libute', $libute)
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $filteredConsultations = [];
+            }
+        } else {
+            $filteredConsultations = $consultationRepo->findAll();
+        }
+
         $weekdayCounts = [0, 0, 0, 0, 0, 0, 0]; // Dimanche à Samedi (0-6)
         
-        foreach ($allConsultations as $consultation) {
+        foreach ($filteredConsultations as $consultation) {
             /** @var \App\Entity\ConsultationList $consultation */
             $date = $consultation->getDate();
             if ($date) {
@@ -211,6 +232,62 @@ class StatistiqueController extends AbstractController
         $weekdayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         $weekdayLabels = $weekdayNames;
         $weekdayData = $weekdayCounts;
+
+        // ========== STATISTIQUES POUR ADRESSE, PATC ET EXEMPTIONS ACTIVES ==========
+        $adresseCounts = [];
+        $patcCounts = [];
+        $exemptionCounts = [];
+
+        $todayStart = (new \DateTime())->setTime(0,0,0);
+        $todayEnd = (clone $todayStart)->setTime(23,59,59);
+
+        foreach ($filteredConsultations as $consultation) {
+            // Adresse (stockée en JSON array)
+            $adrs = $consultation->getAdrresse();
+            if (is_array($adrs)) {
+                foreach ($adrs as $adr) {
+                    $a = trim((string) $adr);
+                    if ($a === '') continue;
+                    $adresseCounts[$a] = ($adresseCounts[$a] ?? 0) + 1;
+                }
+            }
+
+            // PATC
+            $patc = $consultation->getPATC();
+            if ($patc !== null && $patc !== '') {
+                $key = (string) $patc;
+                $patcCounts[$key] = ($patcCounts[$key] ?? 0) + 1;
+            }
+
+            // Exemptions actives
+            $exemptions = $consultation->getExemption();
+            $debut = $consultation->getDebutExemption();
+            $fin = $consultation->getFinExemption();
+            if (is_array($exemptions) && $debut instanceof \DateTime && $fin instanceof \DateTime) {
+                // Vérifier que l'exemption est active aujourd'hui (inclus)
+                if ($debut <= $todayEnd && $fin >= $todayStart) {
+                    foreach ($exemptions as $ex) {
+                        $e = trim((string) $ex);
+                        if ($e === '') continue;
+                        $exemptionCounts[$e] = ($exemptionCounts[$e] ?? 0) + 1;
+                    }
+                }
+            }
+        }
+
+        // Trier par occurrences décroissantes
+        arsort($adresseCounts);
+        arsort($patcCounts);
+        arsort($exemptionCounts);
+
+        $adresseLabels = array_keys($adresseCounts);
+        $adresseData = array_values($adresseCounts);
+
+        $patcLabels = array_keys($patcCounts);
+        $patcData = array_values($patcCounts);
+
+        $exemptionLabels = array_keys($exemptionCounts);
+        $exemptionData = array_values($exemptionCounts);
 
         // ========== STATISTIQUES DEMANDES ==========
         $pendingDemandes = $demandeRepo->count([]);
@@ -342,6 +419,14 @@ class StatistiqueController extends AbstractController
             // Utilisateurs
             'totalUsers' => $totalUsers,
             'rolesCount' => $rolesCount,
+
+            // Adresse / PATC / Exemptions actives
+            'adresseLabels' => $adresseLabels ?? [],
+            'adresseData' => $adresseData ?? [],
+            'patcLabels' => $patcLabels ?? [],
+            'patcData' => $patcData ?? [],
+            'exemptionLabels' => $exemptionLabels ?? [],
+            'exemptionData' => $exemptionData ?? [],
         ]);
     }
 }
