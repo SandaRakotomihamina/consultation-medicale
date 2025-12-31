@@ -131,12 +131,20 @@
             box-shadow: 0 6px 18px var(--shadow-dark);
         }
 
+        .ajouter{
+            background: #39721eff;
+        }
+
+        
         .btn--muted:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px var(--shadow-dark-hover);
             background: #5a6268;
         }
-
+        
+        .ajouter:hover{
+                    background: #36632aff;
+                }
         .btn--muted:active {
             transform: translateY(2px);
             box-shadow:
@@ -259,7 +267,7 @@
                 <div style="margin-top:.5rem; display:flex; gap:.5rem; flex-direction:column;">
                     <div style="display:flex; gap:.5rem;">
                         <input id="exemption_new_input" type="text" placeholder="Nouvelle exemption" data-consultation-options-target="exemptionInput" style="flex:1;">
-                        <button type="button" class="btn--muted" data-consultation-options-target="exemptionAddBtn" data-action="click->consultation-options#addExemption" disabled>Ajouter</button>
+                        <button type="button" class="btn--muted ajouter" data-consultation-options-target="exemptionAddBtn" data-action="click->consultation-options#addExemption" disabled>+</button>
                     </div>
                     {{ form_widget(form.Exemption, {'attr': {'disabled': true, 'id': exemption_id, 'multiple': true, 'data-consultation-options-target': 'exemptionSelect'}}) }}
                 </div>
@@ -293,7 +301,7 @@
                 <div style="margin-top:.5rem; display:flex; gap:.5rem; flex-direction:column;">
                     <div style="display:flex; gap:.5rem;">
                         <input id="adresse_new_input" type="text" placeholder="Nouvelle service" data-consultation-options-target="adresseInput" style="flex:1;">
-                        <button type="button" class="btn--muted" data-consultation-options-target="adresseAddBtn" data-action="click->consultation-options#addAdresse" disabled>Ajouter</button>
+                        <button type="button" class="btn--muted ajouter" data-consultation-options-target="adresseAddBtn" data-action="click->consultation-options#addAdresse" disabled>+</button>
                     </div>
                     {{ form_widget(form.Adrresse, {'attr': {'disabled': true, 'id': adresse_id, 'multiple': true, 'data-consultation-options-target': 'adresseSelect'}}) }}
                 </div>
@@ -313,7 +321,7 @@
                                 </svg>
                             </label>
                         </div>
-                        <span>PATC (jours)</span>
+                        <span>Permission à titre convalessence (jours)</span>
                     </div>
                 </label>
                 <div style="margin-top:.5rem;">
@@ -343,7 +351,7 @@
 
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>
-                <a href="{{ path('app_main') }}" class="btn--muted">Annuler</a>
+                <a href="{{ path('app_list_demande') }}" class="btn--muted">Annuler</a>
             </div>
         </div>
 

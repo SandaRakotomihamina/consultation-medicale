@@ -96,7 +96,11 @@ class ConsultationType extends AbstractType
                 'constraints' => [new Range(['min' => 0, 'minMessage' => 'Le nombre de jours doit être positif'])]
             ])
             ->add('Observation')
-            ->add('DelivreurDObservation', null)
+            ->add('DelivreurDObservation', null,[
+                'attr' => [
+                    'readonly' => true
+                ]
+            ])
             ->add('Repos', ChoiceType::class, [
                 'label' => 'Repos administré',
                 'choices' => [
