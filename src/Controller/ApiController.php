@@ -131,31 +131,9 @@ class ApiController extends AbstractController
             'errors' => $errors
         ]);
     }
-
-    #[Route('/api/unite/{codute}', name: 'api_unite')]
-    public function getUnite(string $codute, \App\Repository\UniteRepository $uniteRepository): JsonResponse
-    {
-        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
-
-        if (!$codute) {
-            return new JsonResponse(['error' => 'CODUTE manquant'], 400);
-        }
-
-        $unite = $uniteRepository->find($codute);
-
-        if (!$unite) {
-            return new JsonResponse(['found' => false], 404);
-        }
-
-        return new JsonResponse([
-            'LIBUTE' => $unite->getLIBUTE(),
-            'LOCAL' => $unite->getLOCAL(),
-            'found' => true,
-        ]);
-    }
-
+    #############################################################################################################
+    ###############################API pour rechercher une unité par LIBUTE######################################
+    #############################################################################################################
     #[Route('/api/unite-search', name: 'api_unite_search')]
     public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
     {
