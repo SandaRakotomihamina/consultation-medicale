@@ -20,7 +20,7 @@ class StatistiqueController extends AbstractController
         UserRepository $userRepo
     ): Response {
         
-        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Accès réservé aux super-admins, administrateurs et utilisateurs simples.');
         }
         
