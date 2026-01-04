@@ -258,82 +258,126 @@
         <p>Modifiez les champs ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</p>
 
         {{ form_start(form) }}
-
             <div class="consultation-form">
-            <div>
-                {{ form_label(form.matricule) }}
-                {{ form_widget(form.matricule, {
-                    'attr': {
-                        'id': 'user_matricule',
-                        'readonly': 'readonly'
-                    }
-                }) }}
-            </div>
-
-            <div>
-                {{ form_label(form.title) }}
-                {{ form_widget(form.title, {
-                    'attr': {
-                        'readonly': 'readonly'
-                    }
-                }) }}
-                </div>
-
-            <div>
-                {{ form_label(form.name) }}
-                {{ form_widget(form.name, {
-                    'attr': {
-                        'readonly': 'readonly'
-                    }
-                }) }}
-                </div>
-
-            <div>
-                {{ form_label(form.username) }}
-                {{ form_widget(form.username, {
-                    'attr': {
-                        'id': 'user_username'
-                    }
-                }) }}
-                </div>
-                
-            <div style="position: relative;">
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <div class="container" style="margin-top: .1rem;">
-                        <input type="checkbox" id="enable_password_checkbox" style="display: none;">
-                        <label for="enable_password_checkbox" class="check">
-                            <svg width="18px" height="18px" viewBox="0 0 18 18">
-                                <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
-                                <polyline points="1 9 7 14 15 4"></polyline>
-                            </svg>
-                        </label>
+                <div 
+                    {% if 'ROLE_USER' not in user.roles %}
+                        style="display: none;"
+                    {% endif %}
+                > 
+                    <div>
+                       
+                        {{ form_label(form.CODUTE) }}
+                        {{ form_widget(form.CODUTE, {
+                            'attr': {
+                                'id': 'user_matricule',
+                                'readonly': 'readonly'
+                            }
+                        }) }}
                     </div>
-                    {{ form_label(form.plainPassword) }}
+
+                    <div>
+                        {{ form_label(form.LIBUTE) }}
+                        {{ form_widget(form.LIBUTE, {
+                            'attr': {
+                                'readonly': 'readonly'
+                            }
+                        }) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.LOCAL) }}
+                        {{ form_widget(form.LOCAL, {
+                            'attr': {
+                                'readonly': 'readonly'
+                            }
+                        }) }}
+                    </div>
+                </div>
+                <div
+                    {% if 'ROLE_USER' in user.roles %}
+                        style="display: none;"
+                    {% endif %}
+                >
+                    <div>
+                        {{ form_label(form.matricule) }}
+                        {{ form_widget(form.matricule, {
+                            'attr': {
+                                'id': 'user_matricule',
+                                'readonly': 'readonly'
+                            }
+                        }) }}
+                    </div>
+                
+                    <div>
+                        {{ form_label(form.title) }}
+                        {{ form_widget(form.title, {
+                            'attr': {
+                                'readonly': 'readonly'
+                            }
+                        }) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.name) }}
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'readonly': 'readonly'
+                            }
+                        }) }}
+                    </div>
                 </div>
                 
-                {{ form_widget(form.plainPassword, {
+                <div>
+                    {{ form_label(form.username) }}
+                    {{ form_widget(form.username, {
+                        'attr': {
+                            'id': 'user_username'
+                        }
+                    }) }}
+                </div>
+                
+                <div style="position: relative;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="container" style="margin-top: .1rem;">
+                            <input type="checkbox" id="enable_password_checkbox" style="display: none;">
+                            <label for="enable_password_checkbox" class="check">
+                                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </label>
+                        </div>
+                        {{ form_label(form.plainPassword) }}
+                    </div>
+                    
+                    {{ form_widget(form.plainPassword, {
+                        'attr': {
+                            'id': 'user_plainPassword',
+                            'autocomplete': 'new-password',
+                            'style': 'padding-right: 2.5rem;'
+                        }
+                    }) }}
+                    <span class="toggle-password" onclick="togglePassword()" id="togglePassword">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+                                0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+                                0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
+                        </svg>
+                    </span>
+                </div>
+                {{ form_row(form.roles, {
                     'attr': {
-                        'id': 'user_plainPassword',
-                        'autocomplete': 'new-password',
-                        'style': 'padding-right: 2.5rem;'
+                        'disabled':'desabled',
+                        'title':'Le role d\'un utilisateur ne peut être changer'
                     }
                 }) }}
-                <span class="toggle-password" onclick="togglePassword()" id="togglePassword">
-                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
-                               0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
-                               0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
-                    </svg>
-                </span>
-            </div>
-            {{ form_row(form.roles) }}
 
-                <div class="form-actions">
-                    <button class="btn" type="submit">Enregistrer</button>
-                <a href="{{ path('app_list_user') }}" class="btn--muted">Annuler</a>
+                    <div class="form-actions">
+                        <button class="btn" type="submit">Enregistrer</button>
+                    <a href="{{ path('app_list_user') }}" class="btn--muted">Annuler</a>
+                </div>
             </div>
-        </div>
 
         {{ form_end(form) }}
     </div>

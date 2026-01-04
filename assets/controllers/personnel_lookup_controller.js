@@ -68,7 +68,7 @@ export default class extends Controller {
 
     updateLabels() {
         if (this.isUniteMode) {
-            if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'LIBUTE';
+            if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'Libelé de l\'unité';
             if (this.hasGradeLabelTarget) this.gradeLabelTarget.textContent = 'CODUTE';
             if (this.hasNomLabelTarget) this.nomLabelTarget.textContent = 'LOCAL';
             
@@ -164,7 +164,7 @@ export default class extends Controller {
 
                     if (!response.ok) {
                         if (response.status === 404) {
-                            this.showError('Unité non trouvée avec ce LIBUTE.');
+                            this.showError('Unité non trouvée avec ce libelé.');
                         } else if (response.status === 403) {
                             this.showError('Accès refusé lors de la recherche de l\'unité.');
                         } else {
@@ -192,7 +192,7 @@ export default class extends Controller {
                         this.matriculeTarget.style.borderColor = '#28a745';
                         this.matriculeTarget.style.backgroundColor = '#f0fff4';
                     } else {
-                        this.showError('Unité non trouvée avec ce LIBUTE.');
+                        this.showError('Unité non trouvée avec ce libelé.');
                         this.matriculeTarget.style.borderColor = '#dc3545';
                         this.matriculeTarget.style.backgroundColor = '#fff5f5';
 
