@@ -10,7 +10,7 @@
             max-width: 900px;
             margin: 2rem auto;
             padding: 2rem;
-            background: #ffffff;
+            background: var(--bg-primary);
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             margin-top: 140px;
@@ -25,11 +25,11 @@
             margin-top: 0;
             font-size: 1.7rem;
             font-weight: 700;
-            color: #222;
+            color: var(--text-primary);
         }
 
         .consultation-container p {
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 1.5rem;
         }
 
@@ -42,7 +42,7 @@
 
         .consultation-form label {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: .35rem;
         }
 
@@ -51,9 +51,11 @@
             padding: .75rem 1rem;
             border: 1px solid #d1d1d1;
             border-radius: 8px;
+            border-color: var(--border-color);
             width: 100%;
             font-size: 1rem;
-            background: #fafafa;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             box-sizing: border-box;
             transition: .2s ease;
         }
@@ -61,7 +63,7 @@
         .consultation-form input:focus,
         .consultation-form textarea:focus {
             border-color: #0d6efd;
-            background: #fff;
+            background: var(--bg-primary);
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
             outline: none;
         }
@@ -70,10 +72,11 @@
             padding: .75rem 1rem;
             border: 1px solid #d1d1d1;
             border-radius: 8px;
+            border-color: var(--border-color);
             width: 100%;
             font-size: 1rem;
-            background-color: #fff;
-            color: #333;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             appearance: none;
             cursor: pointer;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E");
@@ -87,7 +90,6 @@
             border-color: #0d6efd;
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
         }
-
 
         .form-actions {
             display: flex;
