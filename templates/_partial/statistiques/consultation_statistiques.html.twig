@@ -119,7 +119,7 @@
     }
 
     .chart-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-4px) !important;
         box-shadow:
             6px 6px 14px var(--shadow-dark-hover),
             -6px -6px 14px var(--shadow-light);
@@ -391,6 +391,243 @@
             });
         }
 
+        // --- Helpers to fetch consultations and show modal
+        const consultationsChartKeys = {{ consultationsChartKeys|default([])|json_encode|raw }};
+        const monthKeys = {{ monthKeys|default([])|json_encode|raw }};
+        const demandesChartKeys = {{ demandesChartKeys|default([])|json_encode|raw }};
+        // expose for handlers
+        window.consultationsChartKeys = consultationsChartKeys;
+        window.monthKeys = monthKeys;
+        window.demandesChartKeys = demandesChartKeys;
+
+        function createConsultationsModal(title, items) {
+            // remove existing
+            const existing = document.getElementById('consultations-modal');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'consultations-modal';
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.background = 'rgba(0,0,0,0.45)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '9999';
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+
+            const panel = document.createElement('div');
+            (function applySafeColors(p) {
+                const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+                const bg = bgRaw.trim() || '#fff';
+                const parse = (c) => {
+                    c = c.trim();
+                    if (!c) return null;
+                    if (c.startsWith('rgb')) {
+                        const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
+                        return {r: nums[0], g: nums[1], b: nums[2]};
+                    }
+                    if (c[0] === '#') {
+                        const hex = c.slice(1);
+                        if (hex.length === 3) {
+                            return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
+                        }
+                        return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
+                    }
+                    return null;
+                };
+                const rgb = parse(bg);
+                let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
+                if (rgb) {
+                    const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
+                    const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
+                            + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
+                            + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
+                    finalText = (L > 0.6) ? '#111' : '#fff';
+                }
+                p.style.background = bg;
+                p.style.color = finalText;
+            })(panel);
+            panel.style.borderRadius = '12px';
+            panel.style.padding = '1rem';
+            panel.style.maxWidth = '900px';
+            panel.style.width = 'calc(100% - 40px)';
+            panel.style.maxHeight = '80vh';
+            panel.style.overflow = 'auto';
+            panel.style.position = 'relative';
+
+            const h = document.createElement('h3');
+            h.textContent = title || 'Consultations';
+            h.style.marginTop = '0';
+            panel.appendChild(h);
+
+            const close = document.createElement('button');
+            close.textContent = '✕';
+            close.style.position = 'absolute';
+            close.style.top = '10px';
+            close.style.right = '12px';
+            close.style.border = 'none';
+            close.style.background = 'transparent';
+            close.style.fontSize = '1.2rem';
+            close.style.cursor = 'pointer';
+            close.addEventListener('click', () => overlay.remove());
+            panel.appendChild(close);
+
+            if (!items || !items.length) {
+                const p = document.createElement('p');
+                p.textContent = 'Aucune consultation trouvée.';
+                panel.appendChild(p);
+            } else {
+                const table = document.createElement('table');
+                table.style.width = '100%';
+                table.style.borderCollapse = 'collapse';
+                table.style.marginTop = '0.5rem';
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = '<tr style="text-align:left; border-bottom:1px solid rgba(0,0,0,0.06);">\n<th>Date</th><th>Nom</th><th>Grade</th><th>Matricule</th><th>Motif</th><th>Repos</th>\n</tr>';
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                items.forEach(it => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid rgba(0,0,0,0.04)';
+                    tr.innerHTML = `<td style="padding:.45rem .5rem">${it.date||''}</td><td style="padding:.45rem .5rem">${it.nom||''}</td><td style="padding:.45rem .5rem">${it.grade||''}</td><td style="padding:.45rem .5rem">${it.matricule||''}</td><td style="padding:.45rem .5rem">${(it.motif||'').slice(0,80)}</td><td style="padding:.45rem .5rem">${it.repos||''}</td>`;
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                panel.appendChild(table);
+            }
+
+            overlay.appendChild(panel);
+            document.body.appendChild(overlay);
+
+            // close on Esc
+            const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+            document.addEventListener('keydown', escHandler);
+        }
+
+        function createConsultationsHtmlModal(title, html) {
+            const existing = document.getElementById('consultations-modal');
+            if (existing) existing.remove();
+            const overlay = document.createElement('div');
+            overlay.id = 'consultations-modal';
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.background = 'rgba(0,0,0,0.45)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '9999';
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+            const panel = document.createElement('div');
+            (function applySafeColors(p) {
+                const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+                const bg = bgRaw.trim() || '#fff';
+                const parse = (c) => {
+                    c = c.trim();
+                    if (!c) return null;
+                    if (c.startsWith('rgb')) {
+                        const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
+                        return {r: nums[0], g: nums[1], b: nums[2]};
+                    }
+                    if (c[0] === '#') {
+                        const hex = c.slice(1);
+                        if (hex.length === 3) {
+                            return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
+                        }
+                        return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
+                    }
+                    return null;
+                };
+                const rgb = parse(bg);
+                let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
+                if (rgb) {
+                    const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
+                    const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
+                            + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
+                            + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
+                    finalText = (L > 0.6) ? '#111' : '#fff';
+                }
+                p.style.background = bg;
+                p.style.color = finalText;
+            })(panel);
+            panel.style.borderRadius = '12px';
+            panel.style.padding = '1rem';
+            panel.style.maxWidth = '1100px';
+            panel.style.width = 'calc(100% - 80px)';
+            panel.style.maxHeight = '90vh';
+            panel.style.overflow = 'auto';
+            panel.style.position = 'relative';
+
+            const header = document.createElement('div');
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+            header.style.position = 'sticky'; header.style.top = '0'; header.style.zIndex = '12';
+            header.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+            header.style.padding = '0.45rem 0.5rem'; header.style.borderBottom = '1px solid rgba(0,0,0,0.06)';
+
+            const h = document.createElement('h3');
+            h.textContent = title || 'Consultations';
+            h.style.marginTop = '0';
+            header.appendChild(h);
+
+            const close = document.createElement('button');
+            close.textContent = '✕';
+            close.style.border = 'none';
+            close.style.background = 'transparent';
+            close.style.fontSize = '1.2rem';
+            close.style.cursor = 'pointer';
+            close.addEventListener('click', () => overlay.remove());
+            header.appendChild(close);
+
+            panel.appendChild(header);
+
+            const contentWrapper = document.createElement('div');
+            contentWrapper.innerHTML = html;
+            // ensure some spacing
+            contentWrapper.style.marginTop = '0.5rem';
+            panel.appendChild(contentWrapper);
+
+            overlay.appendChild(panel);
+            document.body.appendChild(overlay);
+
+            const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+            document.addEventListener('keydown', escHandler);
+        }
+
+        function fetchAndShow(type, value, title) {
+            const fragUrl = '/statistique/consultations/fragment?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
+            fetch(fragUrl, { credentials: 'same-origin' })
+                .then(r => {
+                    if (!r.ok) throw new Error('No HTML');
+                    return r.text();
+                })
+                .then(html => {
+                    createConsultationsHtmlModal(title, html);
+                })
+                .catch(() => {
+                    // fallback to JSON API
+                    const url = '/statistique/consultations/json?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
+                    fetch(url, { credentials: 'same-origin' })
+                        .then(r => r.json())
+                        .then(json => {
+                            if (!json || !json.success) {
+                                alert('Erreur lors de la récupération des consultations.');
+                                return;
+                            }
+                            createConsultationsModal(title, json.data);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Erreur lors de la récupération des consultations.');
+                        });
+                });
+        }
+
         // ========== GRAPHIQUE 30 JOURS ==========
         const ctx30 = document.getElementById('consultationsChart');
         if (ctx30) {
@@ -398,7 +635,7 @@
             const data = {{ consultationsChartData|default([])|json_encode|raw }};
 
             if (labels.length) {
-                new Chart(ctx30, {
+                const chart30 = new Chart(ctx30, {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -434,6 +671,14 @@
                         }
                     }
                 });
+
+                ctx30.addEventListener('click', function (evt) {
+                    const points = chart30.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const key = (window.consultationsChartKeys || [])[idx];
+                    if (key) fetchAndShow('day', key, 'Consultations du ' + key);
+                });
             } else {
                 ctx30.insertAdjacentHTML('beforebegin',
                     '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
@@ -449,7 +694,7 @@
             const monthData = {{ monthData|default([])|json_encode|raw }};
 
             if (monthLabels.length) {
-                new Chart(ctxMonth, {
+                const chartMonth = new Chart(ctxMonth, {
                     type: 'bar',
                     data: {
                         labels: monthLabels,
@@ -481,6 +726,14 @@
                         }
                     }
                 });
+
+                ctxMonth.addEventListener('click', function (evt) {
+                    const points = chartMonth.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const key = (monthKeys || [])[idx];
+                    if (key) fetchAndShow('month', key, 'Consultations du mois ' + key);
+                });
             }
         }
 
@@ -492,7 +745,7 @@
             const repos72h = {{ repos72h ?? 0 }};
 
             if (repos24h > 0 || repos48h > 0 || repos72h > 0) {
-                new Chart(ctxRepos, {
+                const chartRepos = new Chart(ctxRepos, {
                     type: 'doughnut',
                     data: {
                         labels: ['24h', '48h', '72h'],
@@ -523,6 +776,14 @@
                         }
                     }
                 });
+
+                ctxRepos.addEventListener('click', function (evt) {
+                    const points = chartRepos.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = ['24h','48h','72h'][idx];
+                    if (label) fetchAndShow('repos', label, 'Consultations : repos ' + label);
+                });
             }
         }
 
@@ -533,7 +794,7 @@
             const gradesData = {{ gradesData|default([])|json_encode|raw }};
 
             if (gradesLabels.length) {
-                new Chart(ctxGrades, {
+                const chartGrades = new Chart(ctxGrades, {
                     type: 'bar',
                     data: {
                         labels: gradesLabels,
@@ -566,6 +827,14 @@
                         }
                     }
                 });
+
+                ctxGrades.addEventListener('click', function (evt) {
+                    const points = chartGrades.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = (gradesLabels || [])[idx];
+                    if (label) fetchAndShow('grade', label, 'Consultations - grade ' + label);
+                });
             }
         }
 
@@ -576,7 +845,7 @@
             const weekdayData = {{ weekdayData|default([])|json_encode|raw }};
 
             if (weekdayLabels.length) {
-                new Chart(ctxWeekday, {
+                const chartWeekday = new Chart(ctxWeekday, {
                     type: 'bar',
                     data: {
                         labels: weekdayLabels,
@@ -608,6 +877,14 @@
                         }
                     }
                 });
+
+                ctxWeekday.addEventListener('click', function (evt) {
+                    const points = chartWeekday.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = (weekdayLabels || [])[idx];
+                    if (label) fetchAndShow('weekday', idx, 'Consultations: ' + label);
+                });
             }
         }
 
@@ -618,7 +895,7 @@
             const sansRepos = {{ totalSansRepos ?? 0 }};
 
             if (avecRepos > 0 || sansRepos > 0) {
-                new Chart(ctxReposRepartition, {
+                const chartReposRepartition = new Chart(ctxReposRepartition, {
                     type: 'pie',
                     data: {
                         labels: ['Avec repos', 'Sans repos'],
@@ -658,6 +935,14 @@
                         }
                     }
                 });
+
+                ctxReposRepartition.addEventListener('click', function (evt) {
+                    const points = chartReposRepartition.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = ['with','without'][idx];
+                    fetchAndShow('repos', label, 'Consultations ' + (idx === 0 ? 'avec repos' : 'sans repos'));
+                });
             }
         }
 
@@ -682,7 +967,7 @@
                 const bgColors = adresseLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
                 const borderColors = adresseLabels.map((_, i) => palette[i % palette.length]);
 
-                new Chart(ctxAdresse, {
+                const chartAdresse = new Chart(ctxAdresse, {
                     type: 'bar',
                     data: {
                         labels: adresseLabels,
@@ -714,6 +999,14 @@
                         }
                     }
                 });
+
+                ctxAdresse.addEventListener('click', function (evt) {
+                    const points = chartAdresse.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = (adresseLabels || [])[idx];
+                    if (label) fetchAndShow('adresse', label, 'Consultations pour adresse « ' + label + ' »');
+                });
             } else {
                 ctxAdresse.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune adresse disponible.</p>');
                 ctxAdresse.style.display = 'none';
@@ -740,7 +1033,7 @@
                 const bgColors = patcLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
                 const borderColors = patcLabels.map((_, i) => palette[i % palette.length]);
 
-                new Chart(ctxPatc, {
+                const chartPatc = new Chart(ctxPatc, {
                     type: 'bar',
                     data: {
                         labels: patcLabels,
@@ -772,6 +1065,14 @@
                         }
                     }
                 });
+
+                ctxPatc.addEventListener('click', function (evt) {
+                    const points = chartPatc.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = (patcLabels || [])[idx];
+                    if (label) fetchAndShow('patc', label, 'Consultations PATC: ' + label);
+                });
             } else {
                 ctxPatc.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée PATC disponible.</p>');
                 ctxPatc.style.display = 'none';
@@ -789,7 +1090,7 @@
                 const bgColors = exemptionLabels.map((_, i) => palette[i % palette.length]);
                 const borderColors = exemptionLabels.map(() => '#ffffff');
 
-                new Chart(ctxExemption, {
+                const chartExemption = new Chart(ctxExemption, {
                     type: 'doughnut',
                     data: {
                         labels: exemptionLabels,
@@ -810,6 +1111,14 @@
                             }
                         }
                     }
+                });
+
+                ctxExemption.addEventListener('click', function (evt) {
+                    const points = chartExemption.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points || !points.length) return;
+                    const idx = points[0].index;
+                    const label = (exemptionLabels || [])[idx];
+                    if (label) fetchAndShow('exemption', label, 'Exemptions actives: ' + label);
                 });
             } else {
                 ctxExemption.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune exemption active.</p>');

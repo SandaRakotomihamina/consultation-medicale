@@ -71,9 +71,11 @@ class StatistiqueController extends AbstractController
             }
         }
 
+        $labelsKeys = [];
         foreach ($perDay as $dateKey => $count) {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $dateKey);
             $labels[] = $dateObj ? $dateObj->format('d/m') : $dateKey;
+            $labelsKeys[] = $dateKey;
             $data[] = $count;
         }
 
@@ -163,9 +165,11 @@ class StatistiqueController extends AbstractController
 
         $monthLabels = [];
         $monthData = [];
+        $monthKeys = [];
         $currentMonth = clone $startMonth;
         while ($currentMonth <= $today) {
             $key = $currentMonth->format('Y-m');
+            $monthKeys[] = $key;
             $monthLabels[] = $currentMonth->format('M Y');
             $monthData[] = $monthCounts[$key] ?? 0;
             $currentMonth->modify('+1 month');
@@ -320,8 +324,10 @@ class StatistiqueController extends AbstractController
             }
         }
 
+        $demandesKeys = [];
         foreach ($demandesPerDay as $dateKey => $count) {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $dateKey);
+            $demandesKeys[] = $dateKey;
             $demandesLabels[] = $dateObj ? $dateObj->format('d/m') : $dateKey;
             $demandesData[] = $count;
         }
@@ -380,6 +386,7 @@ class StatistiqueController extends AbstractController
             'todayConsultations' => $todayConsultations,
             'consultationsChartLabels' => $labels,
             'consultationsChartData' => $data,
+            'consultationsChartKeys' => $labelsKeys ?? [],
             
             // Repos
             'repos24h' => $repos24h,
@@ -401,6 +408,7 @@ class StatistiqueController extends AbstractController
             // Mensuelles
             'monthLabels' => $monthLabels,
             'monthData' => $monthData,
+            'monthKeys' => $monthKeys ?? [],
             'currentMonthCount' => $currentMonthCount,
             'previousMonthCount' => $previousMonthCount,
             'monthEvolution' => $monthEvolution,
@@ -413,6 +421,7 @@ class StatistiqueController extends AbstractController
             'pendingDemandes' => $pendingDemandes,
             'demandesChartLabels' => $demandesLabels,
             'demandesChartData' => $demandesData,
+            'demandesChartKeys' => $demandesKeys ?? [],
             'conversionRate' => $conversionRate,
             'moyenneDelai' => $moyenneDelai,
             
@@ -428,5 +437,384 @@ class StatistiqueController extends AbstractController
             'exemptionLabels' => $exemptionLabels ?? [],
             'exemptionData' => $exemptionData ?? [],
         ]);
+    }
+
+    #[Route('/statistique/consultations/json', name: 'app_statistique_consultations_json', methods: ['GET'])]
+    public function consultationsJson(
+        \Symfony\Component\HttpFoundation\Request $request,
+        ConsultationListRepository $consultationRepo
+    ): JsonResponse {
+        // Accès restreint
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé.');
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $limit = (int) $request->query->get('limit', 200);
+
+        // debug
+        try { file_put_contents('/tmp/fragment_debug.log', sprintf("[%s] json called: type=%s value=%s limit=%d user=%s\n", (new \DateTime())->format('c'), (string)$type, (string)$value, $limit, ($this->getUser()?->getUserIdentifier() ?? 'anonymous')), FILE_APPEND); } catch (\Throwable $e) {}
+
+        // Pour ROLE_USER on filtre par LIBUTE
+        $libute = null;
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+        }
+
+        $results = [];
+
+        // Builder de base
+        $qb = $consultationRepo->createQueryBuilder('c');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                // value = YYYY-MM
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'repos':
+                if ($value === 'with') {
+                    $qb->andWhere("c.Repos IS NOT NULL")->andWhere("c.Repos != ''");
+                } elseif ($value === 'without') {
+                    $qb->andWhere("(c.Repos IS NULL OR c.Repos = '')");
+                } elseif ($value) {
+                    $qb->andWhere('c.Repos = :repos')->setParameter('repos', $value);
+                }
+                break;
+            case 'grade':
+                if ($value) $qb->andWhere('c.Grade = :grade')->setParameter('grade', $value);
+                break;
+            case 'medecin':
+                if ($value) $qb->andWhere('c.DelivreurDObservation = :med')->setParameter('med', $value);
+                break;
+            case 'patc':
+                if (is_numeric($value)) $qb->andWhere('c.PATC = :patc')->setParameter('patc', (int)$value);
+                break;
+            default:
+                // cas spéciaux (adresse, exemption, weekday) seront filtrés en PHP après récupération
+                break;
+        }
+
+        // appliquer filtre LIBUTE si nécessaire
+        if ($libute) {
+            $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+        }
+
+        $qb->setMaxResults($limit)->orderBy('c.Date', 'DESC');
+
+        $fetched = $qb->getQuery()->getResult();
+
+        // filtration additionnelle en PHP
+        $filtered = [];
+        foreach ($fetched as $c) {
+            /** @var \App\Entity\ConsultationList $c */
+            $keep = true;
+
+            if ($type === 'adresse' && $value) {
+                $adrs = $c->getAdrresse();
+                $keep = is_array($adrs) && in_array($value, $adrs, true);
+            }
+
+            if ($type === 'exemption' && $value) {
+                $ex = $c->getExemption();
+                $now = new \DateTime();
+                $debut = $c->getDebutExemption();
+                $fin = $c->getFinExemption();
+                $active = is_array($ex) && $debut instanceof \DateTime && $fin instanceof \DateTime && $debut <= $now && $fin >= $now;
+                $keep = $active && in_array($value, $ex, true);
+            }
+
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $c->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+
+            if ($keep) $filtered[] = $c;
+        }
+
+        // Mapper
+        foreach ($filtered as $c) {
+            $results[] = [
+                'id' => $c->getId(),
+                'date' => $c->getDate()?->format('Y-m-d'),
+                'grade' => $c->getGrade(),
+                'nom' => $c->getNom(),
+                'matricule' => $c->getMatricule(),
+                'motif' => $c->getMotif(),
+                'delivreur' => $c->getDelivreurDObservation(),
+                'repos' => $c->getRepos(),
+                'adrresse' => $c->getAdrresse(),
+                'patc' => $c->getPATC(),
+                'exemption' => $c->getExemption(),
+                'debutExemption' => $c->getDebutExemption()?->format('Y-m-d'),
+                'finExemption' => $c->getFinExemption()?->format('Y-m-d'),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $results]);
+    }
+
+    #[Route('/statistique/consultations/fragment', name: 'app_statistique_consultations_fragment', methods: ['GET'])]
+    public function consultationsFragment(
+        \Symfony\Component\HttpFoundation\Request $request,
+        ConsultationListRepository $consultationRepo
+    ): Response {
+        // Même logique que consultationsJson mais on renvoie du HTML rendu
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé.');
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $limit = (int) $request->query->get('limit', 200);
+
+        // debug: log incoming request to tmp file
+        try {
+            $log = sprintf("[%s] fragment called: type=%s value=%s limit=%d user=%s\n", (new \DateTime())->format('c'), (string)$type, (string)$value, $limit, ($this->getUser()?->getUserIdentifier() ?? 'anonymous'));
+            file_put_contents('/tmp/fragment_debug.log', $log, FILE_APPEND);
+        } catch (\Throwable $e) {
+            // noop
+        }
+
+        $libute = null;
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+        }
+
+        $qb = $consultationRepo->createQueryBuilder('c');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'repos':
+                if ($value === 'with') {
+                    $qb->andWhere("c.Repos IS NOT NULL")->andWhere("c.Repos != ''");
+                } elseif ($value === 'without') {
+                    $qb->andWhere("(c.Repos IS NULL OR c.Repos = '')");
+                } elseif ($value) {
+                    $qb->andWhere('c.Repos = :repos')->setParameter('repos', $value);
+                }
+                break;
+            case 'grade':
+                if ($value) $qb->andWhere('c.Grade = :grade')->setParameter('grade', $value);
+                break;
+            case 'medecin':
+                if ($value) $qb->andWhere('c.DelivreurDObservation = :med')->setParameter('med', $value);
+                break;
+            case 'patc':
+                if (is_numeric($value)) $qb->andWhere('c.PATC = :patc')->setParameter('patc', (int)$value);
+                break;
+            default:
+                break;
+        }
+
+        if ($libute) {
+            $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+        }
+
+        $qb->setMaxResults($limit)->orderBy('c.Date', 'DESC');
+        $fetched = $qb->getQuery()->getResult();
+
+        $filtered = [];
+        foreach ($fetched as $c) {
+            $keep = true;
+            if ($type === 'adresse' && $value) {
+                $adrs = $c->getAdrresse();
+                $keep = is_array($adrs) && in_array($value, $adrs, true);
+            }
+            if ($type === 'exemption' && $value) {
+                $ex = $c->getExemption();
+                $now = new \DateTime();
+                $debut = $c->getDebutExemption();
+                $fin = $c->getFinExemption();
+                $active = is_array($ex) && $debut instanceof \DateTime && $fin instanceof \DateTime && $debut <= $now && $fin >= $now;
+                $keep = $active && in_array($value, $ex, true);
+            }
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $c->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+            if ($keep) $filtered[] = $c;
+        }
+
+        // log count
+        try {
+            $log = sprintf("[%s] fragment result: %d consultations\n", (new \DateTime())->format('c'), count($filtered));
+            file_put_contents('/tmp/fragment_debug.log', $log, FILE_APPEND);
+        } catch (\Throwable $e) {
+            // noop
+        }
+
+        $html = $this->renderView('main/consultations/_list_fragment.html.twig', [
+            'consultations' => $filtered
+        ]);
+
+        return new Response($html, 200, ['Content-Type' => 'text/html']);
+    }
+
+    #[Route('/statistique/demandes/json', name: 'app_statistique_demandes_json', methods: ['GET'])]
+    public function demandesJson(
+        \Symfony\Component\HttpFoundation\Request $request,
+        DemandeDeConsultationRepository $demandeRepo
+    ): JsonResponse {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé.');
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $limit = (int) $request->query->get('limit', 200);
+
+        try { file_put_contents('/tmp/fragment_debug.log', sprintf("[%s] demandes json called: type=%s value=%s limit=%d user=%s\n", (new \DateTime())->format('c'), (string)$type, (string)$value, $limit, ($this->getUser()?->getUserIdentifier() ?? 'anonymous')), FILE_APPEND); } catch (\Throwable $e) {}
+
+        $qb = $demandeRepo->createQueryBuilder('d');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'weekday':
+                // we'll filter after fetch
+                break;
+            default:
+                break;
+        }
+
+        $qb->setMaxResults($limit)->orderBy('d.Date', 'DESC');
+        $fetched = $qb->getQuery()->getResult();
+
+        $filtered = [];
+        foreach ($fetched as $d) {
+            $keep = true;
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $d->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+            if ($keep) $filtered[] = $d;
+        }
+
+        $results = [];
+        foreach ($filtered as $d) {
+            $results[] = [
+                'id' => $d->getId(),
+                'date' => $d->getDate()?->format('Y-m-d'),
+                'grade' => $d->getGrade(),
+                'nom' => $d->getNom(),
+                'matricule' => $d->getMatricule(),
+                'motif' => $d->getMotif(),
+                'delivreur' => $d->getDelivreurDeMotif(),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $results]);
+    }
+
+    #[Route('/statistique/demandes/fragment', name: 'app_statistique_demandes_fragment', methods: ['GET'])]
+    public function demandesFragment(
+        \Symfony\Component\HttpFoundation\Request $request,
+        DemandeDeConsultationRepository $demandeRepo
+    ): Response {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            throw $this->createAccessDeniedException('Accès réservé.');
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $limit = (int) $request->query->get('limit', 200);
+
+        try {
+            $log = sprintf("[%s] demandes fragment called: type=%s value=%s limit=%d user=%s\n", (new \DateTime())->format('c'), (string)$type, (string)$value, $limit, ($this->getUser()?->getUserIdentifier() ?? 'anonymous'));
+            file_put_contents('/tmp/fragment_debug.log', $log, FILE_APPEND);
+        } catch (\Throwable $e) {}
+
+        $qb = $demandeRepo->createQueryBuilder('d');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            default:
+                break;
+        }
+
+        $qb->setMaxResults($limit)->orderBy('d.Date', 'DESC');
+        $fetched = $qb->getQuery()->getResult();
+
+        $filtered = [];
+        foreach ($fetched as $d) {
+            $keep = true;
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $d->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+            if ($keep) $filtered[] = $d;
+        }
+
+        try { file_put_contents('/tmp/fragment_debug.log', sprintf("[%s] demandes fragment result: %d demandes\n", (new \DateTime())->format('c'), count($filtered)), FILE_APPEND); } catch (\Throwable $e) {}
+
+        $html = $this->renderView('main/demandes/_list_fragment.html.twig', [
+            'demandes' => $filtered
+        ]);
+
+        return new Response($html, 200, ['Content-Type' => 'text/html']);
     }
 }

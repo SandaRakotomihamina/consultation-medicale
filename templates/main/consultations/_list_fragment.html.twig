@@ -1,0 +1,30 @@
+{# Fragment qui affiche une liste de consultations en incluant le template `_card.html.twig` #}
+<style>
+    .consultations-fragment {
+        padding: 10px;
+    }
+
+    .feed {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .card{
+        transform: scale(1) !important;
+        opacity: 1 !important;
+    }
+</style>
+<div class="consultations-fragment">
+    {% if consultations is empty %}
+        <p style="color: var(--text-secondary);">Aucune consultation trouvée.</p>
+    {% else %}
+        <div class="feed">
+            {% for consultation in consultations %}
+                {# On inclut la carte. Le template `_card.html.twig` attend une variable `consultation` #}
+                {% include 'main/consultations/_card.html.twig' with {'consultation': consultation} %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

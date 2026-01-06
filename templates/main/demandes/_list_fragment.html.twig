@@ -1,0 +1,29 @@
+{# Fragment affichant la liste des demandes de consultation en incluant le template `_card.html.twig` #}
+<style>
+    .demandes-fragment {
+        padding: 10px;
+    }
+
+    .feed {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .card{
+        transform: scale(1) !important;
+        opacity: 1 !important;
+    }
+</style>
+<div class="demandes-fragment">
+    {% if demandes is empty %}
+        <p style="color: var(--text-secondary);">Aucune demande trouvée.</p>
+    {% else %}
+        <div class="feed">
+            {% for demande in demandes %}
+                {% include 'main/demandes/_card.html.twig' with {'demande': demande} %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
