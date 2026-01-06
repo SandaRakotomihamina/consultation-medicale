@@ -247,7 +247,6 @@
             {{ form_row(form.Motif) }}
             {{ form_row(form.DelivreurDeMotif) }}
             {{ form_row(form.Observation) }}
-            {{ form_row(form.DelivreurDObservation) }}
 
             {# Exemption block with checkbox + select multiple + add input + dates #}
             {% set exemption_id = form.Exemption.vars.id %}
@@ -348,6 +347,7 @@
                     {{ form_errors(form.Repos) }}
                 </div>
             </div>
+            {{ form_row(form.DelivreurDObservation) }}
 
             <div class="form-actions">
                 <button class="btn" type="submit">Enregistrer</button>

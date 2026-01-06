@@ -523,7 +523,7 @@ final class MainController extends AbstractController
 
         $user = $this->getUser();
         if ($user instanceof User) {
-            $delivreur = trim($user->getTitle() . ' ' . $user->getName());
+            $delivreur = trim($user->getLIBUTE() . ' ' . $user->getLOCAL());
             $demande->setDelivreurDeMotif($delivreur);
         }
 
@@ -556,7 +556,7 @@ final class MainController extends AbstractController
     public function listdemande(DemandeDeConsultationRepository $demandeDeConsultationRepository): Response
     {
 
-        $demandes = $demandeDeConsultationRepository->findBy([], ['id' => 'DESC']);
+        $demandes = $demandeDeConsultationRepository->findBy([], ['id' => 'ASC']);
 
         return $this->render('main/demandes/list_demande.html.twig', [
             'Demandes' => $demandes,
