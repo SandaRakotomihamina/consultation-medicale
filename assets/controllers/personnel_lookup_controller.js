@@ -69,15 +69,15 @@ export default class extends Controller {
     updateLabels() {
         if (this.isUniteMode) {
             if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'Libelé de l\'unité';
-            if (this.hasGradeLabelTarget) this.gradeLabelTarget.textContent = 'CODUTE';
-            if (this.hasNomLabelTarget) this.nomLabelTarget.textContent = 'LOCAL';
+            if (this.hasGradeLabelTarget) this.gradeLabelTarget.textContent = 'Code unité';
+            if (this.hasNomLabelTarget) this.nomLabelTarget.textContent = 'Localisation';
             
             // Afficher les champs CODUTE, LIBUTE, LOCAL et masquer matricule, grade, nom
             if (this.hasMatriculeFieldTarget) this.matriculeFieldTarget.style.display = 'block';
             if (this.hasGradeFieldTarget) this.gradeFieldTarget.style.display = 'none';
             if (this.hasNomFieldTarget) this.nomFieldTarget.style.display = 'none';
             if (this.hasCoduteFieldTarget) this.coduteFieldTarget.style.display = 'block';
-            if (this.hasLibuteFieldTarget) this.libuteFieldTarget.style.display = 'block';
+            if (this.hasLibuteFieldTarget) this.libuteFieldTarget.style.display = 'none';
             if (this.hasLocalFieldTarget) this.localFieldTarget.style.display = 'block';
         } else {
             if (this.hasMatriculeLabelTarget) this.matriculeLabelTarget.textContent = 'Matricule';

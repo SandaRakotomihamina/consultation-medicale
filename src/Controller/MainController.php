@@ -473,6 +473,7 @@ final class MainController extends AbstractController
     #############################################################################################################
     ##########################################Liste des utilisateurs#############################################
     #############################################################################################################
+    #[isGranted('ROLE_SUPER_ADMIN')]
     #[Route('/users', name: 'app_list_user')]
     public function listUser(UserRepository $userRepository): Response
     {

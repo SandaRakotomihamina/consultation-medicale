@@ -16,10 +16,10 @@
                     
                     {% if 'ROLE_USER' in user.roles %}
                         <span class="grade" title="{{user.libute}}">{{ user.libute }}</span>
-                        <span class="name" title="{{user.local}}">{{ user.local }}</span>
+                        <span class="name" style="margin-left: 0.5rem;" title="{{user.local}}">{{ user.local }}</span>
                     {% else %}
                         <span class="grade" title="{{user.title}}">{{ user.title }}</span>
-                        <span class="name" title="{{user.name}}">{{ user.name }}</span>
+                        <span class="name" style="margin-left: 0.5rem;" title="{{user.name}}">{{ user.name }}</span>
                     {% endif %}
                     
                 </div>
@@ -40,9 +40,9 @@
         <p><strong>Identifiant du compte :</strong> {{ user.id }}</p>
 
         {% set roleLabels = {
-            'ROLE_SUPER_ADMIN': 'Super administrateur',
-            'ROLE_ADMIN': 'Administrateur',
-            'ROLE_USER': 'Utilisateur simple'
+            'ROLE_SUPER_ADMIN': 'Superviseur du site',
+            'ROLE_ADMIN': 'Medecin',
+            'ROLE_USER': 'Compte d\'unité'
         } %}
 
         <div class="roles-wrapper">

@@ -349,7 +349,7 @@
                     <li>
                         <a href="{{ path('app_list_user') }}"
                             class="options"
-                           {% if 'ROLE_SUPER_ADMIN' not in app.user.roles and 'ROLE_USER' not in app.user.roles %}
+                           {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
                                style="pointer-events: none; opacity: 0.5;"
                            {% endif %}
                         >Liste des utilisateurs</a>

@@ -283,10 +283,10 @@
                                 <div style="display: flex; gap: .2rem;">
                                     {% if "ROLE_USER" in app.user.roles %}
                                         <span class="grade" style="color: #4267B2;" title="libelé unité: {{app.user.libute}}">{{ app.user.libute }}</span>
-                                        <span class="name" title="Localisation: {{app.user.local}}">{{ app.user.local }}</span>
+                                        <span class="name" style="margin-left: 0.5rem;" title="Localisation: {{app.user.local}}">{{ app.user.local }}</span>
                                     {% else %}
                                         <span class="grade" style="color: #4267B2;" title="Titre: {{app.user.title}}">{{ app.user.title }}</span>
-                                        <span class="name" title="Nom: {{app.user.name}}">{{ app.user.name }}</span>
+                                        <span class="name" style="margin-left: 0.5rem;" title="Nom: {{app.user.name}}">{{ app.user.name }}</span>
                                     {% endif %}
                                     
                                 </div>
@@ -302,9 +302,9 @@
                             <div><strong>Identifiand du compte :</strong> {{ app.user.id }}</div>
                             <div><strong>Rôles :</strong>
                                 {% set roleLabels = {
-                                    'ROLE_SUPER_ADMIN': 'Super administrateur',
-                                    'ROLE_ADMIN': 'Administrateur',
-                                    'ROLE_USER': 'Utilisateur simple'
+                                    'ROLE_SUPER_ADMIN': 'Superviseur du site',
+                                    'ROLE_ADMIN': 'Medecin',
+                                    'ROLE_USER': 'Compte d\'unité'
                                 } %}
                                 {% for role in app.user.roles %}
                                     <span class="role-badge">{{ roleLabels[role] ?? role }}</span>
