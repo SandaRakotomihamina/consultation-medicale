@@ -194,7 +194,7 @@
 <div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="50" data-aos-anchor-placement="top-bottom">
     <div class="chart-title">Demandes de consultation sur les 30 derniers jours</div>
     <div class="chart-actions">
-        <button class="save-pdf-btn" data-target="demandesChart" data-title="Demandes de consultation - 30 derniers jours">
+        <button class="save-pdf-btn" data-target="demandesChart" data-title="Demandes de consultation négligées des 30 derniers jours">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17 3H7a2 2 0 0 0-2 2v14l5-3 5 3V5a2 2 0 0 0-2-2Z"/>
                 <path d="M9 9h6"/>
@@ -436,7 +436,7 @@
             if (!points || !points.length) return;
             const idx = points[0].index;
             const key = (demandesChartKeys || [])[idx];
-            if (key) fetchAndShow('day', key, 'Demandes du ' + key);
+            if (key) fetchAndShow('day', key, 'Demandes en attente du ' + key);
         });
         attachSavePdf();
         AOS.init();
