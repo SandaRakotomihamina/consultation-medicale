@@ -15,6 +15,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class OptionsApiController extends AbstractController
 {
+    #############################################################################################################
+    #####################################Afficher les options d'exemptions#######################################
+    #############################################################################################################
     #[Route('/api/exemption-options', name: 'api_exemption_options', methods: ['GET'])]
     public function listExemptions(ExemptionOptionRepository $repo): JsonResponse
     {
@@ -22,6 +25,9 @@ class OptionsApiController extends AbstractController
         return new JsonResponse(['items' => $items]);
     }
 
+    #############################################################################################################
+    ######################################Ajouter une option d'exemption#########################################
+    #############################################################################################################
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/api/exemption-options', name: 'api_exemption_options_add', methods: ['POST'])]
     public function addExemption(Request $request, ExemptionOptionRepository $repo, EntityManagerInterface $em): JsonResponse
@@ -40,6 +46,9 @@ class OptionsApiController extends AbstractController
         return new JsonResponse(['value' => $opt->getValue()], 201);
     }
 
+    #############################################################################################################
+    ######################################Lister les options d'adressage#########################################
+    #############################################################################################################
     #[Route('/api/adresse-options', name: 'api_adresse_options', methods: ['GET'])]
     public function listAdresses(AdresseOptionRepository $repo): JsonResponse
     {
@@ -47,6 +56,9 @@ class OptionsApiController extends AbstractController
         return new JsonResponse(['items' => $items]);
     }
 
+    #############################################################################################################
+    #######################################Ajouter une option adressage##########################################
+    #############################################################################################################
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/api/adresse-options', name: 'api_adresse_options_add', methods: ['POST'])]
     public function addAdresse(Request $request, AdresseOptionRepository $repo, EntityManagerInterface $em): JsonResponse

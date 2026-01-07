@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\ConsultationListRepository;
 use App\Repository\DemandeDeConsultationRepository;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Repository\UserRepository;
 
 class StatistiqueController extends AbstractController
