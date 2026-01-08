@@ -180,10 +180,10 @@
 
         <div style="margin-top: 1rem; display:flex; justify-content:flex-end;">
             <!-- bouton de consultation -->
-            <a href="{{ path('app_new_consultation_from_demande', {
-                    'demandeId': demande.id
-                }) }}"
+            <a href="{{ path('app_new_consultation_from_demande', {'demandeId': demande.id}) }}"
                 class="btn-image"
+                title="{{ app.user and 'ROLE_ADMIN' in app.user.roles ? 'consulter' : 'Accès réservé au medecin consultant' }}"
+                style="{{ app.user and 'ROLE_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: not-allowed;' }}"
             >
                 <svg width="40px" height="40px" fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="color: var(--accent-color);" 
                     viewBox="0 0 56 56" xml:space="preserve">

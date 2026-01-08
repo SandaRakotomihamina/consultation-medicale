@@ -184,7 +184,7 @@
 
             <a 
                 href="{{ app.user and 'ROLE_SUPER_ADMIN' in app.user.roles ? path('app_consultation_edit', {'id': consultation.id}) : '#' }}" 
-                title="{{ app.user and 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au super admin' }}"
+                title="{{ app.user and 'ROLE_SUPER_ADMIN' in app.user.roles ? 'Éditer la consultation' : 'Accès réservé au administrateur du site' }}"
                 style="{{ app.user and 'ROLE_SUPER_ADMIN' in app.user.roles ? '' : 'pointer-events: none; opacity: 0.5; cursor: not-allowed;' }}"
             >
                 <svg class="edit-btn" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-color);">
