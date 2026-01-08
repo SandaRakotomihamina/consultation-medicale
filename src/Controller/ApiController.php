@@ -131,8 +131,63 @@ class ApiController extends AbstractController
             'errors' => $errors
         ]);
     }
+
     #############################################################################################################
-    ###############################API pour rechercher une unité par LIBUTE######################################
+    ###############################API pour unité de la version en version PROD##################################
+    #############################################################################################################
+    #[Route('/api/unite/{libte}', name: 'api_unite')]
+    public function getUniteByAPI($libte, HttpClientInterface $http): JsonResponse
+    {
+        if (!$libte) {
+            return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
+        }
+
+        $client = HttpClient::create([
+            'timeout' => 30,
+            'verify_peer' => false,
+            'verify_host' => false,
+        ]);
+
+        // URL externe configurable via la variable d'environnement UNITE_API_URL
+        $baseUrl = getenv('UNITE_API_URL') ?: 'https://192.168.56.104:7000/apigrh/unite';
+        $url = $baseUrl . '?libte=' . urlencode($libte);
+
+        try {
+            $response = $client->request('GET', $url, [
+                'headers' => [
+                    'Authorization' => 'API_KEY',
+                    'x-api-key'     => 'name@example.com',
+                    'Accept'        => 'application/json',
+                ]
+            ]);
+        }
+        catch (\Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface $e) {
+            return new JsonResponse(['error' => 'Timeout API Unite'], 504);
+        }
+        catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur API Unite : '.$e->getMessage()], 500);
+        }
+
+        $status = $response->getStatusCode();
+
+        if ($status !== 200) {
+            return new JsonResponse(['error' => 'Non trouvé'], 404);
+        }
+
+        $json = $response->toArray(false);
+        $data = $json[0] ?? $json ?? [];
+
+        return new JsonResponse([
+            'CODUTE' => $data['CODUTE'] ?? $data['codute'] ?? null,
+            'LOCAL' => $data['LOCAL'] ?? $data['local'] ?? null,
+            'LIBUTE' => $data['LIBUTE'] ?? $libte,
+            'found' => !empty($data),
+        ]);
+    }
+
+
+    #############################################################################################################
+    ###############################API pour unité de la version en version DEV###################################
     #############################################################################################################
     #[Route('/api/unite-search', name: 'api_unite_search')]
     public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
@@ -160,6 +215,7 @@ class ApiController extends AbstractController
             'found' => true,
         ]);
     }
+
 
     #############################################################################################################
     #######################API pour vérifier les nouvelles demandes de consultation##############################
