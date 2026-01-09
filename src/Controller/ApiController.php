@@ -21,14 +21,14 @@ class ApiController extends AbstractController
     #################################API pour personnel de la version en PROD####################################
     #############################################################################################################
     #[Route('/api/personnel/{matricule}', name: 'api_personnel')]
-    public function getPersonnelbyAPI($matricule, HttpClientInterface $http): JsonResponse {
+    public function getPersonnelbyAPI($matricule): JsonResponse {
 
         if (!$matricule) {
             return new JsonResponse(['error' => 'Matricule manquant'], 400);
         }
 
         $client = HttpClient::create([
-            'timeout' => 30,
+            'timeout' => 5,
             'verify_peer' => false,
             'verify_host' => false,
         ]);
@@ -38,7 +38,7 @@ class ApiController extends AbstractController
         try {
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'Authorization' => 'API_KEY',
+                    'Authorization' => 'Bearer API_KEY',
                     'x-api-key'     => 'name@example.com',
                     'Accept'        => 'application/json',
                 ]
@@ -61,7 +61,7 @@ class ApiController extends AbstractController
         $data = $json[0] ?? [];
 
         return new JsonResponse([
-            'nom' => $data['NOMPERS'] . $data['PRENOM']?? null,
+            'nom' => ($data['NOMPERS'] ?? '') . ' ' . ($data['PRENOM'] ?? ''),
             'grade' => $data['ABREVGRADE'] ?? null,
             'found' => !empty($data),
         ]);
@@ -133,7 +133,7 @@ class ApiController extends AbstractController
     }
 
     #############################################################################################################
-    ###############################API pour unité de la version en version PROD##################################
+    ####################################API pour unité de la version PROD########################################
     #############################################################################################################
     #[Route('/api/unite/{libte}', name: 'api_unite')]
     public function getUniteByAPI($libte, HttpClientInterface $http): JsonResponse
@@ -143,14 +143,12 @@ class ApiController extends AbstractController
         }
 
         $client = HttpClient::create([
-            'timeout' => 30,
+            'timeout' => 5,
             'verify_peer' => false,
             'verify_host' => false,
         ]);
 
-        // URL externe configurable via la variable d'environnement UNITE_API_URL
-        $baseUrl = getenv('UNITE_API_URL') ?: 'https://192.168.56.104:7000/apigrh/unite';
-        $url = $baseUrl . '?libte=' . urlencode($libte);
+        $url = 'https://192.168.56.104:7000/apigrh/clent?keyword=ONEUTE&libute=' . urlencode($libte);
 
         try {
             $response = $client->request('GET', $url, [
@@ -187,23 +185,23 @@ class ApiController extends AbstractController
 
 
     #############################################################################################################
-    ###############################API pour unité de la version en version DEV###################################
+    ####################################API pour unité de la version DEV#########################################
     #############################################################################################################
-    #[Route('/api/unite-search', name: 'api_unite_search')]
+    #[Route('/api/unite-local', name: 'api_unite_search')]
     public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
     {
         if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
-        $libte = $request->query->get('libte');
+        $libute = $request->query->get('libte');
 
-        if (!$libte) {
+        if (!$libute) {
             return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
         }
 
         // Chercher par LIBUTE exact. On prend le premier résultat trouvé.
-        $unite = $uniteRepository->findOneBy(['LIBUTE' => $libte]);
+        $unite = $uniteRepository->findOneBy(['LIBUTE' => $libute]);
 
         if (!$unite) {
             return new JsonResponse(['found' => false], 404);

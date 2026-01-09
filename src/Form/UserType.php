@@ -68,6 +68,7 @@ class UserType extends AbstractType
                 ],
                 'multiple' => true,
                 'expanded' => false,
+                'disabled' => $isEdit,
                 'attr' => [
                     'class' => 'form-select-custom'
                 ]

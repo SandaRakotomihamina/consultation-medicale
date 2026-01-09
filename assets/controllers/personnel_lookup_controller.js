@@ -161,7 +161,7 @@ export default class extends Controller {
                 // Si on est en mode unité, chercher dans les unités par LIBUTE (libellé)
                 if (this.isUniteMode) {
                     // À modifier : end-point pour appeler l'API d'unité par libellé
-                    const response = await fetch(`/api/unite-search?libte=${encodeURIComponent(matricule)}`);
+                    const response = await fetch(`/api/unite-local?libte=${encodeURIComponent(matricule)}`);
 
                     if (!response.ok) {
                         if (response.status === 404) {
