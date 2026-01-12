@@ -1,0 +1,4 @@
+'Le mot de passe doit contenir au moins {{ limit }} caractères': '__Le mot de passe doit contenir au moins {{ limit }} caractères'
+'Veuillez renseigner un mot de passe': '__Veuillez renseigner un mot de passe'
+'Le nombre de jours doit être positif': '__Le nombre de jours doit être positif'
+Error: __Error

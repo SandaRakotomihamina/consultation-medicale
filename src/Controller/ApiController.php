@@ -13,6 +13,7 @@ use App\Repository\DemandeDeConsultationRepository;
 use App\Repository\ConsultationListRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use \Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 
 class ApiController extends AbstractController
 {
@@ -22,6 +23,10 @@ class ApiController extends AbstractController
     #############################################################################################################
     #[Route('/api/personnel/{matricule}', name: 'api_personnel')]
     public function getPersonnelbyAPI($matricule): JsonResponse {
+
+        // if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        //     return new JsonResponse(['error' => 'Accès refusé'], 403);
+        // }
 
         if (!$matricule) {
             return new JsonResponse(['error' => 'Matricule manquant'], 400);
@@ -44,7 +49,7 @@ class ApiController extends AbstractController
                 ]
             ]);
         }
-        catch (\Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface $e) {
+        catch (TimeoutExceptionInterface $e) {
             return new JsonResponse(['error' => 'Timeout API RH'], 504);
         }
         catch (\Exception $e) {
@@ -136,8 +141,12 @@ class ApiController extends AbstractController
     ####################################API pour unité de la version PROD########################################
     #############################################################################################################
     #[Route('/api/unite/{libte}', name: 'api_unite')]
-    public function getUniteByAPI($libte, HttpClientInterface $http): JsonResponse
+    public function getUniteByAPI($libte): JsonResponse
     {
+        // if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+        //     return new JsonResponse(['error' => 'Accès refusé'], 403);
+        // }
+
         if (!$libte) {
             return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
         }
@@ -159,7 +168,7 @@ class ApiController extends AbstractController
                 ]
             ]);
         }
-        catch (\Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface $e) {
+        catch (TimeoutExceptionInterface $e) {
             return new JsonResponse(['error' => 'Timeout API Unite'], 504);
         }
         catch (\Exception $e) {
@@ -190,7 +199,7 @@ class ApiController extends AbstractController
     #[Route('/api/unite-local', name: 'api_unite_search')]
     public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
     {
-        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 

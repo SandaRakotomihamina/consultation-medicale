@@ -346,787 +346,792 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
     (function () {
-        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#333';
+        function __initChartsConsultations() {
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#333';
 
-        function attachSavePdf() {
-            const buttons = document.querySelectorAll('.save-pdf-btn');
-            buttons.forEach((btn) => {
-                if (btn.dataset.pdfBound === 'true') return;
-                btn.addEventListener('click', () => {
-                    const targetId = btn.dataset.target;
-                    const title = btn.dataset.title || 'Graphique';
-                    const canvas = document.getElementById(targetId);
-                    if (!canvas || !window.jspdf) return;
+            function attachSavePdf() {
+                const buttons = document.querySelectorAll('.save-pdf-btn');
+                buttons.forEach((btn) => {
+                    if (btn.dataset.pdfBound === 'true') return;
+                    btn.addEventListener('click', () => {
+                        const targetId = btn.dataset.target;
+                        const title = btn.dataset.title || 'Graphique';
+                        const canvas = document.getElementById(targetId);
+                        if (!canvas || !window.jspdf) return;
 
-                    const imgData = canvas.toDataURL('image/png', 1.0);
-                    const orientation = canvas.width >= canvas.height ? 'l' : 'p';
-                    const margin = 15; // en mm
-                    const pdf = new window.jspdf.jsPDF({
-                        orientation,
-                        unit: 'mm',
-                        format: 'a4'
+                        const imgData = canvas.toDataURL('image/png', 1.0);
+                        const orientation = canvas.width >= canvas.height ? 'l' : 'p';
+                        const margin = 15; // en mm
+                        const pdf = new window.jspdf.jsPDF({
+                            orientation,
+                            unit: 'mm',
+                            format: 'a4'
+                        });
+
+                        const pageWidth = pdf.internal.pageSize.getWidth();
+                        const pageHeight = pdf.internal.pageSize.getHeight();
+                        pdf.setFontSize(16);
+                        pdf.text(title, margin, margin + 2);
+
+                        const imgProps = pdf.getImageProperties(imgData);
+                        const maxWidth = pageWidth - margin * 2;
+                        const maxHeight = pageHeight - (margin * 3); // garder de l'espace sous le titre
+                        const ratio = Math.min(maxWidth / imgProps.width, maxHeight / imgProps.height);
+                        const imgWidth = imgProps.width * ratio;
+                        const imgHeight = imgProps.height * ratio;
+                        const x = (pageWidth - imgWidth) / 2;
+                        const y = margin + 8;
+                        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                        const defaultName = (title || 'statistiques') + '.pdf';
+                        const fileName = prompt('Nom du fichier PDF ?', defaultName) || defaultName;
+                        pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                    });
+                    btn.dataset.pdfBound = 'true';
+                });
+            }
+
+            // --- Helpers to fetch consultations and show modal
+            const consultationsChartKeys = {{ consultationsChartKeys|default([])|json_encode|raw }};
+            const monthKeys = {{ monthKeys|default([])|json_encode|raw }};
+            const demandesChartKeys = {{ demandesChartKeys|default([])|json_encode|raw }};
+            // expose for handlers
+            window.consultationsChartKeys = consultationsChartKeys;
+            window.monthKeys = monthKeys;
+            window.demandesChartKeys = demandesChartKeys;
+
+            function createConsultationsModal(title, items) {
+                // remove existing
+                const existing = document.getElementById('consultations-modal');
+                if (existing) existing.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'consultations-modal';
+                overlay.style.position = 'fixed';
+                overlay.style.inset = '0';
+                overlay.style.background = 'rgba(0,0,0,0.45)';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.zIndex = '9999';
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.remove();
+                });
+
+                const panel = document.createElement('div');
+                (function applySafeColors(p) {
+                    const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+                    const bg = bgRaw.trim() || '#fff';
+                    const parse = (c) => {
+                        c = c.trim();
+                        if (!c) return null;
+                        if (c.startsWith('rgb')) {
+                            const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
+                            return {r: nums[0], g: nums[1], b: nums[2]};
+                        }
+                        if (c[0] === '#') {
+                            const hex = c.slice(1);
+                            if (hex.length === 3) {
+                                return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
+                            }
+                            return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
+                        }
+                        return null;
+                    };
+                    const rgb = parse(bg);
+                    let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
+                    if (rgb) {
+                        const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
+                        const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
+                                + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
+                                + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
+                        finalText = (L > 0.6) ? '#111' : '#fff';
+                    }
+                    p.style.background = bg;
+                    p.style.color = finalText;
+                })(panel);
+                panel.style.borderRadius = '12px';
+                panel.style.padding = '1rem';
+                panel.style.maxWidth = '900px';
+                panel.style.width = 'calc(100% - 40px)';
+                panel.style.maxHeight = '80vh';
+                panel.style.overflow = 'auto';
+                panel.style.position = 'relative';
+
+                const h = document.createElement('h3');
+                h.textContent = title || 'Consultations';
+                h.style.marginTop = '0';
+                panel.appendChild(h);
+
+                const close = document.createElement('button');
+                close.textContent = '✕';
+                close.style.position = 'absolute';
+                close.style.top = '10px';
+                close.style.right = '12px';
+                close.style.border = 'none';
+                close.style.background = 'transparent';
+                close.style.fontSize = '1.2rem';
+                close.style.cursor = 'pointer';
+                close.addEventListener('click', () => overlay.remove());
+                panel.appendChild(close);
+
+                if (!items || !items.length) {
+                    const p = document.createElement('p');
+                    p.textContent = 'Aucune consultation trouvée.';
+                    panel.appendChild(p);
+                } else {
+                    const table = document.createElement('table');
+                    table.style.width = '100%';
+                    table.style.borderCollapse = 'collapse';
+                    table.style.marginTop = '0.5rem';
+
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = '<tr style="text-align:left; border-bottom:1px solid rgba(0,0,0,0.06);">\n<th>Date</th><th>Nom</th><th>Grade</th><th>Matricule</th><th>Motif</th><th>Repos</th>\n</tr>';
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    items.forEach(it => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid rgba(0,0,0,0.04)';
+                        tr.innerHTML = `<td style="padding:.45rem .5rem">${it.date||''}</td><td style="padding:.45rem .5rem">${it.nom||''}</td><td style="padding:.45rem .5rem">${it.grade||''}</td><td style="padding:.45rem .5rem">${it.matricule||''}</td><td style="padding:.45rem .5rem">${(it.motif||'').slice(0,80)}</td><td style="padding:.45rem .5rem">${it.repos||''}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    panel.appendChild(table);
+                }
+
+                overlay.appendChild(panel);
+                document.body.appendChild(overlay);
+
+                // close on Esc
+                const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+                document.addEventListener('keydown', escHandler);
+            }
+
+            function createConsultationsHtmlModal(title, html) {
+                const existing = document.getElementById('consultations-modal');
+                if (existing) existing.remove();
+                const overlay = document.createElement('div');
+                overlay.id = 'consultations-modal';
+                overlay.style.position = 'fixed';
+                overlay.style.inset = '0';
+                overlay.style.background = 'rgba(0,0,0,0.45)';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.zIndex = '9999';
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+                const panel = document.createElement('div');
+                (function applySafeColors(p) {
+                    const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+                    const bg = bgRaw.trim() || '#fff';
+                    const parse = (c) => {
+                        c = c.trim();
+                        if (!c) return null;
+                        if (c.startsWith('rgb')) {
+                            const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
+                            return {r: nums[0], g: nums[1], b: nums[2]};
+                        }
+                        if (c[0] === '#') {
+                            const hex = c.slice(1);
+                            if (hex.length === 3) {
+                                return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
+                            }
+                            return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
+                        }
+                        return null;
+                    };
+                    const rgb = parse(bg);
+                    let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
+                    if (rgb) {
+                        const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
+                        const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
+                                + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
+                                + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
+                        finalText = (L > 0.6) ? '#111' : '#fff';
+                    }
+                    p.style.background = bg;
+                    p.style.color = finalText;
+                })(panel);
+                panel.style.borderRadius = '12px';
+                panel.style.padding = '1rem';
+                panel.style.maxWidth = '1100px';
+                panel.style.width = 'calc(100% - 80px)';
+                panel.style.maxHeight = '90vh';
+                panel.style.overflow = 'auto';
+                panel.style.position = 'relative';
+
+                const header = document.createElement('div');
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.alignItems = 'center';
+                header.style.position = 'sticky'; header.style.top = '0'; header.style.zIndex = '12';
+                header.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
+                header.style.padding = '0.45rem 0.5rem'; header.style.borderBottom = '1px solid rgba(0,0,0,0.06)';
+
+                const h = document.createElement('h3');
+                h.textContent = title || 'Consultations';
+                h.style.marginTop = '0';
+                header.appendChild(h);
+
+                const close = document.createElement('button');
+                close.textContent = '✕';
+                close.style.border = 'none';
+                close.style.background = 'transparent';
+                close.style.fontSize = '1.2rem';
+                close.style.cursor = 'pointer';
+                close.addEventListener('click', () => overlay.remove());
+                header.appendChild(close);
+
+                panel.appendChild(header);
+
+                const contentWrapper = document.createElement('div');
+                contentWrapper.innerHTML = html;
+                // ensure some spacing
+                contentWrapper.style.marginTop = '0.5rem';
+                panel.appendChild(contentWrapper);
+
+                overlay.appendChild(panel);
+                document.body.appendChild(overlay);
+
+                const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+                document.addEventListener('keydown', escHandler);
+            }
+
+            function fetchAndShow(type, value, title) {
+                const fragUrl = '/statistique/consultations/fragment?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
+                fetch(fragUrl, { credentials: 'same-origin' })
+                    .then(r => {
+                        if (!r.ok) throw new Error('No HTML');
+                        return r.text();
+                    })
+                    .then(html => {
+                        createConsultationsHtmlModal(title, html);
+                    })
+                    .catch(() => {
+                        // fallback to JSON API
+                        const url = '/statistique/consultations/json?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
+                        fetch(url, { credentials: 'same-origin' })
+                            .then(r => r.json())
+                            .then(json => {
+                                if (!json || !json.success) {
+                                    alert('Erreur lors de la récupération des consultations.');
+                                    return;
+                                }
+                                createConsultationsModal(title, json.data);
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert('Erreur lors de la récupération des consultations.');
+                            });
+                    });
+            }
+
+            // ========== GRAPHIQUE 30 JOURS ==========
+            const ctx30 = document.getElementById('consultationsChart');
+            if (ctx30) {
+                const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
+                const data = {{ consultationsChartData|default([])|json_encode|raw }};
+
+                if (labels.length) {
+                    const chart30 = new Chart(ctx30, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Consultations par jour',
+                                data: data,
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                                tension: 0.3,
+                                fill: true,
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                            }
+                        }
                     });
 
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    pdf.setFontSize(16);
-                    pdf.text(title, margin, margin + 2);
-
-                    const imgProps = pdf.getImageProperties(imgData);
-                    const maxWidth = pageWidth - margin * 2;
-                    const maxHeight = pageHeight - (margin * 3); // garder de l'espace sous le titre
-                    const ratio = Math.min(maxWidth / imgProps.width, maxHeight / imgProps.height);
-                    const imgWidth = imgProps.width * ratio;
-                    const imgHeight = imgProps.height * ratio;
-                    const x = (pageWidth - imgWidth) / 2;
-                    const y = margin + 8;
-                    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-
-                    const defaultName = (title || 'statistiques') + '.pdf';
-                    const fileName = prompt('Nom du fichier PDF ?', defaultName) || defaultName;
-                    pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
-                });
-                btn.dataset.pdfBound = 'true';
-            });
-        }
-
-        // --- Helpers to fetch consultations and show modal
-        const consultationsChartKeys = {{ consultationsChartKeys|default([])|json_encode|raw }};
-        const monthKeys = {{ monthKeys|default([])|json_encode|raw }};
-        const demandesChartKeys = {{ demandesChartKeys|default([])|json_encode|raw }};
-        // expose for handlers
-        window.consultationsChartKeys = consultationsChartKeys;
-        window.monthKeys = monthKeys;
-        window.demandesChartKeys = demandesChartKeys;
-
-        function createConsultationsModal(title, items) {
-            // remove existing
-            const existing = document.getElementById('consultations-modal');
-            if (existing) existing.remove();
-
-            const overlay = document.createElement('div');
-            overlay.id = 'consultations-modal';
-            overlay.style.position = 'fixed';
-            overlay.style.inset = '0';
-            overlay.style.background = 'rgba(0,0,0,0.45)';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.zIndex = '9999';
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.remove();
-            });
-
-            const panel = document.createElement('div');
-            (function applySafeColors(p) {
-                const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
-                const bg = bgRaw.trim() || '#fff';
-                const parse = (c) => {
-                    c = c.trim();
-                    if (!c) return null;
-                    if (c.startsWith('rgb')) {
-                        const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
-                        return {r: nums[0], g: nums[1], b: nums[2]};
-                    }
-                    if (c[0] === '#') {
-                        const hex = c.slice(1);
-                        if (hex.length === 3) {
-                            return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
-                        }
-                        return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
-                    }
-                    return null;
-                };
-                const rgb = parse(bg);
-                let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
-                if (rgb) {
-                    const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
-                    const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
-                            + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
-                            + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
-                    finalText = (L > 0.6) ? '#111' : '#fff';
+                    ctx30.addEventListener('click', function (evt) {
+                        const points = chart30.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const key = (window.consultationsChartKeys || [])[idx];
+                        if (key) fetchAndShow('day', key, 'Consultations du ' + key);
+                    });
+                } else {
+                    ctx30.insertAdjacentHTML('beforebegin',
+                        '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
+                    );
+                    ctx30.style.display = 'none';
                 }
-                p.style.background = bg;
-                p.style.color = finalText;
-            })(panel);
-            panel.style.borderRadius = '12px';
-            panel.style.padding = '1rem';
-            panel.style.maxWidth = '900px';
-            panel.style.width = 'calc(100% - 40px)';
-            panel.style.maxHeight = '80vh';
-            panel.style.overflow = 'auto';
-            panel.style.position = 'relative';
-
-            const h = document.createElement('h3');
-            h.textContent = title || 'Consultations';
-            h.style.marginTop = '0';
-            panel.appendChild(h);
-
-            const close = document.createElement('button');
-            close.textContent = '✕';
-            close.style.position = 'absolute';
-            close.style.top = '10px';
-            close.style.right = '12px';
-            close.style.border = 'none';
-            close.style.background = 'transparent';
-            close.style.fontSize = '1.2rem';
-            close.style.cursor = 'pointer';
-            close.addEventListener('click', () => overlay.remove());
-            panel.appendChild(close);
-
-            if (!items || !items.length) {
-                const p = document.createElement('p');
-                p.textContent = 'Aucune consultation trouvée.';
-                panel.appendChild(p);
-            } else {
-                const table = document.createElement('table');
-                table.style.width = '100%';
-                table.style.borderCollapse = 'collapse';
-                table.style.marginTop = '0.5rem';
-
-                const thead = document.createElement('thead');
-                thead.innerHTML = '<tr style="text-align:left; border-bottom:1px solid rgba(0,0,0,0.06);">\n<th>Date</th><th>Nom</th><th>Grade</th><th>Matricule</th><th>Motif</th><th>Repos</th>\n</tr>';
-                table.appendChild(thead);
-
-                const tbody = document.createElement('tbody');
-                items.forEach(it => {
-                    const tr = document.createElement('tr');
-                    tr.style.borderBottom = '1px solid rgba(0,0,0,0.04)';
-                    tr.innerHTML = `<td style="padding:.45rem .5rem">${it.date||''}</td><td style="padding:.45rem .5rem">${it.nom||''}</td><td style="padding:.45rem .5rem">${it.grade||''}</td><td style="padding:.45rem .5rem">${it.matricule||''}</td><td style="padding:.45rem .5rem">${(it.motif||'').slice(0,80)}</td><td style="padding:.45rem .5rem">${it.repos||''}</td>`;
-                    tbody.appendChild(tr);
-                });
-                table.appendChild(tbody);
-                panel.appendChild(table);
             }
 
-            overlay.appendChild(panel);
-            document.body.appendChild(overlay);
+            // ========== GRAPHIQUE MENSUEL ==========
+            const ctxMonth = document.getElementById('monthlyChart');
+            if (ctxMonth) {
+                const monthLabels = {{ monthLabels|default([])|json_encode|raw }};
+                const monthData = {{ monthData|default([])|json_encode|raw }};
 
-            // close on Esc
-            const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
-            document.addEventListener('keydown', escHandler);
-        }
-
-        function createConsultationsHtmlModal(title, html) {
-            const existing = document.getElementById('consultations-modal');
-            if (existing) existing.remove();
-            const overlay = document.createElement('div');
-            overlay.id = 'consultations-modal';
-            overlay.style.position = 'fixed';
-            overlay.style.inset = '0';
-            overlay.style.background = 'rgba(0,0,0,0.45)';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.zIndex = '9999';
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-
-            const panel = document.createElement('div');
-            (function applySafeColors(p) {
-                const bgRaw = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
-                const bg = bgRaw.trim() || '#fff';
-                const parse = (c) => {
-                    c = c.trim();
-                    if (!c) return null;
-                    if (c.startsWith('rgb')) {
-                        const nums = c.match(/rgba?\(([^)]+)\)/)[1].split(',').map(s=>parseFloat(s));
-                        return {r: nums[0], g: nums[1], b: nums[2]};
-                    }
-                    if (c[0] === '#') {
-                        const hex = c.slice(1);
-                        if (hex.length === 3) {
-                            return {r: parseInt(hex[0]+hex[0],16), g: parseInt(hex[1]+hex[1],16), b: parseInt(hex[2]+hex[2],16)};
+                if (monthLabels.length) {
+                    const chartMonth = new Chart(ctxMonth, {
+                        type: 'bar',
+                        data: {
+                            labels: monthLabels,
+                            datasets: [{
+                                label: 'Consultations',
+                                data: monthData,
+                                backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                                borderColor: '#3498db',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+                            }
                         }
-                        return {r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16)};
-                    }
-                    return null;
-                };
-                const rgb = parse(bg);
-                let finalText = (getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#000').trim() || '#000';
-                if (rgb) {
-                    const r = rgb.r/255, g = rgb.g/255, b = rgb.b/255;
-                    const L = 0.2126*(r<=0.03928 ? r/12.92 : Math.pow((r+0.055)/1.055,2.4))
-                            + 0.7152*(g<=0.03928 ? g/12.92 : Math.pow((g+0.055)/1.055,2.4))
-                            + 0.0722*(b<=0.03928 ? b/12.92 : Math.pow((b+0.055)/1.055,2.4));
-                    finalText = (L > 0.6) ? '#111' : '#fff';
+                    });
+
+                    ctxMonth.addEventListener('click', function (evt) {
+                        const points = chartMonth.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const key = (monthKeys || [])[idx];
+                        if (key) fetchAndShow('month', key, 'Consultations du mois ' + key);
+                    });
                 }
-                p.style.background = bg;
-                p.style.color = finalText;
-            })(panel);
-            panel.style.borderRadius = '12px';
-            panel.style.padding = '1rem';
-            panel.style.maxWidth = '1100px';
-            panel.style.width = 'calc(100% - 80px)';
-            panel.style.maxHeight = '90vh';
-            panel.style.overflow = 'auto';
-            panel.style.position = 'relative';
+            }
 
-            const header = document.createElement('div');
-            header.style.display = 'flex';
-            header.style.justifyContent = 'space-between';
-            header.style.alignItems = 'center';
-            header.style.position = 'sticky'; header.style.top = '0'; header.style.zIndex = '12';
-            header.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary') || '#fff';
-            header.style.padding = '0.45rem 0.5rem'; header.style.borderBottom = '1px solid rgba(0,0,0,0.06)';
+            // ========== GRAPHIQUE REPOS (CAMEMBERT) ==========
+            const ctxRepos = document.getElementById('reposChart');
+            if (ctxRepos) {
+                const repos24h = {{ repos24h ?? 0 }};
+                const repos48h = {{ repos48h ?? 0 }};
+                const repos72h = {{ repos72h ?? 0 }};
 
-            const h = document.createElement('h3');
-            h.textContent = title || 'Consultations';
-            h.style.marginTop = '0';
-            header.appendChild(h);
-
-            const close = document.createElement('button');
-            close.textContent = '✕';
-            close.style.border = 'none';
-            close.style.background = 'transparent';
-            close.style.fontSize = '1.2rem';
-            close.style.cursor = 'pointer';
-            close.addEventListener('click', () => overlay.remove());
-            header.appendChild(close);
-
-            panel.appendChild(header);
-
-            const contentWrapper = document.createElement('div');
-            contentWrapper.innerHTML = html;
-            // ensure some spacing
-            contentWrapper.style.marginTop = '0.5rem';
-            panel.appendChild(contentWrapper);
-
-            overlay.appendChild(panel);
-            document.body.appendChild(overlay);
-
-            const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
-            document.addEventListener('keydown', escHandler);
-        }
-
-        function fetchAndShow(type, value, title) {
-            const fragUrl = '/statistique/consultations/fragment?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
-            fetch(fragUrl, { credentials: 'same-origin' })
-                .then(r => {
-                    if (!r.ok) throw new Error('No HTML');
-                    return r.text();
-                })
-                .then(html => {
-                    createConsultationsHtmlModal(title, html);
-                })
-                .catch(() => {
-                    // fallback to JSON API
-                    const url = '/statistique/consultations/json?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value);
-                    fetch(url, { credentials: 'same-origin' })
-                        .then(r => r.json())
-                        .then(json => {
-                            if (!json || !json.success) {
-                                alert('Erreur lors de la récupération des consultations.');
-                                return;
-                            }
-                            createConsultationsModal(title, json.data);
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            alert('Erreur lors de la récupération des consultations.');
-                        });
-                });
-        }
-
-        // ========== GRAPHIQUE 30 JOURS ==========
-        const ctx30 = document.getElementById('consultationsChart');
-        if (ctx30) {
-            const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
-            const data = {{ consultationsChartData|default([])|json_encode|raw }};
-
-            if (labels.length) {
-                const chart30 = new Chart(ctx30, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Consultations par jour',
-                            data: data,
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.15)',
-                            tension: 0.3,
-                            fill: true,
-                            pointRadius: 3,
-                            pointHoverRadius: 5,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
-                            }
+                if (repos24h > 0 || repos48h > 0 || repos72h > 0) {
+                    const chartRepos = new Chart(ctxRepos, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['24h', '48h', '72h'],
+                            datasets: [{
+                                data: [repos24h, repos48h, repos72h],
+                                backgroundColor: [
+                                    'rgba(241, 196, 15, 0.8)',
+                                    'rgba(230, 126, 34, 0.8)',
+                                    'rgba(231, 76, 60, 0.8)'
+                                ],
+                                borderColor: [
+                                    '#f1c40f',
+                                    '#e67e22',
+                                    '#e74c3c'
+                                ],
+                                borderWidth: 2
+                            }]
                         },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
-                        }
-                    }
-                });
-
-                ctx30.addEventListener('click', function (evt) {
-                    const points = chart30.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const key = (window.consultationsChartKeys || [])[idx];
-                    if (key) fetchAndShow('day', key, 'Consultations du ' + key);
-                });
-            } else {
-                ctx30.insertAdjacentHTML('beforebegin',
-                    '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée disponible pour les 30 derniers jours.</p>'
-                );
-                ctx30.style.display = 'none';
-            }
-        }
-
-        // ========== GRAPHIQUE MENSUEL ==========
-        const ctxMonth = document.getElementById('monthlyChart');
-        if (ctxMonth) {
-            const monthLabels = {{ monthLabels|default([])|json_encode|raw }};
-            const monthData = {{ monthData|default([])|json_encode|raw }};
-
-            if (monthLabels.length) {
-                const chartMonth = new Chart(ctxMonth, {
-                    type: 'bar',
-                    data: {
-                        labels: monthLabels,
-                        datasets: [{
-                            label: 'Consultations',
-                            data: monthData,
-                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
-                            borderColor: '#3498db',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: textColor, padding: 15 }
+                                },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                             }
+                        }
+                    });
+
+                    ctxRepos.addEventListener('click', function (evt) {
+                        const points = chartRepos.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = ['24h','48h','72h'][idx];
+                        if (label) fetchAndShow('repos', label, 'Consultations : repos ' + label);
+                    });
+                }
+            }
+
+            // ========== GRAPHIQUE PAR GRADE ==========
+            const ctxGrades = document.getElementById('gradesChart');
+            if (ctxGrades) {
+                const gradesLabels = {{ gradesLabels|default([])|json_encode|raw }};
+                const gradesData = {{ gradesData|default([])|json_encode|raw }};
+
+                if (gradesLabels.length) {
+                    const chartGrades = new Chart(ctxGrades, {
+                        type: 'bar',
+                        data: {
+                            labels: gradesLabels,
+                            datasets: [{
+                                label: 'Consultations',
+                                data: gradesData,
+                                backgroundColor: 'rgba(155, 89, 182, 0.6)',
+                                borderColor: '#9b59b6',
+                                borderWidth: 1
+                            }]
                         },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
-                        }
-                    }
-                });
-
-                ctxMonth.addEventListener('click', function (evt) {
-                    const points = chartMonth.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const key = (monthKeys || [])[idx];
-                    if (key) fetchAndShow('month', key, 'Consultations du mois ' + key);
-                });
-            }
-        }
-
-        // ========== GRAPHIQUE REPOS (CAMEMBERT) ==========
-        const ctxRepos = document.getElementById('reposChart');
-        if (ctxRepos) {
-            const repos24h = {{ repos24h ?? 0 }};
-            const repos48h = {{ repos48h ?? 0 }};
-            const repos72h = {{ repos72h ?? 0 }};
-
-            if (repos24h > 0 || repos48h > 0 || repos72h > 0) {
-                const chartRepos = new Chart(ctxRepos, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['24h', '48h', '72h'],
-                        datasets: [{
-                            data: [repos24h, repos48h, repos72h],
-                            backgroundColor: [
-                                'rgba(241, 196, 15, 0.8)',
-                                'rgba(230, 126, 34, 0.8)',
-                                'rgba(231, 76, 60, 0.8)'
-                            ],
-                            borderColor: [
-                                '#f1c40f',
-                                '#e67e22',
-                                '#e74c3c'
-                            ],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: textColor, padding: 15 }
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                },
+                                y: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                }
                             },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
-                        }
-                    }
-                });
-
-                ctxRepos.addEventListener('click', function (evt) {
-                    const points = chartRepos.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = ['24h','48h','72h'][idx];
-                    if (label) fetchAndShow('repos', label, 'Consultations : repos ' + label);
-                });
-            }
-        }
-
-        // ========== GRAPHIQUE PAR GRADE ==========
-        const ctxGrades = document.getElementById('gradesChart');
-        if (ctxGrades) {
-            const gradesLabels = {{ gradesLabels|default([])|json_encode|raw }};
-            const gradesData = {{ gradesData|default([])|json_encode|raw }};
-
-            if (gradesLabels.length) {
-                const chartGrades = new Chart(ctxGrades, {
-                    type: 'bar',
-                    data: {
-                        labels: gradesLabels,
-                        datasets: [{
-                            label: 'Consultations',
-                            data: gradesData,
-                            backgroundColor: 'rgba(155, 89, 182, 0.6)',
-                            borderColor: '#9b59b6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
-                            },
-                            y: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                             }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                         }
-                    }
-                });
+                    });
 
-                ctxGrades.addEventListener('click', function (evt) {
-                    const points = chartGrades.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = (gradesLabels || [])[idx];
-                    if (label) fetchAndShow('grade', label, 'Consultations - grade ' + label);
-                });
+                    ctxGrades.addEventListener('click', function (evt) {
+                        const points = chartGrades.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = (gradesLabels || [])[idx];
+                        if (label) fetchAndShow('grade', label, 'Consultations - grade ' + label);
+                    });
+                }
             }
-        }
 
-        // ========== GRAPHIQUE HEBDOMADAIRE ==========
-        const ctxWeekday = document.getElementById('weekdayChart');
-        if (ctxWeekday) {
-            const weekdayLabels = {{ weekdayLabels|default([])|json_encode|raw }};
-            const weekdayData = {{ weekdayData|default([])|json_encode|raw }};
+            // ========== GRAPHIQUE HEBDOMADAIRE ==========
+            const ctxWeekday = document.getElementById('weekdayChart');
+            if (ctxWeekday) {
+                const weekdayLabels = {{ weekdayLabels|default([])|json_encode|raw }};
+                const weekdayData = {{ weekdayData|default([])|json_encode|raw }};
 
-            if (weekdayLabels.length) {
-                const chartWeekday = new Chart(ctxWeekday, {
-                    type: 'bar',
-                    data: {
-                        labels: weekdayLabels,
-                        datasets: [{
-                            label: 'Consultations',
-                            data: weekdayData,
-                            backgroundColor: 'rgba(46, 204, 113, 0.6)',
-                            borderColor: '#2ecc71',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
+                if (weekdayLabels.length) {
+                    const chartWeekday = new Chart(ctxWeekday, {
+                        type: 'bar',
+                        data: {
+                            labels: weekdayLabels,
+                            datasets: [{
+                                label: 'Consultations',
+                                data: weekdayData,
+                                backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                                borderColor: '#2ecc71',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                }
                             },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                             }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                         }
-                    }
-                });
+                    });
 
-                ctxWeekday.addEventListener('click', function (evt) {
-                    const points = chartWeekday.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = (weekdayLabels || [])[idx];
-                    if (label) fetchAndShow('weekday', idx, 'Consultations: ' + label);
-                });
+                    ctxWeekday.addEventListener('click', function (evt) {
+                        const points = chartWeekday.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = (weekdayLabels || [])[idx];
+                        if (label) fetchAndShow('weekday', idx, 'Consultations: ' + label);
+                    });
+                }
             }
-        }
 
-        // ========== GRAPHIQUE AVEC/SANS REPOS ==========
-        const ctxReposRepartition = document.getElementById('reposRepartitionChart');
-        if (ctxReposRepartition) {
-            const avecRepos = {{ totalAvecRepos ?? 0 }};
-            const sansRepos = {{ totalSansRepos ?? 0 }};
+            // ========== GRAPHIQUE AVEC/SANS REPOS ==========
+            const ctxReposRepartition = document.getElementById('reposRepartitionChart');
+            if (ctxReposRepartition) {
+                const avecRepos = {{ totalAvecRepos ?? 0 }};
+                const sansRepos = {{ totalSansRepos ?? 0 }};
 
-            if (avecRepos > 0 || sansRepos > 0) {
-                const chartReposRepartition = new Chart(ctxReposRepartition, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Avec repos', 'Sans repos'],
-                        datasets: [{
-                            data: [avecRepos, sansRepos],
-                            backgroundColor: [
-                                'rgba(231, 76, 60, 0.8)',
-                                'rgba(52, 152, 219, 0.8)'
-                            ],
-                            borderColor: [
-                                '#e74c3c',
-                                '#3498db'
-                            ],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: textColor, padding: 15 }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0,0,0,0.8)',
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return label + ': ' + value + ' (' + percentage + '%)';
+                if (avecRepos > 0 || sansRepos > 0) {
+                    const chartReposRepartition = new Chart(ctxReposRepartition, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Avec repos', 'Sans repos'],
+                            datasets: [{
+                                data: [avecRepos, sansRepos],
+                                backgroundColor: [
+                                    'rgba(231, 76, 60, 0.8)',
+                                    'rgba(52, 152, 219, 0.8)'
+                                ],
+                                borderColor: [
+                                    '#e74c3c',
+                                    '#3498db'
+                                ],
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: textColor, padding: 15 }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                            return label + ': ' + value + ' (' + percentage + '%)';
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
+                    });
 
-                ctxReposRepartition.addEventListener('click', function (evt) {
-                    const points = chartReposRepartition.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = ['with','without'][idx];
-                    fetchAndShow('repos', label, 'Consultations ' + (idx === 0 ? 'avec repos' : 'sans repos'));
-                });
-            }
-        }
-
-        // ========== NOUVEAUX GRAPHIQUES: ADRESSE, PATC, EXEMPTIONS ACTIVES ==========
-        const ctxAdresse = document.getElementById('adresseChart');
-        if (ctxAdresse) {
-            const adresseLabels = {{ adresseLabels|default([])|json_encode|raw }};
-            const adresseData = {{ adresseData|default([])|json_encode|raw }};
-
-            // palette de couleurs réutilisable
-            const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
-            function hexToRgba(hex, alpha) {
-                const m = hex.replace('#','');
-                const bigint = parseInt(m, 16);
-                const r = (bigint >> 16) & 255;
-                const g = (bigint >> 8) & 255;
-                const b = bigint & 255;
-                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    ctxReposRepartition.addEventListener('click', function (evt) {
+                        const points = chartReposRepartition.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = ['with','without'][idx];
+                        fetchAndShow('repos', label, 'Consultations ' + (idx === 0 ? 'avec repos' : 'sans repos'));
+                    });
+                }
             }
 
-            if (adresseLabels.length) {
-                const bgColors = adresseLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
-                const borderColors = adresseLabels.map((_, i) => palette[i % palette.length]);
+            // ========== NOUVEAUX GRAPHIQUES: ADRESSE, PATC, EXEMPTIONS ACTIVES ==========
+            const ctxAdresse = document.getElementById('adresseChart');
+            if (ctxAdresse) {
+                const adresseLabels = {{ adresseLabels|default([])|json_encode|raw }};
+                const adresseData = {{ adresseData|default([])|json_encode|raw }};
 
-                const chartAdresse = new Chart(ctxAdresse, {
-                    type: 'bar',
-                    data: {
-                        labels: adresseLabels,
-                        datasets: [{
-                            label: 'Nombre',
-                            data: adresseData,
-                            backgroundColor: bgColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
-                            }
+                // palette de couleurs réutilisable
+                const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
+                function hexToRgba(hex, alpha) {
+                    const m = hex.replace('#','');
+                    const bigint = parseInt(m, 16);
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                }
+
+                if (adresseLabels.length) {
+                    const bgColors = adresseLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
+                    const borderColors = adresseLabels.map((_, i) => palette[i % palette.length]);
+
+                    const chartAdresse = new Chart(ctxAdresse, {
+                        type: 'bar',
+                        data: {
+                            labels: adresseLabels,
+                            datasets: [{
+                                label: 'Nombre',
+                                data: adresseData,
+                                backgroundColor: bgColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
                         },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
-                        }
-                    }
-                });
-
-                ctxAdresse.addEventListener('click', function (evt) {
-                    const points = chartAdresse.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = (adresseLabels || [])[idx];
-                    if (label) fetchAndShow('adresse', label, 'Consultations pour adresse « ' + label + ' »');
-                });
-            } else {
-                ctxAdresse.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune adresse disponible.</p>');
-                ctxAdresse.style.display = 'none';
-            }
-        }
-
-        const ctxPatc = document.getElementById('patcChart');
-        if (ctxPatc) {
-            const patcLabels = {{ patcLabels|default([])|json_encode|raw }};
-            const patcData = {{ patcData|default([])|json_encode|raw }};
-
-            // réutiliser la même palette
-            const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
-            function hexToRgba(hex, alpha) {
-                const m = hex.replace('#','');
-                const bigint = parseInt(m, 16);
-                const r = (bigint >> 16) & 255;
-                const g = (bigint >> 8) & 255;
-                const b = bigint & 255;
-                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-            }
-
-            if (patcLabels.length) {
-                const bgColors = patcLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
-                const borderColors = patcLabels.map((_, i) => palette[i % palette.length]);
-
-                const chartPatc = new Chart(ctxPatc, {
-                    type: 'bar',
-                    data: {
-                        labels: patcLabels,
-                        datasets: [{
-                            label: 'Nombre',
-                            data: patcData,
-                            backgroundColor: bgColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                ticks: { color: textColor },
-                                grid: { display: false }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                }
                             },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1, color: textColor },
-                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                             }
+                        }
+                    });
+
+                    ctxAdresse.addEventListener('click', function (evt) {
+                        const points = chartAdresse.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = (adresseLabels || [])[idx];
+                        if (label) fetchAndShow('adresse', label, 'Consultations pour adresse « ' + label + ' »');
+                    });
+                } else {
+                    ctxAdresse.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune adresse disponible.</p>');
+                    ctxAdresse.style.display = 'none';
+                }
+            }
+
+            const ctxPatc = document.getElementById('patcChart');
+            if (ctxPatc) {
+                const patcLabels = {{ patcLabels|default([])|json_encode|raw }};
+                const patcData = {{ patcData|default([])|json_encode|raw }};
+
+                // réutiliser la même palette
+                const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
+                function hexToRgba(hex, alpha) {
+                    const m = hex.replace('#','');
+                    const bigint = parseInt(m, 16);
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                }
+
+                if (patcLabels.length) {
+                    const bgColors = patcLabels.map((_, i) => hexToRgba(palette[i % palette.length], 0.6));
+                    const borderColors = patcLabels.map((_, i) => palette[i % palette.length]);
+
+                    const chartPatc = new Chart(ctxPatc, {
+                        type: 'bar',
+                        data: {
+                            labels: patcLabels,
+                            datasets: [{
+                                label: 'Nombre',
+                                data: patcData,
+                                backgroundColor: bgColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
                         },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
-                        }
-                    }
-                });
-
-                ctxPatc.addEventListener('click', function (evt) {
-                    const points = chartPatc.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = (patcLabels || [])[idx];
-                    if (label) fetchAndShow('patc', label, 'Consultations PATC: ' + label);
-                });
-            } else {
-                ctxPatc.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée PATC disponible.</p>');
-                ctxPatc.style.display = 'none';
-            }
-        }
-
-        const ctxExemption = document.getElementById('exemptionChart');
-        if (ctxExemption) {
-            const exemptionLabels = {{ exemptionLabels|default([])|json_encode|raw }};
-            const exemptionData = {{ exemptionData|default([])|json_encode|raw }};
-
-            const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
-
-            if (exemptionLabels.length) {
-                const bgColors = exemptionLabels.map((_, i) => palette[i % palette.length]);
-                const borderColors = exemptionLabels.map(() => '#ffffff');
-
-                const chartExemption = new Chart(ctxExemption, {
-                    type: 'doughnut',
-                    data: {
-                        labels: exemptionLabels,
-                        datasets: [{
-                            data: exemptionData,
-                            backgroundColor: bgColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: textColor, padding: 15 }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, color: textColor },
+                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
                             }
                         }
-                    }
-                });
+                    });
 
-                ctxExemption.addEventListener('click', function (evt) {
-                    const points = chartExemption.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                    if (!points || !points.length) return;
-                    const idx = points[0].index;
-                    const label = (exemptionLabels || [])[idx];
-                    if (label) fetchAndShow('exemption', label, 'Exemptions actives: ' + label);
-                });
-            } else {
-                ctxExemption.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune exemption active.</p>');
-                ctxExemption.style.display = 'none';
+                    ctxPatc.addEventListener('click', function (evt) {
+                        const points = chartPatc.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = (patcLabels || [])[idx];
+                        if (label) fetchAndShow('patc', label, 'Consultations PATC: ' + label);
+                    });
+                } else {
+                    ctxPatc.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée PATC disponible.</p>');
+                    ctxPatc.style.display = 'none';
+                }
             }
-        }
 
-        attachSavePdf();
-        AOS.init();
+            const ctxExemption = document.getElementById('exemptionChart');
+            if (ctxExemption) {
+                const exemptionLabels = {{ exemptionLabels|default([])|json_encode|raw }};
+                const exemptionData = {{ exemptionData|default([])|json_encode|raw }};
+
+                const palette = ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#2ecc71', '#e67e22', '#1abc9c', '#34495e', '#7f8c8d'];
+
+                if (exemptionLabels.length) {
+                    const bgColors = exemptionLabels.map((_, i) => palette[i % palette.length]);
+                    const borderColors = exemptionLabels.map(() => '#ffffff');
+
+                    const chartExemption = new Chart(ctxExemption, {
+                        type: 'doughnut',
+                        data: {
+                            labels: exemptionLabels,
+                            datasets: [{
+                                data: exemptionData,
+                                backgroundColor: bgColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: textColor, padding: 15 }
+                                }
+                            }
+                        }
+                    });
+
+                    ctxExemption.addEventListener('click', function (evt) {
+                        const points = chartExemption.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                        if (!points || !points.length) return;
+                        const idx = points[0].index;
+                        const label = (exemptionLabels || [])[idx];
+                        if (label) fetchAndShow('exemption', label, 'Exemptions actives: ' + label);
+                    });
+                } else {
+                    ctxExemption.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune exemption active.</p>');
+                    ctxExemption.style.display = 'none';
+                }
+            }
+
+            attachSavePdf();
+            AOS.init();
+        }
+        document.addEventListener('DOMContentLoaded', __initChartsConsultations);
+        document.addEventListener('turbo:load', __initChartsConsultations);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') { __initChartsConsultations(); }
     })();
 </script>
