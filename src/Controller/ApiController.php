@@ -44,7 +44,7 @@ class ApiController extends AbstractController
             $response = $client->request('GET', $url, [
                 'headers' => [
                     'Authorization' => 'Bearer API_KEY',
-                    'x-api-key'     => 'name@example.com',
+                    'x-api-key'     => 'client@gmail.com',
                     'Accept'        => 'application/json',
                 ]
             ]);

@@ -1,3 +1,181 @@
+<style>
+    .card {
+        position: relative;
+        display: inline-block;
+        width: 400px;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px var(--shadow-dark);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        border: 0px solid var(--border-color);
+        margin: 1rem;
+        vertical-align: top;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px var(--shadow-dark-hover);
+    }
+
+    .card:has(.delete-btn:hover) {
+        background-color: rgba(253, 135, 135, 0.28) !important;
+        transition: background-color 0.5s ease;
+    }
+
+    .card:has(.delete-btn:hover) .card-body,
+    .card:has(.delete-btn:hover) .card-footer {
+        background-color: rgba(241, 178, 178, 0.19) !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .card:has(.edit-btn:hover) {
+        background-color: rgba(135, 176, 253, 0.28) !important;
+        transition: background-color 0.5s ease;
+    }
+    
+    .card:has(.edit-btn:hover) .card-body,
+    .card:has(.edit-btn:hover) .card-footer {
+        background-color: rgba(178, 203, 241, 0.19) !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid var(--border-color);
+        min-height: 70px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        overflow: hidden;
+    }
+
+    .name-grade {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        max-width: 350px;
+        cursor: pointer;
+    }
+
+    .name-grade div,
+    .name-grade span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 400px;
+        display: block;
+    }
+
+    .matricule{
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+        transition: color 0.3s ease;
+    }
+
+    .grade {
+        font-weight: bold;
+        color: #4267B2;
+    }
+
+    .card-body {
+        padding: 1rem;
+        font-size: 0.9rem;
+        text-align: left;
+        overflow: hidden;
+        height: 170px;
+        box-sizing: border-box;
+        background-color: var(--bg-secondary);
+        transition: background-color 0.3s ease;
+    }
+
+    .card-body p {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 6px;
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+
+    .roles-wrapper {
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+    }
+
+    .roles-label {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .roles-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .role-badge {
+        background: #4267B2;
+        color: white;
+        padding: 3px 7px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-footer {
+        height: 40px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0.5rem 0.8rem;
+        box-sizing: border-box;
+        background-color: var(--bg-secondary);
+        gap: 1em;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-btn {
+        margin-top: 4px;
+        margin-bottom: 30px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .delete-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .edit-btn {
+        margin-top: 4px;
+        margin-bottom: 30px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .edit-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+</style>
+
 <div class="card" data-aos="zoom-in" data-aos-duration="300ms">
 
     <!-- Header -->
