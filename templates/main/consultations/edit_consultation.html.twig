@@ -12,13 +12,13 @@
             padding: 2rem;
             background: var(--bg-primary);
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px var(--shadow-dark);
             margin-top: 140px;
-            transition: .3s ease;
+            transition: .3s ease, background 0.3s ease;
         }
 
         .consultation-container:hover {
-            box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+            box-shadow: 0 6px 28px var(--shadow-dark-hover);
         }
 
         .consultation-container h1 {
@@ -26,11 +26,13 @@
             font-size: 1.7rem;
             font-weight: 700;
             color: var(--text-primary);
+            transition: color 0.3s ease;
         }
 
         .consultation-container p {
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form {
@@ -44,51 +46,43 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: .35rem;
+            transition: color 0.3s ease;
         }
 
         .consultation-form input[type="text"],
-        .consultation-form textarea {
+        .consultation-form input[type="search"],
+        .consultation-form input[type="date"],
+        .consultation-form input[type="number"],
+        .consultation-form textarea,
+        .consultation-form select {
             padding: .75rem 1rem;
-            border: 1px solid #d1d1d1;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            border-color: var(--border-color);
             width: 100%;
             font-size: 1rem;
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
+            transition: .2s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
             box-sizing: border-box;
-            transition: .2s ease;
         }
 
         .consultation-form input:focus,
+        .consultation-form select:focus,
         .consultation-form textarea:focus {
-            border-color: #0d6efd;
+            border-color: var(--accent-color);
             background: var(--bg-primary);
             box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
             outline: none;
         }
 
         .consultation-form select {
-            padding: .75rem 1rem;
-            border: 1px solid #d1d1d1;
-            border-radius: 8px;
-            border-color: var(--border-color);
-            width: 100%;
-            font-size: 1rem;
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
+            background-color: var(--bg-tertiary);
             appearance: none;
             cursor: pointer;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%23666'%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 0.65rem auto;
-            transition: .2s ease;
-        }
-
-        .consultation-form select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
         }
 
         .form-actions {
@@ -111,45 +105,131 @@
         }
 
         .btn {
-            background: #0d6efd;
+            background: var(--accent-color);
             color: #fff;
+            box-shadow: 0 6px 18px var(--shadow-dark);
+            transition: background 0.3s ease;
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-            background: #0b5ed7;
+            box-shadow: 0 10px 25px var(--shadow-dark-hover);
+            background: var(--accent-hover);
         }
 
         .btn:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(41, 43, 44, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         .btn--muted {
             background: #6c757d;
             color: #fff;
             text-decoration: none;
-            text-align: center;
+            box-shadow: 0 6px 18px var(--shadow-dark);
+        }
+
+        .ajouter {
+            background: #39721eff;
         }
 
         .btn--muted:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+            box-shadow: 0 10px 25px var(--shadow-dark-hover);
             background: #5a6268;
+        }
+
+        .ajouter:hover {
+            background: #36632aff;
         }
 
         .btn--muted:active {
             transform: translateY(2px);
             box-shadow:
-                inset 3px 3px 7px rgba(255, 255, 255, 0.87),
-                inset -3px -3px 7px rgba(41, 43, 44, 0.5);
+                inset 3px 3px 7px var(--shadow-light),
+                inset -3px -3px 7px var(--shadow-dark);
         }
 
         @media (max-width: 640px) {
             .consultation-container { padding: 1rem; }
+        }
+
+        .check {
+            cursor: pointer;
+            position: relative;
+            margin: auto;
+            width: 18px;
+            height: 18px;
+            -webkit-tap-highlight-color: transparent;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .check:before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .check svg {
+            position: relative;
+            z-index: 1;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #c8ccd4;
+            stroke-width: 1.5;
+            transform: translate3d(0, 0, 0);
+            transition: all 0.2s ease;
+        }
+
+        .check svg path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 0;
+        }
+
+        .check svg polyline {
+            stroke-dasharray: 22;
+            stroke-dashoffset: 66;
+        }
+
+        .check:hover:before {
+            opacity: 1;
+        }
+
+        .check:hover svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_repos_checkbox:checked + .check svg,
+        #enable_exemption_checkbox:checked + .check svg,
+        #enable_adresse_checkbox:checked + .check svg,
+        #enable_patc_checkbox:checked + .check svg {
+            stroke: var(--accent-color, #3662c0ff);
+        }
+
+        #enable_repos_checkbox:checked + .check svg path,
+        #enable_exemption_checkbox:checked + .check svg path,
+        #enable_adresse_checkbox:checked + .check svg path,
+        #enable_patc_checkbox:checked + .check svg path {
+            stroke-dashoffset: 60;
+            transition: all 0.3s linear;
+        }
+
+        #enable_repos_checkbox:checked + .check svg polyline,
+        #enable_exemption_checkbox:checked + .check svg polyline,
+        #enable_adresse_checkbox:checked + .check svg polyline,
+        #enable_patc_checkbox:checked + .check svg polyline {
+            stroke-dashoffset: 42;
+            transition: all 0.2s linear;
+            transition-delay: 0.15s;
         }
     </style>
 
@@ -175,6 +255,11 @@
                 </div>
 
                 <div class="form-row">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" value="{% if consultation.Date %}{{ consultation.Date|date('Y-m-d') }}{% endif %}" readonly>
+                </div>
+
+                <div class="form-row">
                     <label for="motif">Motif</label>
                     <textarea id="motif" name="motif">{{ consultation.Motif }}</textarea>
                 </div>
@@ -196,13 +281,111 @@
                 </div>
 
                 <div class="form-row">
-                    <label for="repos">Repos administré</label>
-                    <select id="repos" name="repos">
-                        <option value="" {% if consultation.Repos is empty %}selected{% endif %}>Aucun</option>
-                        <option value="24h" {% if consultation.Repos == '24h' %}selected{% endif %}>24h</option>
-                        <option value="48h" {% if consultation.Repos == '48h' %}selected{% endif %}>48h</option>
-                        <option value="72h" {% if consultation.Repos == '72h' %}selected{% endif %}>72h</option>
-                    </select>
+                    <label for="libute">LIBUTE</label>
+                    <input type="text" id="libute" name="libute" value="{{ consultation.LIBUTE ?? '' }}">
+                </div>
+
+                {# Exemption block with checkbox + select multiple + add input + dates #}
+                <div class="field">
+                    <label style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="container" style="margin-top: .1rem;">
+                            <input type="checkbox" id="enable_exemption_checkbox" style="display: none;" {% if consultation.Exemption %}checked{% endif %}>
+                            <label for="enable_exemption_checkbox" class="check">
+                                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </label>
+                        </div>
+                        <span>Exemption(s)</span>
+                    </label>
+                    <div style="margin-top:.5rem; display:flex; gap:.5rem; flex-direction:column;">
+                        <select id="exemption_select" name="exemption[]" multiple style="min-height: 100px;" {% if not consultation.Exemption %}disabled{% endif %} data-consultation-options-target="exemptionSelect">
+                            {% for option in exemptionOptions %}
+                                <option value="{{ option.value }}" {% if consultation.Exemption and option.value in consultation.Exemption %}selected{% endif %}>
+                                    {{ option.value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="margin-top:.5rem; display:flex; gap:.5rem;">
+                        <div style="flex:1">
+                            <label>Début</label>
+                            <input type="date" id="debut_exemption" name="debut_exemption" value="{% if consultation.DebutExemption %}{{ consultation.DebutExemption|date('Y-m-d') }}{% endif %}" {% if not consultation.Exemption %}disabled{% endif %} data-consultation-options-target="debut">
+                        </div>
+                        <div style="flex:1">
+                            <label>Fin</label>
+                            <input type="date" id="fin_exemption" name="fin_exemption" value="{% if consultation.FinExemption %}{{ consultation.FinExemption|date('Y-m-d') }}{% endif %}" {% if not consultation.Exemption %}disabled{% endif %} data-consultation-options-target="fin">
+                        </div>
+                    </div>
+                </div>
+
+                {# Adresse block #}
+                <div class="field">
+                    <label style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="container" style="margin-top: .1rem;">
+                            <input type="checkbox" id="enable_adresse_checkbox" style="display: none;" {% if consultation.Adrresse %}checked{% endif %}>
+                            <label for="enable_adresse_checkbox" class="check">
+                                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </label>
+                        </div>
+                        <span>Adressé au(x) service(s)</span>
+                    </label>
+                    <div style="margin-top:.5rem; display:flex; gap:.5rem; flex-direction:column;">
+                        <select id="adresse_select" name="adresse[]" multiple style="min-height: 100px;" {% if not consultation.Adrresse %}disabled{% endif %} data-consultation-options-target="adresseSelect">
+                            {% for option in adresseOptions %}
+                                <option value="{{ option.value }}" {% if consultation.Adrresse and option.value in consultation.Adrresse %}selected{% endif %}>
+                                    {{ option.value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                {# PATC block #}
+                <div class="field">
+                    <label style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="container" style="margin-top: .1rem;">
+                            <input type="checkbox" id="enable_patc_checkbox" style="display: none;" {% if consultation.PATC %}checked{% endif %}>
+                            <label for="enable_patc_checkbox" class="check">
+                                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </label>
+                        </div>
+                        <span>Permission à titre convalescence (jours)</span>
+                    </label>
+                    <div style="margin-top:.5rem;">
+                        <input type="number" id="patc" name="patc" value="{{ consultation.PATC ?? '' }}" {% if not consultation.PATC %}disabled{% endif %} data-consultation-options-target="patc" min="0">
+                    </div>
+                </div>
+
+                {# Repos block #}
+                <div class="field">
+                    <label style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="container" style="margin-top: .1rem;">
+                            <input type="checkbox" id="enable_repos_checkbox" style="display: none;" {% if consultation.Repos %}checked{% endif %}>
+                            <label for="enable_repos_checkbox" class="check">
+                                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </label>
+                        </div>
+                        <span>Repos administré</span>
+                    </label>
+                    <div style="margin-top:.5rem;">
+                        <select id="repos" name="repos" {% if not consultation.Repos %}disabled{% endif %} data-consultation-options-target="repos">
+                            <option value="">Aucun</option>
+                            <option value="24h" {% if consultation.Repos == '24h' %}selected{% endif %}>24h</option>
+                            <option value="48h" {% if consultation.Repos == '48h' %}selected{% endif %}>48h</option>
+                            <option value="72h" {% if consultation.Repos == '72h' %}selected{% endif %}>72h</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -213,6 +396,126 @@
         </form>
     </div>
     <script>
+        (function(){
+            function nodesFromDataTarget(name) {
+                return Array.from(document.querySelectorAll('[data-consultation-options-target="'+name+'"]'));
+            }
+
+            function disableAndClear(el){
+                if (!el) return;
+                el.disabled = true;
+                if (el.tagName.toLowerCase() === 'select') {
+                    try { el.selectedIndex = -1; } catch(e){}
+                } else if (el.type && el.type !== 'hidden') {
+                    el.value = '';
+                }
+                el.required = false;
+            }
+
+            function enableAndRequire(el){
+                if (!el) return;
+                el.disabled = false;
+                el.required = true;
+                try { el.focus(); } catch(e){}
+            }
+
+            // Exemption group
+            (function(){
+                const checkbox = document.getElementById('enable_exemption_checkbox');
+                const exemptionSelects = nodesFromDataTarget('exemptionSelect');
+                const debutNodes = nodesFromDataTarget('debut');
+                const finNodes = nodesFromDataTarget('fin');
+                if (!checkbox) return;
+
+                if (!checkbox.checked) {
+                    exemptionSelects.concat(debutNodes).concat(finNodes).forEach(disableAndClear);
+                }
+
+                checkbox.addEventListener('change', function(){
+                    if (this.checked) {
+                        exemptionSelects.concat(debutNodes).concat(finNodes).forEach(enableAndRequire);
+                    } else {
+                        exemptionSelects.concat(debutNodes).concat(finNodes).forEach(disableAndClear);
+                    }
+                });
+            })();
+
+            // Adresse group
+            (function(){
+                const checkbox = document.getElementById('enable_adresse_checkbox');
+                const adresseSelects = nodesFromDataTarget('adresseSelect');
+                if (!checkbox) return;
+
+                if (!checkbox.checked) {
+                    adresseSelects.forEach(disableAndClear);
+                }
+
+                checkbox.addEventListener('change', function(){
+                    if (this.checked) {
+                        adresseSelects.forEach(enableAndRequire);
+                    } else {
+                        adresseSelects.forEach(disableAndClear);
+                    }
+                });
+            })();
+
+            // PATC group
+            (function(){
+                const checkbox = document.getElementById('enable_patc_checkbox');
+                const patc = document.getElementById('patc');
+                if (!checkbox || !patc) return;
+
+                if (!checkbox.checked) {
+                    disableAndClear(patc);
+                }
+
+                checkbox.addEventListener('change', function(){
+                    if (this.checked) {
+                        enableAndRequire(patc);
+                    } else {
+                        disableAndClear(patc);
+                    }
+                });
+            })();
+
+            // Repos group
+            (function(){
+                const checkbox = document.getElementById('enable_repos_checkbox');
+                const repos = document.getElementById('repos');
+                if (!checkbox || !repos) return;
+
+                if (!checkbox.checked) {
+                    disableAndClear(repos);
+                }
+
+                checkbox.addEventListener('change', function(){
+                    if (this.checked) {
+                        enableAndRequire(repos);
+                    } else {
+                        disableAndClear(repos);
+                    }
+                });
+            })();
+
+            // Link debut -> fin min value
+            (function(){
+                const debut = document.getElementById('debut_exemption');
+                const fin = document.getElementById('fin_exemption');
+                if (!debut || !fin) return;
+
+                debut.addEventListener('change', function(){
+                    if (this.value) {
+                        fin.min = this.value;
+                        if (fin.value && fin.value < this.value) {
+                            fin.value = '';
+                        }
+                    } else {
+                        fin.min = '';
+                    }
+                });
+            })();
+
+        })();
         AOS.init();
     </script>
 

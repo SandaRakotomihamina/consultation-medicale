@@ -40,6 +40,7 @@
             flex-direction: column;
             gap: 1.2rem;
             width: 100%;
+            position: relative;
         }
 
         .consultation-form label {
@@ -205,16 +206,18 @@
                 }) }}
             </div>
             {# Matricule #}
-            <div data-personnel-lookup-target="matriculeField">
+            <div data-personnel-lookup-target="matriculeField" style="position: relative;">
                 <label for="user_matricule" data-personnel-lookup-target="matriculeLabel">Matricule</label>
                 {{ form_widget(form.matricule, {
                     'attr': {
                         'data-personnel-lookup-target': 'matricule',
                         'data-action': 'input->personnel-lookup#searchPersonnel',
-                        'id': 'user_matricule'
+                        'id': 'user_matricule',
+                        'autocomplete': 'off'
                     }
                 }) }}
                 <div class="error-message" id="matricule-error" data-personnel-lookup-target="errorMessage"></div>
+                <div class="suggestions-container" data-personnel-lookup-target="suggestions" style="display: none; position: absolute; background: white; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 0.25rem; max-height: 300px; overflow-y: auto; z-index: 1000; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); top: 100%;"></div>
             </div>
 
             {# Grade #}

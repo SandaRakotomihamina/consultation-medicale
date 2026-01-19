@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\PersonnelRepository;
 use App\Repository\UserRepository;
 use App\Repository\DemandeDeConsultationRepository;
@@ -24,9 +23,9 @@ class ApiController extends AbstractController
     #[Route('/api/personnel/{matricule}', name: 'api_personnel')]
     public function getPersonnelbyAPI($matricule): JsonResponse {
 
-        // if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
-        //     return new JsonResponse(['error' => 'Accès refusé'], 403);
-        // }
+        if (!$this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
 
         if (!$matricule) {
             return new JsonResponse(['error' => 'Matricule manquant'], 400);
@@ -38,13 +37,13 @@ class ApiController extends AbstractController
             'verify_host' => false,
         ]);
 
-        $url = "https://192.168.56.104:7000/apigrh/client?keyword=BYMLE&mle=" . $matricule;
+        $url = "http://10.254.52.116:7000/apigrh/client?keyword=BYMLE&mle=" . $matricule;
 
         try {
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'Authorization' => 'Bearer API_KEY',
-                    'x-api-key'     => 'client@gmail.com',
+                    'Authorization' => 'rYihKSmzx8NiI4koQgaldspnQR9tXGQhw',
+                    'x-api-key'     => 'sm@gendarmerie.gov.mg',
                     'Accept'        => 'application/json',
                 ]
             ]);
@@ -68,6 +67,7 @@ class ApiController extends AbstractController
         return new JsonResponse([
             'nom' => ($data['NOMPERS'] ?? '') . ' ' . ($data['PRENOM'] ?? ''),
             'grade' => $data['ABREVGRADE'] ?? null,
+            'LIBUTE' => $data['UNITE'] ?? null,
             'found' => !empty($data),
         ]);
     }
@@ -111,6 +111,10 @@ class ApiController extends AbstractController
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
         $data = json_decode($request->getContent(), true);
         $matricule = $data['matricule'] ?? null;
         $username = $data['username'] ?? null;
@@ -138,14 +142,52 @@ class ApiController extends AbstractController
     }
 
     #############################################################################################################
+    #######################API pour vérifier l'existence d'une unité########################################
+    #############################################################################################################
+    #[Route('/api/check-unite-exists', name: 'api_check_unite_exists', methods: ['POST'])]
+    public function checkUniteExists(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $codute = $data['codute'] ?? null;
+        $libute = $data['libute'] ?? null;
+        $local = $data['local'] ?? null;
+
+        $errors = [];
+
+        if ($codute && $libute && $local) {
+            $existingUser = $userRepository->findOneBy([
+                'CODUTE' => $codute,
+                'LIBUTE' => $libute,
+                'LOCAL' => $local
+            ]);
+            if ($existingUser) {
+                $errors['unite'] = 'Un compte existe déjà pour cette unité (' . $codute . ' - ' . $libute . ' ' . $local . ').';
+            }
+        }
+
+        return new JsonResponse([
+            'exists' => !empty($errors),
+            'errors' => $errors
+        ]);
+    }
+
+    #############################################################################################################
     ####################################API pour unité de la version PROD########################################
     #############################################################################################################
     #[Route('/api/unite/{libte}', name: 'api_unite')]
     public function getUniteByAPI($libte): JsonResponse
     {
-        // if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
-        //     return new JsonResponse(['error' => 'Accès refusé'], 403);
-        // }
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
 
         if (!$libte) {
             return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
@@ -157,13 +199,13 @@ class ApiController extends AbstractController
             'verify_host' => false,
         ]);
 
-        $url = 'https://192.168.56.104:7000/apigrh/clent?keyword=ONEUTE&libute=' . urlencode($libte);
+        $url = 'http://10.254.52.116:7000/apigrh/client?keyword=ALLUTEGN';
 
         try {
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'Authorization' => 'API_KEY',
-                    'x-api-key'     => 'name@example.com',
+                    'Authorization' => 'rYihKSmzx8NiI4koQgaldspnQR9tXGQhw',
+                    'x-api-key'     => 'sm@gendarmerie.gov.mg',
                     'Accept'        => 'application/json',
                 ]
             ]);
@@ -182,45 +224,146 @@ class ApiController extends AbstractController
         }
 
         $json = $response->toArray(false);
-        $data = $json[0] ?? $json ?? [];
+        $unites = is_array($json) ? $json : [];
+
+        // Rechercher dans la liste complète des unités
+        $searchTerm = strtoupper($libte);
+        $matches = [];
+        
+        foreach ($unites as $unite) {
+            $unity = strtoupper($unite['UNITY'] ?? '');
+            if (strpos($unity, $searchTerm) !== false) {
+                $matches[] = $unite;
+            }
+        }
+
+        if (empty($matches)) {
+            return new JsonResponse(['error' => 'Non trouvé'], 404);
+        }
+
+        // Prendre la première correspondance
+        $data = $matches[0];
+        $unity = $data['UNITY'] ?? '';
+        $parts = explode(' ', trim($unity), 2);
+        $libute = $parts[0] ?? '';
+        $local = $parts[1] ?? '';
 
         return new JsonResponse([
-            'CODUTE' => $data['CODUTE'] ?? $data['codute'] ?? null,
-            'LOCAL' => $data['LOCAL'] ?? $data['local'] ?? null,
-            'LIBUTE' => $data['LIBUTE'] ?? $libte,
-            'found' => !empty($data),
+            'CODUTE' => $data['CODUTE'] ?? null,
+            'LOCAL' => $local,
+            'LIBUTE' => $libute,
+            'found' => true,
         ]);
+    }
+
+    #############################################################################################################
+    ############################API pour rechercher les suggestions d'unités#####################################
+    #############################################################################################################
+    #[Route('/api/unite-search', name: 'api_unite_search_suggestions', methods: ['GET'])]
+    public function searchUniteSuggestions(Request $request): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $searchTerm = $request->query->get('q', '');
+
+        if (strlen($searchTerm) < 2) {
+            return new JsonResponse(['suggestions' => []]);
+        }
+
+        $client = HttpClient::create([
+            'timeout' => 5,
+            'verify_peer' => false,
+            'verify_host' => false,
+        ]);
+
+        $url = 'http://10.254.52.116:7000/apigrh/client?keyword=ALLUTEGN';
+
+        try {
+            $response = $client->request('GET', $url, [
+                'headers' => [
+                    'Authorization' => 'rYihKSmzx8NiI4koQgaldspnQR9tXGQhw',
+                    'x-api-key'     => 'sm@gendarmerie.gov.mg',
+                    'Accept'        => 'application/json',
+                ]
+            ]);
+        }
+        catch (TimeoutExceptionInterface $e) {
+            return new JsonResponse(['error' => 'Timeout API Unite'], 504);
+        }
+        catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur API Unite : '.$e->getMessage()], 500);
+        }
+
+        $status = $response->getStatusCode();
+
+        if ($status !== 200) {
+            return new JsonResponse(['suggestions' => []]);
+        }
+
+        $json = $response->toArray(false);
+        $unites = is_array($json) ? $json : [];
+
+        // Rechercher dans la liste complète des unités
+        $searchTermUpper = strtoupper($searchTerm);
+        $suggestions = [];
+        
+        foreach ($unites as $unite) {
+            $unity = strtoupper($unite['UNITY'] ?? '');
+            if (strpos($unity, $searchTermUpper) !== false) {
+                $suggestions[] = [
+                    'CODUTE' => $unite['CODUTE'] ?? null,
+                    'UNITY' => $unite['UNITY'] ?? '',
+                ];
+            }
+            if (count($suggestions) >= 10) {
+                break;
+            }
+        }
+
+        return new JsonResponse(['suggestions' => $suggestions]);
     }
 
 
     #############################################################################################################
     ####################################API pour unité de la version DEV#########################################
     #############################################################################################################
-    #[Route('/api/unite-local', name: 'api_unite_search')]
+    #[Route('/api/unite-search-local', name: 'api_unite_search')]
     public function searchUnite(Request $request, \App\Repository\UniteRepository $uniteRepository): JsonResponse
     {
         if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
-        $libute = $request->query->get('libte');
+        $searchTerm = (string) $request->query->get('q', '');
 
-        if (!$libute) {
-            return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
+        if (strlen($searchTerm) < 2) {
+            return new JsonResponse(['suggestions' => []]);
         }
 
-        // Chercher par LIBUTE exact. On prend le premier résultat trouvé.
-        $unite = $uniteRepository->findOneBy(['LIBUTE' => $libute]);
+        $qb = $uniteRepository->createQueryBuilder('u')
+            ->where('LOWER(u.LIBUTE) LIKE :q OR LOWER(u.LOCAL) LIKE :q')
+            ->setParameter('q', '%'.strtolower($searchTerm).'%')
+            ->setMaxResults(10);
 
-        if (!$unite) {
-            return new JsonResponse(['found' => false], 404);
+        $results = $qb->getQuery()->getResult();
+
+        $suggestions = [];
+        foreach ($results as $u) {
+            $libute = method_exists($u, 'getLIBUTE') ? $u->getLIBUTE() : (property_exists($u, 'LIBUTE') ? $u->LIBUTE : '');
+            $local = method_exists($u, 'getLOCAL') ? $u->getLOCAL() : (property_exists($u, 'LOCAL') ? $u->LOCAL : '');
+            $codute = method_exists($u, 'getCODUTE') ? $u->getCODUTE() : (property_exists($u, 'CODUTE') ? $u->CODUTE : null);
+
+            $unity = trim(($libute ?? '') . ' ' . ($local ?? ''));
+
+            $suggestions[] = [
+                'CODUTE' => $codute,
+                'UNITY' => $unity,
+            ];
         }
 
-        return new JsonResponse([
-            'CODUTE' => $unite->getCODUTE(),
-            'LOCAL' => $unite->getLOCAL(),
-            'found' => true,
-        ]);
+        return new JsonResponse(['suggestions' => $suggestions]);
     }
 
 

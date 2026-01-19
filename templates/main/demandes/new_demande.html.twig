@@ -160,7 +160,7 @@
 
         {{ form_start(form) }}
 
-        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="false" data-personnel-lookup-user-libute-value="{{ app.user.libute }}">
+        <div class="consultation-form" data-controller="personnel-lookup" data-personnel-lookup-check-user-exists-value="false" data-personnel-lookup-user-libute-value="{{ app.user.libute }}" data-personnel-lookup-user-local-value="{{ app.user.local }}">
             <div>
                 {{ form_label(form.Matricule) }}
                 {{ form_widget(form.Matricule, {

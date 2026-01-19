@@ -1,8 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ['matricule', 'nom', 'grade', 'libute', 'codute', 'local', 'errorMessage', 'roles', 'matriculeLabel', 'gradeLabel', 'nomLabel', 'matriculeField', 'gradeField', 'nomField', 'coduteField', 'libuteField', 'localField'];
-    static values = { checkUserExists: Boolean, userLibute: String };
+    static targets = ['matricule', 'nom', 'grade', 'libute', 'codute', 'local', 'errorMessage', 'roles', 'matriculeLabel', 'gradeLabel', 'nomLabel', 'matriculeField', 'gradeField', 'nomField', 'coduteField', 'libuteField', 'localField', 'suggestions'];
+    static values = { checkUserExists: Boolean, userLibute: String, userLocal: String };
     
     connect() {
         this.debounceTimer = null;
@@ -36,6 +36,13 @@ export default class extends Controller {
 
         // Mettre à jour les labels au chargement
         this.updateLabels();
+
+        // Fermer les suggestions en cliquant en dehors
+        document.addEventListener('click', (e) => {
+            if (!this.element.contains(e.target)) {
+                this.closeSuggestions();
+            }
+        });
     }
 
     onRoleChange() {
@@ -53,6 +60,7 @@ export default class extends Controller {
         if (this.hasCoduteTarget) this.coduteTarget.value = '';
         if (this.hasLocalTarget) this.localTarget.value = '';
         this.matriculeAllowed = true;
+        this.closeSuggestions();
     }
 
     updateModeFromRoles() {
@@ -115,12 +123,19 @@ export default class extends Controller {
             if (this.hasLocalTarget) {
                 this.localTarget.value = '';
             }
+            this.closeSuggestions();
             return;
         }
 
         clearTimeout(this.debounceTimer);
         this.debounceTimer = setTimeout(async () => {
             try {
+                // Si on est en mode unité, chercher les suggestions d'unités
+                if (this.isUniteMode) {
+                    await this.searchUniteSuggestions(matricule);
+                    return;
+                }
+
                 // Vérifier si l'utilisateur existe déjà dans la table User (si activé)
                 // Quand on est en mode unité (recherche par LIBUTE), on ne fait pas cette vérification
                 if (this.checkUserExistsValue && !this.isUniteMode) {
@@ -158,56 +173,9 @@ export default class extends Controller {
                     }
                 }
 
-                // Si on est en mode unité, chercher dans les unités par LIBUTE (libellé)
-                if (this.isUniteMode) {
-                    // À modifier : end-point pour appeler l'API d'unité par libellé
-                    const response = await fetch(`/api/unite-local?libte=${encodeURIComponent(matricule)}`);
-
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            this.showError('Unité non trouvée avec ce libelé.');
-                        } else if (response.status === 403) {
-                            this.showError('Accès refusé lors de la recherche de l\'unité.');
-                        } else {
-                            this.showError('Erreur lors de la recherche de l\'unité.');
-                        }
-
-                        this.matriculeTarget.style.borderColor = '#dc3545';
-                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
-                        this.nomTarget.value = '';
-                        this.gradeTarget.value = '';
-                        if (this.hasLibuteTarget) this.libuteTarget.value = '';
-
-                        return;
-                    }
-
-                    const data = await response.json();
-
-                    if (data.found) {
-                        this.hideError();
-                        // Remplir CODUTE -> coduteTarget, LOCAL -> localTarget, et LIBUTE caché -> libuteTarget
-                        if (this.hasCoduteTarget) this.coduteTarget.value = data.CODUTE || '';
-                        if (this.hasLocalTarget) this.localTarget.value = data.LOCAL || '';
-                        if (this.hasLibuteTarget) this.libuteTarget.value = matricule || data.LIBUTE || '';
-
-                        this.matriculeTarget.style.borderColor = '#28a745';
-                        this.matriculeTarget.style.backgroundColor = '#f0fff4';
-                    } else {
-                        this.showError('Unité non trouvée avec ce libelé.');
-                        this.matriculeTarget.style.borderColor = '#dc3545';
-                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
-
-                        this.nomTarget.value = '';
-                        this.gradeTarget.value = '';
-                        if (this.hasLibuteTarget) this.libuteTarget.value = '';
-                    }
-
-                    return;
-                }
-
                 // Sinon, comportement précédent : chercher le personnel
-                // À modifier : end-point pour appeler l'API de personnel
-                const response = await fetch(`/api/personnel-local/${encodeURIComponent(matricule)}`);
+                // À modifier : end-point pour appeler l'API de personnel (DEV ou PROD selon l'environnement)
+                const response = await fetch(`/api/personnel/${encodeURIComponent(matricule)}`);
 
                 if (!response.ok) {
                     if (response.status === 404) {
@@ -235,9 +203,10 @@ export default class extends Controller {
 
                         // Vérifier que la LIBUTE du personnel correspond à celle de l'utilisateur connecté
                         if (this.hasUserLibuteValue && this.userLibuteValue) {
-                            const userLibute = (this.userLibuteValue || '').toString();
+                            const userUnite = ((this.userLibuteValue || '') + ' ' + (this.userLocalValue || '')).toString().trim();
+                            console.log('Vérification LIBUTE:', { personLibute, userUnite });
 
-                            if (personLibute !== '' && userLibute !== '' && personLibute !== userLibute) {
+                            if (personLibute !== '' && userUnite !== '' && personLibute !== userUnite) {
                                 // Ne pas remplir les champs et bloquer la soumission
                                 if (this.hasNomTarget) this.nomTarget.value = '';
                                 if (this.hasGradeTarget) this.gradeTarget.value = '';
@@ -275,6 +244,134 @@ export default class extends Controller {
                 this.matriculeTarget.style.backgroundColor = '#fff5f5';
             }
         }, 500);
+    }
+
+    async searchUniteSuggestions(searchTerm) {
+        try {
+            this.closeSuggestions();
+            
+            if (searchTerm.length < 2) {
+                return;
+            }
+
+            // À modifier : end-point pour appeler l'API d'unité (DEV ou PROD selon l'environnement)
+            const response = await fetch(`/api/unite-search?q=${encodeURIComponent(searchTerm)}`);
+
+            if (!response.ok) {
+                this.closeSuggestions();
+                return;
+            }
+
+            const data = await response.json();
+            const suggestions = data.suggestions || [];
+
+            if (suggestions.length === 0) {
+                this.closeSuggestions();
+                return;
+            }
+
+            this.displaySuggestions(suggestions);
+        } catch (error) {
+            console.error('Erreur lors de la recherche des suggestions:', error);
+            this.closeSuggestions();
+        }
+    }
+
+    displaySuggestions(suggestions) {
+        if (!this.hasSuggestionsTarget) {
+            return;
+        }
+
+        const container = this.suggestionsTarget;
+        container.innerHTML = '';
+
+        suggestions.forEach((suggestion, index) => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.innerHTML = `
+                <strong>${suggestion.UNITY}</strong>
+                <small>${suggestion.CODUTE}</small>
+            `;
+            div.style.cursor = 'pointer';
+            div.style.padding = '0.75rem';
+            div.style.borderBottom = '1px solid var(--border-color)';
+            div.style.transition = 'background-color 0.2s ease';
+            
+            div.addEventListener('mouseenter', () => {
+                div.style.backgroundColor = 'var(--bg-secondary, #f5f5f5)';
+            });
+            
+            div.addEventListener('mouseleave', () => {
+                div.style.backgroundColor = 'transparent';
+            });
+
+            div.addEventListener('click', () => {
+                this.selectSuggestion(suggestion);
+            });
+
+            container.appendChild(div);
+        });
+
+        container.style.display = 'block';
+    }
+
+    async selectSuggestion(suggestion) {
+        const unity = suggestion.UNITY || '';
+        const parts = unity.split(' ');
+        
+        const codute = suggestion.CODUTE || '';
+        const libute = parts[0] || '';
+        const local = parts.slice(1).join(' ') || '';
+
+        // Vérifier si l'unité existe déjà pour un utilisateur (en mode unité)
+        if (this.isUniteMode && this.checkUserExistsValue) {
+            try {
+                const checkResponse = await fetch('/api/check-unite-exists', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        codute: codute,
+                        libute: libute,
+                        local: local
+                    })
+                });
+
+                if (checkResponse.ok) {
+                    const checkData = await checkResponse.json();
+                    if (checkData && checkData.errors && checkData.errors.unite) {
+                        // Une unité avec la même combinaison existe déjà
+                        this.showError(checkData.errors.unite);
+                        this.matriculeTarget.style.borderColor = '#dc3545';
+                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                        this.closeSuggestions();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Erreur lors de la vérification d\'existance de l\'unité:', e);
+                // On continue même si la vérification échoue
+            }
+        }
+
+        if (this.hasCoduteTarget) this.coduteTarget.value = codute;
+        if (this.hasLibuteTarget) this.libuteTarget.value = libute;
+        if (this.hasLocalTarget) this.localTarget.value = local;
+        if (this.hasMatriculeTarget) this.matriculeTarget.value = unity;
+
+        this.matriculeTarget.style.borderColor = '#28a745';
+        this.matriculeTarget.style.backgroundColor = '#f0fff4';
+
+        this.hideError();
+        this.closeSuggestions();
+    }
+
+    closeSuggestions() {
+        if (this.hasSuggestionsTarget) {
+            this.suggestionsTarget.style.display = 'none';
+            this.suggestionsTarget.innerHTML = '';
+        }
     }
 
     showError(message) {

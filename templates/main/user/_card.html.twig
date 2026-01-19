@@ -193,19 +193,19 @@
                 <div style="display: flex; gap: .2rem;">
                     
                     {% if 'ROLE_USER' in user.roles %}
-                        <span class="grade" title="{{user.libute}}">{{ user.libute }}</span>
-                        <span class="name" style="margin-left: 0.5rem;" title="{{user.local}}">{{ user.local }}</span>
+                        <span class="grade" title="Libelé unité: {{user.libute}}">{{ user.libute }}</span>
+                        <span class="name" style="margin-left: 0.5rem;" title="Localisation: {{user.local}}">{{ user.local }}</span>
                     {% else %}
                         <span class="grade" title="{{user.title}}">{{ user.title }}</span>
-                        <span class="name" style="margin-left: 0.5rem;" title="{{user.name}}">{{ user.name }}</span>
+                        <span class="name" style="margin-left: 0.5rem;" title="Nom: {{user.name}}">{{ user.name }}</span>
                     {% endif %}
                     
                 </div>
 
                 {% if 'ROLE_USER' in user.roles %}
-                    <span class="matricule" title="{{user.title}}">{{ user.codute }}</span>
+                    <span class="matricule" title="Code unité: {{user.codute}}">{{ user.codute }}</span>
                 {% else %}
-                    <span class="matricule" title="{{user.matricule}}">{{ user.matricule }}</span>
+                    <span class="matricule" title="Matricule: {{user.matricule}}">{{ user.matricule }}</span>
                 {% endif %}
             </div>
         </div>

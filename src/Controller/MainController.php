@@ -12,6 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\ConsultationList;
 use App\Entity\DemandeDeConsultation;
 use App\Entity\User;
+use App\Entity\ExemptionOption;
+use App\Entity\AdresseOption;
 use App\Form\ConsultationType;
 use App\Form\UserType;
 use App\Repository\ConsultationListRepository;
@@ -421,7 +423,38 @@ final class MainController extends AbstractController
             $consultation->setDelivreurDeMotif($request->request->get('delivreur_de_motif'));
             $consultation->setObservation($request->request->get('observation'));
             $consultation->setDelivreurDObservation($request->request->get('delivreur_d_observation'));
-            $consultation->setRepos($request->request->get('repos'));
+            $consultation->setLIBUTE($request->request->get('libute'));
+            
+            // Handle Exemption - si disabled, sera null
+            $exemptions = $request->request->all('exemption') ?? [];
+            $consultation->setExemption(empty($exemptions) ? null : $exemptions);
+            
+            // Handle dates exemption - si disabled, sera null
+            $debutExemption = $request->request->get('debut_exemption');
+            if ($debutExemption) {
+                $consultation->setDebutExemption(new \DateTime($debutExemption));
+            } else {
+                $consultation->setDebutExemption(null);
+            }
+            
+            $finExemption = $request->request->get('fin_exemption');
+            if ($finExemption) {
+                $consultation->setFinExemption(new \DateTime($finExemption));
+            } else {
+                $consultation->setFinExemption(null);
+            }
+            
+            // Handle Adresse - si disabled, sera null
+            $adresses = $request->request->all('adresse') ?? [];
+            $consultation->setAdrresse(empty($adresses) ? null : $adresses);
+            
+            // Handle PATC - si disabled, sera null
+            $patc = $request->request->get('patc');
+            $consultation->setPATC($patc ? (int)$patc : null);
+            
+            // Handle Repos - si disabled, sera vide/null
+            $repos = $request->request->get('repos');
+            $consultation->setRepos($repos ?: null);
 
             $em->persist($consultation);
             $em->flush();
@@ -430,8 +463,14 @@ final class MainController extends AbstractController
             return $this->redirectToRoute('app_main');
         }
 
+        // Get exemption and adresse options
+        $exemptionOptions = $doctrine->getRepository(ExemptionOption::class)->findAll();
+        $adresseOptions = $doctrine->getRepository(AdresseOption::class)->findAll();
+
         return $this->render('main/consultations/edit_consultation.html.twig', [
-            'consultation' => $consultation
+            'consultation' => $consultation,
+            'exemptionOptions' => $exemptionOptions,
+            'adresseOptions' => $adresseOptions
         ]);
     }
 

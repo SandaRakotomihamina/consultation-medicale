@@ -86,6 +86,15 @@
             
             let lastId = parseInt(feed.dataset.lastId) || 0;
             let isPolling = true;
+            let isCheckingNow = false; // Éviter les appels concurrents
+            let processedIds = new Set(); // Tracker des demandes déjà traitées
+            
+            // Initialiser avec les IDs des demandes existantes
+            const existingCards = feed.querySelectorAll('[data-demande-id]');
+            existingCards.forEach(card => {
+                const id = card.dataset.demandeId;
+                if (id) processedIds.add(parseInt(id));
+            });
             
             function showFlashMessage(message, type = 'info') {
                 const flash = document.createElement('div');
@@ -115,7 +124,9 @@
             }
             
             function checkNewDemandes() {
-                if (!isPolling) return;
+                if (!isPolling || isCheckingNow) return;
+                
+                isCheckingNow = true;
                 
                 fetch(`/api/demandes/check-new?lastId=${lastId}`)
                     .then(response => response.json())
@@ -126,26 +137,40 @@
                             tempDiv.innerHTML = data.html;
                             const newCards = Array.from(tempDiv.children);
                             
+                            let addedCount = 0;
                             newCards.forEach((card, index) => {
-                                setTimeout(() => {
-                                    feed.insertBefore(card, feed.firstChild);
-                                    AOS.refresh();
-                                }, index * 100);
+                                const cardId = card.dataset.demandeId;
+                                
+                                // Vérifier si la carte n'a pas déjà été ajoutée
+                                if (cardId && !processedIds.has(parseInt(cardId))) {
+                                    processedIds.add(parseInt(cardId));
+                                    addedCount++;
+                                    
+                                    setTimeout(() => {
+                                        feed.insertBefore(card, feed.firstChild);
+                                        AOS.refresh();
+                                    }, index * 100);
+                                }
                             });
                             
                             // Mettre à jour le lastId
                             lastId = data.lastId;
                             feed.dataset.lastId = lastId;
                             
-                            // Afficher le message flash
-                            const message = data.count === 1 
-                                ? 'Nouvelle demande de consultation reçue' 
-                                : `${data.count} Nouvelles demandes de consultation reçues`;
-                            showFlashMessage(message, 'info');
+                            // Afficher le message flash uniquement si des cartes ont été ajoutées
+                            if (addedCount > 0) {
+                                const message = addedCount === 1 
+                                    ? 'Nouvelle demande de consultation reçue' 
+                                    : `${addedCount} Nouvelles demandes de consultation reçues`;
+                                showFlashMessage(message, 'info');
+                            }
                         }
                     })
                     .catch(error => {
                         console.error('Erreur lors de la vérification des nouvelles demandes:', error);
+                    })
+                    .finally(() => {
+                        isCheckingNow = false;
                     });
             }
             
