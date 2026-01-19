@@ -141,123 +141,9 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #############################################################################################################
-    #######################API pour vérifier l'existence d'une unité########################################
-    #############################################################################################################
-    #[Route('/api/check-unite-exists', name: 'api_check_unite_exists', methods: ['POST'])]
-    public function checkUniteExists(Request $request, UserRepository $userRepository): JsonResponse
-    {
-        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        $codute = $data['codute'] ?? null;
-        $libute = $data['libute'] ?? null;
-        $local = $data['local'] ?? null;
-
-        $errors = [];
-
-        if ($codute && $libute && $local) {
-            $existingUser = $userRepository->findOneBy([
-                'CODUTE' => $codute,
-                'LIBUTE' => $libute,
-                'LOCAL' => $local
-            ]);
-            if ($existingUser) {
-                $errors['unite'] = 'Un compte existe déjà pour cette unité (' . $codute . ' - ' . $libute . ' ' . $local . ').';
-            }
-        }
-
-        return new JsonResponse([
-            'exists' => !empty($errors),
-            'errors' => $errors
-        ]);
-    }
 
     #############################################################################################################
-    ####################################API pour unité de la version PROD########################################
-    #############################################################################################################
-    #[Route('/api/unite/{libte}', name: 'api_unite')]
-    public function getUniteByAPI($libte): JsonResponse
-    {
-        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
-
-        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
-
-        if (!$libte) {
-            return new JsonResponse(['error' => 'LIBUTE manquant'], 400);
-        }
-
-        $client = HttpClient::create([
-            'timeout' => 5,
-            'verify_peer' => false,
-            'verify_host' => false,
-        ]);
-
-        $url = 'http://10.254.52.116:7000/apigrh/client?keyword=ALLUTEGN';
-
-        try {
-            $response = $client->request('GET', $url, [
-                'headers' => [
-                    'Authorization' => 'rYihKSmzx8NiI4koQgaldspnQR9tXGQhw',
-                    'x-api-key'     => 'sm@gendarmerie.gov.mg',
-                    'Accept'        => 'application/json',
-                ]
-            ]);
-        }
-        catch (TimeoutExceptionInterface $e) {
-            return new JsonResponse(['error' => 'Timeout API Unite'], 504);
-        }
-        catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Erreur API Unite : '.$e->getMessage()], 500);
-        }
-
-        $status = $response->getStatusCode();
-
-        if ($status !== 200) {
-            return new JsonResponse(['error' => 'Non trouvé'], 404);
-        }
-
-        $json = $response->toArray(false);
-        $unites = is_array($json) ? $json : [];
-
-        // Rechercher dans la liste complète des unités
-        $searchTerm = strtoupper($libte);
-        $matches = [];
-        
-        foreach ($unites as $unite) {
-            $unity = strtoupper($unite['UNITY'] ?? '');
-            if (strpos($unity, $searchTerm) !== false) {
-                $matches[] = $unite;
-            }
-        }
-
-        if (empty($matches)) {
-            return new JsonResponse(['error' => 'Non trouvé'], 404);
-        }
-
-        // Prendre la première correspondance
-        $data = $matches[0];
-        $unity = $data['UNITY'] ?? '';
-        $parts = explode(' ', trim($unity), 2);
-        $libute = $parts[0] ?? '';
-        $local = $parts[1] ?? '';
-
-        return new JsonResponse([
-            'CODUTE' => $data['CODUTE'] ?? null,
-            'LOCAL' => $local,
-            'LIBUTE' => $libute,
-            'found' => true,
-        ]);
-    }
-
-    #############################################################################################################
-    ############################API pour rechercher les suggestions d'unités#####################################
+    #################################API pour unité de la version PROD###########################################
     #############################################################################################################
     #[Route('/api/unite-search', name: 'api_unite_search_suggestions', methods: ['GET'])]
     public function searchUniteSuggestions(Request $request): JsonResponse
@@ -366,6 +252,40 @@ class ApiController extends AbstractController
         return new JsonResponse(['suggestions' => $suggestions]);
     }
 
+
+    #############################################################################################################
+    ############################API pour vérifier l'existence d'une unité########################################
+    #############################################################################################################
+    #[Route('/api/check-unite-exists', name: 'api_check_unite_exists', methods: ['POST'])]
+    public function checkUniteExists(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $codute = $data['codute'] ?? null;
+        $libute = $data['libute'] ?? null;
+        $local = $data['local'] ?? null;
+
+        $errors = [];
+
+        if ($codute && $libute && $local) {
+            $existingUser = $userRepository->findOneBy([
+                'CODUTE' => $codute,
+                'LIBUTE' => $libute,
+                'LOCAL' => $local
+            ]);
+            if ($existingUser) {
+                $errors['unite'] = 'Un compte existe déjà pour l\'unité '. $libute . ' ' . $local .' - ' . $codute .'.';
+            }
+        }
+
+        return new JsonResponse([
+            'exists' => !empty($errors),
+            'errors' => $errors
+        ]);
+    }
 
     #############################################################################################################
     #######################API pour vérifier les nouvelles demandes de consultation##############################

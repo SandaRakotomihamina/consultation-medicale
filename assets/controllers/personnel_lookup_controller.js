@@ -18,7 +18,7 @@ export default class extends Controller {
                     this.showError('Ce personnel ne peut pas faire de demande dans cette unité.');
                     if (this.hasMatriculeTarget) {
                         this.matriculeTarget.style.borderColor = '#dc3545';
-                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                        this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
                     }
                 }
             });
@@ -161,7 +161,7 @@ export default class extends Controller {
                             if (checkData && checkData.errors && checkData.errors.matricule) {
                                 this.showError(checkData.errors.matricule);
                                 this.matriculeTarget.style.borderColor = '#dc3545';
-                                this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                                this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
                                 this.nomTarget.value = '';
                                 this.gradeTarget.value = '';
                                 return;
@@ -175,7 +175,7 @@ export default class extends Controller {
 
                 // Sinon, comportement précédent : chercher le personnel
                 // À modifier : end-point pour appeler l'API de personnel (DEV ou PROD selon l'environnement)
-                const response = await fetch(`/api/personnel/${encodeURIComponent(matricule)}`);
+                const response = await fetch(`/api/personnel-local/${encodeURIComponent(matricule)}`);
 
                 if (!response.ok) {
                     if (response.status === 404) {
@@ -187,7 +187,7 @@ export default class extends Controller {
                     }
 
                     this.matriculeTarget.style.borderColor = '#dc3545';
-                    this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                    this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
                     this.nomTarget.value = '';
                     this.gradeTarget.value = '';
                     if (this.hasLibuteTarget) this.libuteTarget.value = '';
@@ -214,7 +214,7 @@ export default class extends Controller {
 
                                 this.showError('Ce personnel ne peut pas faire de demande dans cette unité.');
                                 this.matriculeTarget.style.borderColor = '#dc3545';
-                                this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                                this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
                                 this.matriculeAllowed = false;
                                 return;
                             }
@@ -227,11 +227,11 @@ export default class extends Controller {
 
                         this.matriculeAllowed = true;
                         this.matriculeTarget.style.borderColor = '#28a745';
-                        this.matriculeTarget.style.backgroundColor = '#f0fff4'; 
+                        this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)'; 
                     } else {
                         this.showError('Personnel non trouvé avec ce matricule.');
                         this.matriculeTarget.style.borderColor = '#dc3545';
-                        this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                        this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
 
                         this.nomTarget.value = '';
                         this.gradeTarget.value = '';
@@ -241,7 +241,7 @@ export default class extends Controller {
                 console.error('Erreur lors de la recherche:', error);
                 this.showError('Erreur lors de la recherche.');
                 this.matriculeTarget.style.borderColor = '#dc3545';
-                this.matriculeTarget.style.backgroundColor = '#fff5f5';
+                this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
             }
         }, 500);
     }
@@ -255,7 +255,7 @@ export default class extends Controller {
             }
 
             // À modifier : end-point pour appeler l'API d'unité (DEV ou PROD selon l'environnement)
-            const response = await fetch(`/api/unite-search?q=${encodeURIComponent(searchTerm)}`);
+            const response = await fetch(`/api/unite-search-local?q=${encodeURIComponent(searchTerm)}`);
 
             if (!response.ok) {
                 this.closeSuggestions();
@@ -361,7 +361,7 @@ export default class extends Controller {
         if (this.hasMatriculeTarget) this.matriculeTarget.value = unity;
 
         this.matriculeTarget.style.borderColor = '#28a745';
-        this.matriculeTarget.style.backgroundColor = '#f0fff4';
+        this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
 
         this.hideError();
         this.closeSuggestions();
@@ -391,6 +391,6 @@ export default class extends Controller {
     clearErrors() {
         this.hideError();
         this.matriculeTarget.style.borderColor = '#d1d1d1';
-        this.matriculeTarget.style.backgroundColor = '#fafafa';
+        this.matriculeTarget.style.backgroundColor = 'var(--bg-secondary)';
     }
 }
