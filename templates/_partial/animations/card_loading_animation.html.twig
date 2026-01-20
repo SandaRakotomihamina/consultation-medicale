@@ -1,8 +1,8 @@
 <style>
     .skeleton-loader {
-        background-color: #fff;
+        background-color: var(--bg-primary);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px var(--shadow-dark);
         overflow: hidden;
         margin-bottom: 1.5rem;
     }
@@ -12,7 +12,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .skeleton-user-info {
@@ -25,14 +25,14 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
     }
 
     .skeleton-text-short {
         height: 0.75rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;
@@ -42,7 +42,7 @@
 
     .skeleton-text-long {
         height: 0.75rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;
@@ -60,7 +60,7 @@
     .skeleton-date {
         width: 80px;
         height: 0.75rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;
@@ -79,10 +79,10 @@
     .skeleton-info-block {
         flex: 1;
         min-width: 200px;
-        border: 1px solid #eee;
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 1.5rem 1rem 1rem 1rem;
-        background-color: #f9f9f9;
+        background-color: var(--bg-tertiary);
         position: relative;
     }
 
@@ -90,11 +90,11 @@
         position: absolute;
         top: -0.8rem;
         left: 1rem;
-        background-color: #f9f9f9;
+        background-color: var(--bg-tertiary);
         padding: 0 0.5rem;
         width: 60px;
         height: 0.65rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;
@@ -108,7 +108,7 @@
 
     .skeleton-line {
         height: 0.75rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;
@@ -120,13 +120,13 @@
         align-items: center;
         margin-top: 1rem;
         padding-top: 0.8rem;
-        border-top: 1px solid #ddd;
+        border-top: 1px solid var(--border-color);
         gap: 1rem;
     }
 
     .skeleton-footer-item {
         height: 0.7rem;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 4px;

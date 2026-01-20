@@ -64,6 +64,7 @@ final class MainController extends AbstractController
     #[Route('/api/consultations/load-more', name: 'api_consultations_load_more')]
     public function loadMoreConsultations(Request $request, ConsultationListRepository $repository): JsonResponse
     {
+        sleep(5);
         $page = (int)$request->query->get('page', 1);
         $limit = 4;
         $offset = ($page - 1) * $limit;
