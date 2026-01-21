@@ -70,6 +70,13 @@ class PersonnelFixtures extends Fixture
             'CIRGN/ST/ARMS','CIRGN/ST/PIF','CCSR','CIRGN/INS','CIRGN/AS','SRC'
         ];
 
+        $LOCALS = [
+            'ANTANANARIVO', 'TOAMASINA', 'FARAFANGANA', 'MAHAJANGA', 'ANTSIRABE', 'FIANARANTSOA',
+            'TOLAGNARO', 'MIANDRIVAZO', 'AMBATONDRAZAKA', 'MORAMANGA', 'SAMBAVA', 'NOSY BE',
+            'BETROKA', 'IBELOKA', 'TSIHOMBE', 'AMBOVOMBE', 'ANALALAVA', 'ANDILAMENA', 'BESALAMPY',
+            'SOALALA', 'ANKAZOABE', 'ANKARAFANTSIKA', 'MAROVOAY', 'MAHAJANGA II', 'AMBALAVAO', 'VOHIBINANY'
+        ];
+
         for ($i = 1; $i <= 200; $i++) {
             $personnel = new Personnel();
 
@@ -79,10 +86,12 @@ class PersonnelFixtures extends Fixture
             $grade = $grades[array_rand($grades)];
             $nom = $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
             $libute = $LIBUTES[array_rand($LIBUTES)];
+            $local = $LOCALS[array_rand($LOCALS)];
+            $unite = $libute . ' ' . $local;
 
             $personnel->setGrade($grade);
             $personnel->setNom($nom);
-            $personnel->setLIBUTE($libute);
+            $personnel->setLIBUTE($unite);
 
             $manager->persist($personnel);
         }

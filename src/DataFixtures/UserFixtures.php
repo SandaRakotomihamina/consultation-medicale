@@ -30,36 +30,5 @@ class UserFixtures extends Fixture
         $manager->persist($superadmin);
         $manager->flush();
 
-
-        // Create a default admin user for development/testing
-        $admin = new User();
-        $admin->setUsername('admin');
-        $admin->setMatricule('000001');
-        $admin->setTitle('Dr.');
-        $admin->setName('Admin');
-        $admin->setRoles(['ROLE_ADMIN']);
-
-        // Hash the password using the project's configured hasher
-        $hashed = $this->passwordHasher->hashPassword($admin, 'admin');
-        $admin->setPassword($hashed);
-
-        $manager->persist($admin);
-        $manager->flush();
-
-
-        // Create a default user user for development/testing
-        $user = new User();
-        $user->setUsername('user');
-        $user->setCODUTE('A00000');
-        $user->setLIBUTE('COM/DSR/PJ/PT');
-        $user->setLOCAL('ANTANANARIVO');
-        $user->setRoles(['ROLE_USER']);
-
-        // Hash the password using the project's configured hasher
-        $hashed = $this->passwordHasher->hashPassword($user, 'user');
-        $user->setPassword($hashed);
-
-        $manager->persist($user);
-        $manager->flush();
     }
 }

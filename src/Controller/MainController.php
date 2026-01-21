@@ -36,11 +36,13 @@ final class MainController extends AbstractController
         if ($this->isGranted('ROLE_USER')) {
             $user = $this->getUser();
             $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+            $local = ($user instanceof User) ? $user->getLOCAL() : null;
+            $unite = $libute . ' ' . $local;
 
             if ($libute) {
                 $consultations = $repository->createQueryBuilder('c')
-                    ->where('c.LIBUTE = :libute')
-                    ->setParameter('libute', $libute)
+                    ->where('c.LIBUTE = :unite')
+                    ->setParameter('unite', $unite)
                     ->orderBy('c.id', 'DESC')
                     ->setMaxResults(4)
                     ->getQuery()
@@ -72,11 +74,13 @@ final class MainController extends AbstractController
         if ($this->isGranted('ROLE_USER')) {
             $user = $this->getUser();
             $libute = ($user instanceof User) ? $user->getLIBUTE() : null;
+            $local = ($user instanceof User) ? $user->getLOCAL() : null;
+            $unite = $libute . ' ' . $local;
 
             if ($libute) {
                 $consultations = $repository->createQueryBuilder('c')
-                    ->where('c.LIBUTE = :libute')
-                    ->setParameter('libute', $libute)
+                    ->where('c.LIBUTE = :unite')
+                    ->setParameter('unite', $unite)
                     ->orderBy('c.id', 'DESC')
                     ->setFirstResult($offset)
                     ->setMaxResults($limit)

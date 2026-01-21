@@ -342,9 +342,11 @@ class ApiController extends AbstractController
         if ($this->isGranted('ROLE_USER')) {
             $user = $this->getUser();
             $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+            $local = ($user instanceof \App\Entity\User) ? $user->getLOCAL() : null;
+            $unite = $libute . ' ' . $local;
 
             if ($libute) {
-                $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+                $qb->andWhere('c.LIBUTE = :unite')->setParameter('unite', $unite);
                 $newConsultations = $qb->getQuery()->getResult();
             } else {
                 // Pas de LIBUTE déclaré pour l'utilisateur => aucune nouvelle consultation

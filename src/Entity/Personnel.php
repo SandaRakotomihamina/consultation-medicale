@@ -18,7 +18,7 @@ class Personnel
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(type: 'string', length: 35, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $LIBUTE = null;
 
     public function getMatricule(): string
