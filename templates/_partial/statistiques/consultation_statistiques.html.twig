@@ -509,7 +509,7 @@
                 document.addEventListener('keydown', escHandler);
             }
 
-            function createConsultationsHtmlModal(title, html) {
+            function createConsultationsHtmlModal(title, html, type, value) {
                 const existing = document.getElementById('consultations-modal');
                 if (existing) existing.remove();
                 const overlay = document.createElement('div');
@@ -588,16 +588,125 @@
                 panel.appendChild(header);
 
                 const contentWrapper = document.createElement('div');
+                contentWrapper.id = 'consultations-modal-content';
                 contentWrapper.innerHTML = html;
-                // ensure some spacing
                 contentWrapper.style.marginTop = '0.5rem';
                 panel.appendChild(contentWrapper);
+
+                // Ajouter indicateur de chargement
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.id = 'consultations-modal-loading';
+                loadingIndicator.style.display = 'none';
+                loadingIndicator.style.textAlign = 'center';
+                loadingIndicator.style.padding = '1rem';
+                loadingIndicator.style.color = 'var(--text-secondary)';
+                loadingIndicator.innerHTML = '<svg style="width:24px;height:24px;animation:spin 0.6s linear infinite;display:inline-block;margin-right:0.5rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>Chargement...';
+                panel.appendChild(loadingIndicator);
 
                 overlay.appendChild(panel);
                 document.body.appendChild(overlay);
 
-                const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+                // Gérer l'infinite scroll
+                let isLoadingMore = false;
+                let currentPage = 1;
+                let hasMore = true;
+
+                function handleScroll() {
+                    if (isLoadingMore || !hasMore) return;
+
+                    const scrollTop = panel.scrollTop;
+                    const scrollHeight = panel.scrollHeight;
+                    const clientHeight = panel.clientHeight;
+                    const threshold = 300;
+
+                    if ((scrollHeight - scrollTop - clientHeight) < threshold) {
+                        loadMoreItems();
+                    }
+                }
+
+                let skeletonHTML = null;
+
+                async function getSkeletonLoader() {
+                    if (!skeletonHTML) {
+                        try {
+                            const response = await fetch('/template/card-loading-animation');
+                            skeletonHTML = await response.text();
+                        } catch (error) {
+                            console.warn('Skeleton template not found');
+                            skeletonHTML = '';
+                        }
+                    }
+                    return skeletonHTML;
+                }
+
+                function loadMoreItems() {
+                    if (isLoadingMore || !hasMore) return;
+
+                    isLoadingMore = true;
+                    currentPage++;
+
+                    // Ajouter le skeleton loader
+                    (async () => {
+                        const skeleton = await getSkeletonLoader();
+                        contentWrapper.insertAdjacentHTML('beforeend', skeleton);
+                    })();
+
+                    const url = '/statistique/consultations/load-more?type=' + encodeURIComponent(type) + '&value=' + encodeURIComponent(value) + '&page=' + currentPage;
+
+                    fetch(url, { credentials: 'same-origin' })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Supprimer les skeleton loaders
+                            const skeletons = contentWrapper.querySelectorAll('.skeleton-loader');
+                            skeletons.forEach(skeleton => skeleton.remove());
+
+                            if (data.html && data.count > 0) {
+                                contentWrapper.insertAdjacentHTML('beforeend', data.html);
+                                hasMore = data.hasMore;
+
+                                if (!hasMore) {
+                                    const message = document.createElement('p');
+                                    message.style.textAlign = 'center';
+                                    message.style.padding = '1rem';
+                                    message.style.color = 'var(--text-secondary)';
+                                    message.textContent = 'Aucune autre consultation';
+                                    panel.insertBefore(message, loadingIndicator);
+                                    panel.removeEventListener('scroll', handleScroll);
+                                }
+                            }
+                            loadingIndicator.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors du chargement:', error);
+                            loadingIndicator.textContent = 'Erreur lors du chargement';
+                        })
+                        .finally(() => {
+                            isLoadingMore = false;
+                        });
+                }
+
+                panel.addEventListener('scroll', handleScroll);
+
+                const escHandler = (e) => { 
+                    if (e.key === 'Escape') { 
+                        overlay.remove();
+                        panel.removeEventListener('scroll', handleScroll);
+                        document.removeEventListener('keydown', escHandler);
+                    } 
+                };
                 document.addEventListener('keydown', escHandler);
+
+                // Cleanup when overlay is removed
+                const observer = new MutationObserver(() => {
+                    if (!document.body.contains(overlay)) {
+                        panel.removeEventListener('scroll', handleScroll);
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(document.body, { childList: true });
             }
 
             function fetchAndShow(type, value, title) {
@@ -608,7 +717,7 @@
                         return r.text();
                     })
                     .then(html => {
-                        createConsultationsHtmlModal(title, html);
+                        createConsultationsHtmlModal(title, html, type, value);
                     })
                     .catch(() => {
                         // fallback to JSON API

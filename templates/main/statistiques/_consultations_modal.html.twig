@@ -1,0 +1,147 @@
+{# Modal avec pagination infinie pour les statistiques #}
+<style>
+    .statistiques-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .statistiques-loading {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .statistiques-loading.show {
+        display: block;
+    }
+
+    .statistiques-loading svg {
+        width: 24px;
+        height: 24px;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="statistiques-feed" 
+     id="statistiques-feed"
+     data-page="1"
+     data-type="{{ type }}"
+     data-value="{{ value }}"
+     data-search-query="{{ type }}_{{ value }}"
+     data-action="infinite-scroll@window">
+
+    {# Afficher les premières consultations/demandes #}
+    {% if items is not empty %}
+        {% for item in items %}
+            {% include template with {'consultation': item, 'demande': item} %}
+        {% endfor %}
+    {% else %}
+        <p style="color: var(--text-secondary);">Aucune consultation trouvée.</p>
+    {% endif %}
+</div>
+
+<div id="statistiques-loading-indicator" class="statistiques-loading">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+    </svg>
+    Chargement...
+</div>
+
+<script>
+    // Script de gestion de l'infinite scroll pour les statistiques
+    (function() {
+        const feed = document.getElementById('statistiques-feed');
+        const loadingIndicator = document.getElementById('statistiques-loading-indicator');
+        
+        if (!feed) return;
+
+        let isLoading = false;
+
+        function handleScroll() {
+            if (isLoading) return;
+
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            const threshold = 300;
+
+            if (scrollPosition >= pageHeight - threshold) {
+                loadMore();
+            }
+        }
+
+        function loadMore() {
+            if (isLoading) return;
+
+            const currentPage = parseInt(feed.dataset.page || '1');
+            const nextPage = currentPage + 1;
+            const type = feed.dataset.type;
+            const value = feed.dataset.value;
+
+            isLoading = true;
+            loadingIndicator.classList.add('show');
+
+            // Déterminer l'URL en fonction du type
+            let url = '';
+            if (feed.dataset.searchQuery.includes('consultation') || type === 'consultations') {
+                url = `/statistique/consultations/load-more?type=${encodeURIComponent(type)}&value=${encodeURIComponent(value)}&page=${nextPage}`;
+            } else {
+                url = `/statistique/demandes/load-more?type=${encodeURIComponent(type)}&value=${encodeURIComponent(value)}&page=${nextPage}`;
+            }
+
+            fetch(url, { credentials: 'same-origin' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    loadingIndicator.classList.remove('show');
+
+                    if (data.html && data.count > 0) {
+                        feed.insertAdjacentHTML('beforeend', data.html);
+                        feed.dataset.page = nextPage;
+                        
+                        // Réinitialiser les animations AOS si disponible
+                        if (window.AOS) {
+                            AOS.refresh();
+                        }
+                    }
+
+                    // Afficher le message si plus d'éléments ou pas d'éléments trouvés
+                    if (!data.hasMore || data.count === 0) {
+                        const message = document.createElement('p');
+                        message.style.textAlign = 'center';
+                        message.style.padding = '1rem';
+                        message.style.color = 'var(--text-secondary)';
+                        message.textContent = 'Aucune autre consultation';
+                        feed.insertAdjacentElement('afterend', message);
+                        window.removeEventListener('scroll', handleScroll);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement:', error);
+                    loadingIndicator.textContent = 'Erreur lors du chargement';
+                })
+                .finally(() => {
+                    isLoading = false;
+                });
+        }
+
+        window.addEventListener('scroll', handleScroll);
+
+        // Cleanup
+        feed.addEventListener('DOMNodeRemoved', () => {
+            window.removeEventListener('scroll', handleScroll);
+        }, { once: true });
+    })();
+</script>

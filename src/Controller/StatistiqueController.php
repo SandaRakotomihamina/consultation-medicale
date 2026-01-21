@@ -580,7 +580,8 @@ class StatistiqueController extends AbstractController
 
         $type = $request->query->get('type');
         $value = $request->query->get('value');
-        $limit = (int) $request->query->get('limit', 200);
+        $limit = (int) $request->query->get('limit', 3);
+        $limit = min($limit, 3); // Max 3 pour le fragment initial
 
         // debug: log incoming request to tmp file
         try {
@@ -641,7 +642,11 @@ class StatistiqueController extends AbstractController
             $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
         }
 
-        $qb->setMaxResults($limit)->orderBy('c.Date', 'DESC');
+        // Déterminer si on a du filtrage en PHP
+        $hasPhpFiltering = in_array($type, ['adresse', 'exemption', 'weekday']);
+        $fetchLimit = $hasPhpFiltering ? ($limit * 5) : $limit; // Récupérer 5x plus si filtrage PHP
+        
+        $qb->setMaxResults($fetchLimit)->orderBy('c.Date', 'DESC');
         $fetched = $qb->getQuery()->getResult();
 
         $filtered = [];
@@ -664,7 +669,10 @@ class StatistiqueController extends AbstractController
                 $weekday = $date ? (int)$date->format('w') : null;
                 $keep = $weekday === (int)$value;
             }
-            if ($keep) $filtered[] = $c;
+            if ($keep) {
+                $filtered[] = $c;
+                if (count($filtered) >= $limit) break; // Arrêter quand on a assez de résultats
+            }
         }
 
         // log count
@@ -764,7 +772,8 @@ class StatistiqueController extends AbstractController
 
         $type = $request->query->get('type');
         $value = $request->query->get('value');
-        $limit = (int) $request->query->get('limit', 200);
+        $limit = (int) $request->query->get('limit', 3);
+        $limit = min($limit, 3); // Max 3 pour le fragment initial
 
         try {
             $log = sprintf("[%s] demandes fragment called: type=%s value=%s limit=%d user=%s\n", (new \DateTime())->format('c'), (string)$type, (string)$value, $limit, ($this->getUser()?->getUserIdentifier() ?? 'anonymous'));
@@ -815,5 +824,209 @@ class StatistiqueController extends AbstractController
         ]);
 
         return new Response($html, 200, ['Content-Type' => 'text/html']);
+    }
+
+    #[Route('/template/card-loading-animation', name: 'app_template_card_loading', methods: ['GET'])]
+    public function getCardLoadingAnimation(): Response {
+        return $this->render('_partial/animations/card_loading_animation.html.twig', [], new Response('', Response::HTTP_OK, ['Content-Type' => 'text/html']));
+    }
+
+    #[Route('/statistique/consultations/load-more', name: 'app_statistique_consultations_load_more', methods: ['GET'])]
+    public function consultationsLoadMore(
+        \Symfony\Component\HttpFoundation\Request $request,
+        ConsultationListRepository $consultationRepo
+    ): JsonResponse {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $page = (int) $request->query->get('page', 1);
+        $perPage = 3;
+        $offset = ($page - 1) * $perPage;
+
+        $libute = null;
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+        }
+
+        $qb = $consultationRepo->createQueryBuilder('c');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('c.Date >= :start')->andWhere('c.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'repos':
+                if ($value === 'with') {
+                    $qb->andWhere("c.Repos IS NOT NULL")->andWhere("c.Repos != ''");
+                } elseif ($value === 'without') {
+                    $qb->andWhere("(c.Repos IS NULL OR c.Repos = '')");
+                } elseif ($value) {
+                    $qb->andWhere('c.Repos = :repos')->setParameter('repos', $value);
+                }
+                break;
+            case 'grade':
+                if ($value) $qb->andWhere('c.Grade = :grade')->setParameter('grade', $value);
+                break;
+            case 'medecin':
+                if ($value) $qb->andWhere('c.DelivreurDObservation = :med')->setParameter('med', $value);
+                break;
+            case 'patc':
+                if (is_numeric($value)) $qb->andWhere('c.PATC = :patc')->setParameter('patc', (int)$value);
+                break;
+            default:
+                break;
+        }
+
+        if ($libute) {
+            $qb->andWhere('c.LIBUTE = :libute')->setParameter('libute', $libute);
+        }
+
+        $qb->orderBy('c.Date', 'DESC');
+
+        // Compter le total
+        $countQb = clone $qb;
+        $total = (int) $countQb->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
+
+        // Déterminer si on a du filtrage en PHP
+        $hasPhpFiltering = in_array($type, ['adresse', 'exemption', 'weekday']);
+        $fetchLimit = $hasPhpFiltering ? ($perPage * 5) : $perPage; // Récupérer 5x plus si filtrage PHP
+
+        // Récupérer les résultats paginés
+        $qb->setFirstResult($offset)->setMaxResults($fetchLimit);
+        $fetched = $qb->getQuery()->getResult();
+
+        // Filtrer en PHP si nécessaire
+        $filtered = [];
+        foreach ($fetched as $c) {
+            $keep = true;
+
+            if ($type === 'adresse' && $value) {
+                $adrs = $c->getAdrresse();
+                $keep = is_array($adrs) && in_array($value, $adrs, true);
+            }
+
+            if ($type === 'exemption' && $value) {
+                $ex = $c->getExemption();
+                $now = new \DateTime();
+                $debut = $c->getDebutExemption();
+                $fin = $c->getFinExemption();
+                $active = is_array($ex) && $debut instanceof \DateTime && $fin instanceof \DateTime && $debut <= $now && $fin >= $now;
+                $keep = $active && in_array($value, $ex, true);
+            }
+
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $c->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+
+            if ($keep) {
+                $filtered[] = $c;
+                if (count($filtered) >= $perPage) break; // Arrêter quand on a assez de résultats
+            }
+        }
+
+        $html = $this->renderView('main/consultations/_list_fragment.html.twig', [
+            'consultations' => $filtered
+        ]);
+
+        return new JsonResponse([
+            'html' => $html,
+            'count' => count($filtered),
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
+            'hasMore' => ($page * $perPage) < $total
+        ]);
+    }
+
+    #[Route('/statistique/demandes/load-more', name: 'app_statistique_demandes_load_more', methods: ['GET'])]
+    public function demandesLoadMore(
+        \Symfony\Component\HttpFoundation\Request $request,
+        DemandeDeConsultationRepository $demandeRepo
+    ): JsonResponse {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $type = $request->query->get('type');
+        $value = $request->query->get('value');
+        $page = (int) $request->query->get('page', 1);
+        $perPage = 3;
+        $offset = ($page - 1) * $perPage;
+
+        $qb = $demandeRepo->createQueryBuilder('d');
+
+        switch ($type) {
+            case 'day':
+                $date = \DateTime::createFromFormat('Y-m-d', $value);
+                if ($date) {
+                    $start = (clone $date)->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 day');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            case 'month':
+                $date = \DateTime::createFromFormat('Y-m', $value);
+                if ($date) {
+                    $start = (clone $date)->modify('first day of this month')->setTime(0,0,0);
+                    $end = (clone $start)->modify('+1 month');
+                    $qb->andWhere('d.Date >= :start')->andWhere('d.Date < :end')->setParameter('start', $start)->setParameter('end', $end);
+                }
+                break;
+            default:
+                break;
+        }
+
+        $qb->orderBy('d.Date', 'DESC');
+
+        // Compter le total
+        $countQb = clone $qb;
+        $total = (int) $countQb->select('COUNT(d.id)')->getQuery()->getSingleScalarResult();
+
+        // Récupérer les résultats paginés
+        $qb->setFirstResult($offset)->setMaxResults($perPage);
+        $fetched = $qb->getQuery()->getResult();
+
+        // Filtrer en PHP si nécessaire
+        $filtered = [];
+        foreach ($fetched as $d) {
+            $keep = true;
+            if ($type === 'weekday' && is_numeric($value)) {
+                $date = $d->getDate();
+                $weekday = $date ? (int)$date->format('w') : null;
+                $keep = $weekday === (int)$value;
+            }
+            if ($keep) $filtered[] = $d;
+        }
+
+        $html = $this->renderView('main/demandes/_list_fragment.html.twig', [
+            'demandes' => $filtered
+        ]);
+
+        return new JsonResponse([
+            'html' => $html,
+            'count' => count($filtered),
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
+            'hasMore' => ($page * $perPage) < $total
+        ]);
     }
 }
