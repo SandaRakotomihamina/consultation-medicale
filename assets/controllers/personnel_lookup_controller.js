@@ -174,7 +174,7 @@ export default class extends Controller {
                 }
 
                 // Sinon, comportement précédent : chercher le personnel
-                // À modifier : end-point pour appeler l'API de personnel (DEV ou PROD selon l'environnement)
+                // Rappel à moi même, À modifier : end-point pour appeler l'API de personnel (DEV ou PROD selon l'environnement)
                 const response = await fetch(`/api/personnel/${encodeURIComponent(matricule)}`);
 
                 if (!response.ok) {
@@ -254,7 +254,7 @@ export default class extends Controller {
                 return;
             }
 
-            // À modifier : end-point pour appeler l'API d'unité (DEV ou PROD selon l'environnement)
+            // Rappel à moi même, À modifier : end-point pour appeler l'API d'unité (DEV ou PROD selon l'environnement)
             const response = await fetch(`/api/unite-search?q=${encodeURIComponent(searchTerm)}`);
 
             if (!response.ok) {
