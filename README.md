@@ -254,7 +254,7 @@ Récupère les données RH du personnel:
 **Credentials (hardcodés, voir `src/Controller/ApiController.php`):**
 ```
 Authorization: clé API
-x-api-key: mail utilisateurg
+x-api-key: mail utilisateur
 ```
 
 ### Mode Développement
