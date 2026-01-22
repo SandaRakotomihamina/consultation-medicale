@@ -253,8 +253,8 @@ Récupère les données RH du personnel:
 
 **Credentials (hardcodés, voir `src/Controller/ApiController.php`):**
 ```
-Authorization: rYihKSmzx8NiI4koQgaldspnQR9tXGQhw
-x-api-key: sm@gendarmerie.gov.mg
+Authorization: clé API
+x-api-key: mail utilisateurg
 ```
 
 ### Mode Développement
