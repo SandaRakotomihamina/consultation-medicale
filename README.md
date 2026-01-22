@@ -139,7 +139,7 @@ Tables de référence pour les options de consultation.
 | Rôle | Description | Accès |
 |------|-------------|-------|
 | **ROLE_SUPER_ADMIN** | Administrateur du site | Tous les patients, gestion des utilisateurs, statistiques |
-| **ROLE_ADMIN** | Médecin | Voir les consultations de son unité/personnel, créer/modifier consultations |
+| **ROLE_ADMIN** | Médecin | Voir les consultations de son unité/personnel, créer consultations |
 | **ROLE_USER** | Compte d'unité | Voir les consultations de son unité uniquement |
 
 ### Authentification
