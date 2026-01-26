@@ -185,6 +185,22 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
     (function () {
+        // Stockage global des instances Chart pour éviter les conflits
+        if (!window.__chartInstances) {
+            window.__chartInstances = {};
+        }
+
+        function destroyChartIfExists(key) {
+            if (window.__chartInstances[key]) {
+                try {
+                    window.__chartInstances[key].destroy();
+                    delete window.__chartInstances[key];
+                } catch (e) {
+                    console.warn('Error destroying chart:', e);
+                }
+            }
+        }
+
         function __initChartsUsers() {
             const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
 
@@ -223,8 +239,10 @@
                         pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
 
                         const defaultName = (title || 'statistiques') + '.pdf';
-                        const fileName = prompt('Nom du fichier PDF ?', defaultName) || defaultName;
-                        pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                        const fileName = prompt('Nom du fichier PDF ?', defaultName);
+                        if (fileName !== null) {
+                            pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                        }
                     });
                     btn.dataset.pdfBound = 'true';
                 });
@@ -413,6 +431,7 @@
                 return;
             }
 
+            destroyChartIfExists('medecinsChart');
             const chartMedecins = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -459,6 +478,7 @@
                     }
                 }
             });
+            window.__chartInstances['medecinsChart'] = chartMedecins;
 
             ctx.addEventListener('click', function (evt) {
                 const points = chartMedecins.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -470,9 +490,21 @@
             attachSavePdf();
             AOS.init();
         }
-        document.addEventListener('DOMContentLoaded', __initChartsUsers);
-        document.addEventListener('turbo:load', __initChartsUsers);
-        if (document.readyState === 'complete' || document.readyState === 'interactive') { __initChartsUsers(); }
+        
+        function waitForDependencies() {
+            if (typeof Chart !== 'undefined' && typeof window.jspdf !== 'undefined') {
+                __initChartsUsers();
+            } else {
+                setTimeout(waitForDependencies, 50);
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForDependencies);
+        } else {
+            waitForDependencies();
+        }
+        document.addEventListener('turbo:load', waitForDependencies);
     })();
 </script>
 

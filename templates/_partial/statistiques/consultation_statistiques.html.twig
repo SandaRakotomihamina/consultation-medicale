@@ -346,6 +346,22 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
     (function () {
+        // Stockage global des instances Chart pour éviter les conflits
+        if (!window.__chartInstances) {
+            window.__chartInstances = {};
+        }
+
+        function destroyChartIfExists(key) {
+            if (window.__chartInstances[key]) {
+                try {
+                    window.__chartInstances[key].destroy();
+                    delete window.__chartInstances[key];
+                } catch (e) {
+                    console.warn('Error destroying chart:', e);
+                }
+            }
+        }
+
         function __initChartsConsultations() {
             const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#888';
             const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#333';
@@ -385,8 +401,10 @@
                         pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
 
                         const defaultName = (title || 'statistiques') + '.pdf';
-                        const fileName = prompt('Nom du fichier PDF ?', defaultName) || defaultName;
-                        pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                        const fileName = prompt('Nom du fichier PDF ?', defaultName);
+                        if (fileName !== null) {
+                            pdf.save(fileName.endsWith('.pdf') ? fileName : fileName + '.pdf');
+                        }
                     });
                     btn.dataset.pdfBound = 'true';
                 });
@@ -741,6 +759,7 @@
             // ========== GRAPHIQUE 30 JOURS ==========
             const ctx30 = document.getElementById('consultationsChart');
             if (ctx30) {
+                destroyChartIfExists('consultationsChart');
                 const labels = {{ consultationsChartLabels|default([])|json_encode|raw }};
                 const data = {{ consultationsChartData|default([])|json_encode|raw }};
 
@@ -781,6 +800,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['consultationsChart'] = chart30;
 
                     ctx30.addEventListener('click', function (evt) {
                         const points = chart30.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -800,6 +820,7 @@
             // ========== GRAPHIQUE MENSUEL ==========
             const ctxMonth = document.getElementById('monthlyChart');
             if (ctxMonth) {
+                destroyChartIfExists('monthlyChart');
                 const monthLabels = {{ monthLabels|default([])|json_encode|raw }};
                 const monthData = {{ monthData|default([])|json_encode|raw }};
 
@@ -836,6 +857,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['monthlyChart'] = chartMonth;
 
                     ctxMonth.addEventListener('click', function (evt) {
                         const points = chartMonth.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -850,6 +872,7 @@
             // ========== GRAPHIQUE REPOS (CAMEMBERT) ==========
             const ctxRepos = document.getElementById('reposChart');
             if (ctxRepos) {
+                destroyChartIfExists('reposChart');
                 const repos24h = {{ repos24h ?? 0 }};
                 const repos48h = {{ repos48h ?? 0 }};
                 const repos72h = {{ repos72h ?? 0 }};
@@ -886,6 +909,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['reposChart'] = chartRepos;
 
                     ctxRepos.addEventListener('click', function (evt) {
                         const points = chartRepos.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -900,6 +924,7 @@
             // ========== GRAPHIQUE PAR GRADE ==========
             const ctxGrades = document.getElementById('gradesChart');
             if (ctxGrades) {
+                destroyChartIfExists('gradesChart');
                 const gradesLabels = {{ gradesLabels|default([])|json_encode|raw }};
                 const gradesData = {{ gradesData|default([])|json_encode|raw }};
 
@@ -945,12 +970,14 @@
                         const label = (gradesLabels || [])[idx];
                         if (label) fetchAndShow('grade', label, 'Consultations - grade ' + label);
                     });
+                    window.__chartInstances['gradesChart'] = chartGrades;
                 }
             }
 
             // ========== GRAPHIQUE HEBDOMADAIRE ==========
             const ctxWeekday = document.getElementById('weekdayChart');
             if (ctxWeekday) {
+                destroyChartIfExists('weekdayChart');
                 const weekdayLabels = {{ weekdayLabels|default([])|json_encode|raw }};
                 const weekdayData = {{ weekdayData|default([])|json_encode|raw }};
 
@@ -995,12 +1022,14 @@
                         const label = (weekdayLabels || [])[idx];
                         if (label) fetchAndShow('weekday', idx, 'Consultations: ' + label);
                     });
+                    window.__chartInstances['weekdayChart'] = chartWeekday;
                 }
             }
 
             // ========== GRAPHIQUE AVEC/SANS REPOS ==========
             const ctxReposRepartition = document.getElementById('reposRepartitionChart');
             if (ctxReposRepartition) {
+                destroyChartIfExists('reposRepartitionChart');
                 const avecRepos = {{ totalAvecRepos ?? 0 }};
                 const sansRepos = {{ totalSansRepos ?? 0 }};
 
@@ -1053,12 +1082,14 @@
                         const label = ['with','without'][idx];
                         fetchAndShow('repos', label, 'Consultations ' + (idx === 0 ? 'avec repos' : 'sans repos'));
                     });
+                    window.__chartInstances['reposRepartitionChart'] = chartReposRepartition;
                 }
             }
 
             // ========== NOUVEAUX GRAPHIQUES: ADRESSE, PATC, EXEMPTIONS ACTIVES ==========
             const ctxAdresse = document.getElementById('adresseChart');
             if (ctxAdresse) {
+                destroyChartIfExists('adresseChart');
                 const adresseLabels = {{ adresseLabels|default([])|json_encode|raw }};
                 const adresseData = {{ adresseData|default([])|json_encode|raw }};
 
@@ -1109,6 +1140,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['adresseChart'] = chartAdresse;
 
                     ctxAdresse.addEventListener('click', function (evt) {
                         const points = chartAdresse.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -1125,6 +1157,7 @@
 
             const ctxPatc = document.getElementById('patcChart');
             if (ctxPatc) {
+                destroyChartIfExists('patcChart');
                 const patcLabels = {{ patcLabels|default([])|json_encode|raw }};
                 const patcData = {{ patcData|default([])|json_encode|raw }};
 
@@ -1175,6 +1208,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['patcChart'] = chartPatc;
 
                     ctxPatc.addEventListener('click', function (evt) {
                         const points = chartPatc.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -1191,6 +1225,7 @@
 
             const ctxExemption = document.getElementById('exemptionChart');
             if (ctxExemption) {
+                destroyChartIfExists('exemptionChart');
                 const exemptionLabels = {{ exemptionLabels|default([])|json_encode|raw }};
                 const exemptionData = {{ exemptionData|default([])|json_encode|raw }};
 
@@ -1222,6 +1257,7 @@
                             }
                         }
                     });
+                    window.__chartInstances['exemptionChart'] = chartExemption;
 
                     ctxExemption.addEventListener('click', function (evt) {
                         const points = chartExemption.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
@@ -1239,8 +1275,20 @@
             attachSavePdf();
             AOS.init();
         }
-        document.addEventListener('DOMContentLoaded', __initChartsConsultations);
-        document.addEventListener('turbo:load', __initChartsConsultations);
-        if (document.readyState === 'complete' || document.readyState === 'interactive') { __initChartsConsultations(); }
+        
+        function waitForDependencies() {
+            if (typeof Chart !== 'undefined' && typeof window.jspdf !== 'undefined') {
+                __initChartsConsultations();
+            } else {
+                setTimeout(waitForDependencies, 50);
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForDependencies);
+        } else {
+            waitForDependencies();
+        }
+        document.addEventListener('turbo:load', waitForDependencies);
     })();
 </script>
