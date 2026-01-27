@@ -167,18 +167,63 @@
             background-color: var(--error-bg) !important;
         }
 
+        .password-field-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-field-wrapper input {
+            flex: 1;
+        }
+
         .toggle-password {
             position: absolute;
             right: 0.6rem;
-            top: 70%;
-            transform: translateY(-50%);
             cursor: pointer;
             color: var(--text-muted);
             transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .toggle-password:hover {
             color: var(--accent-color);
+        }
+
+        .toggle-password svg {
+            display: block;
+            width: 22px;
+            height: 22px;
+            line-height: 1;
+        }
+
+        .password-strength-container {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .password-strength-bar {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.3rem;
+        }
+
+        .password-strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            background-color: #dc3545;
+        }
+
+        .password-strength-text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #666;
+            transition: color 0.3s ease;
         }
 
         @media (max-width: 640px) {
@@ -265,7 +310,6 @@
                     {% endif %}
                 > 
                     <div>
-                       
                         {{ form_label(form.CODUTE) }}
                         {{ form_widget(form.CODUTE, {
                             'attr': {
@@ -336,7 +380,7 @@
                     }) }}
                 </div>
                 
-                <div style="position: relative;">
+                <div>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         <div class="container" style="margin-top: .1rem;">
                             <input type="checkbox" id="enable_password_checkbox" style="display: none;">
@@ -350,21 +394,29 @@
                         {{ form_label(form.plainPassword) }}
                     </div>
                     
-                    {{ form_widget(form.plainPassword, {
-                        'attr': {
-                            'id': 'user_plainPassword',
-                            'autocomplete': 'new-password',
-                            'style': 'padding-right: 2.5rem;'
-                        }
-                    }) }}
-                    <span class="toggle-password" onclick="togglePassword()" id="togglePassword">
-                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
-                                0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
-                                0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
-                        </svg>
-                    </span>
+                    <div class="password-field-wrapper">
+                        {{ form_widget(form.plainPassword, {
+                            'attr': {
+                                'id': 'user_plainPassword',
+                                'autocomplete': 'new-password',
+                                'style': 'padding-right: 2.5rem;'
+                            }
+                        }) }}
+                        <span class="toggle-password" onclick="togglePassword()" id="togglePassword">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
+                                    0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
+                                    0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div class="password-strength-fill" id="passwordStrengthFill"></div>
+                        </div>
+                        <div class="password-strength-text" id="passwordStrengthText"></div>
+                    </div>
                 </div>
                 {{ form_row(form.roles, {
                     'attr': {
@@ -372,8 +424,8 @@
                     }
                 }) }}
 
-                    <div class="form-actions">
-                        <button class="btn" type="submit">Enregistrer</button>
+                <div class="form-actions">
+                    <button class="btn" type="submit">Enregistrer</button>
                     <a href="{{ path('app_list_user') }}" class="btn--muted">Annuler</a>
                 </div>
             </div>
@@ -383,50 +435,114 @@
 
     {% include '_partial/footer.html.twig' %}
 
-    <script>
-        function togglePassword() {
-            const input = document.getElementById("user_plainPassword");
-            const icon = document.getElementById("eyeIcon");
-            if (!input || !icon) return;
-            if (input.type === "password") {
-                input.type = "text";
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12zm10.5 3a3 3 0 100-6 3 3 0 000 6z"/>`;
-            } else {
-                input.type = "password";
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4-10-7 
-                    0-1.21.63-2.634 1.72-3.93m3.522-2.83A9.978 9.978 0 0112 5c5.523 0 10 4 10 7 
-                    0 1.387-.63 2.864-1.72 4.17M15 12a3 3 0 11-6 0 3 3 0 016 0zm5 9L4 3"/>`;
-            }
-        }
-        (function () {
-            const checkbox = document.getElementById('enable_password_checkbox');
-            const passwordInput = document.getElementById('user_plainPassword');
-            const toggleIcon = document.getElementById('togglePassword');
+<script>
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            numbers: /[0-9]/.test(password),
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
 
-            if (!checkbox || !passwordInput) return;
+        Object.values(checks).forEach(check => {
+            if (check) strength += 20;
+        });
 
-            checkbox.checked = false;
-            toggleIcon.style.display = 'none';
+        if (password.length >= 12) strength = Math.min(100, strength + 10);
+        if (password.length >= 16) strength = Math.min(100, strength + 10);
 
-            // Champ mot de passe désactivé par défaut
-            passwordInput.disabled = true;
+        return { strength, checks };
+    }
+
+    function updatePasswordStrength() {
+        const passwordInput = document.getElementById('user_plainPassword');
+        if (!passwordInput) return;
+
+        const password = passwordInput.value;
+        const { strength } = calculatePasswordStrength(password);
+        const fill = document.getElementById('passwordStrengthFill');
+        const text = document.getElementById('passwordStrengthText');
+
+        if (!fill || !text) return;
+
+        fill.style.width = strength + '%';
+
+        const labels = {
+            0: '',
+            20: 'Très faible',
+            40: 'Faible',
+            60: 'Moyen',
+            80: 'Fort',
+            100: 'Très fort'
+        };
+
+        const colors = {
+            0: '#e0e0e0',
+            20: '#dc3545',
+            40: '#fd7e14',
+            60: '#ffc107',
+            80: '#28a745',
+            100: '#20c997'
+        };
+
+        let labelKey = 0;
+        if (strength > 0) labelKey = Math.ceil(strength / 20) * 20;
+
+        text.textContent = labels[labelKey];
+        fill.style.backgroundColor = colors[labelKey];
+        text.style.color = colors[labelKey];
+    }
+
+    function togglePassword() {
+        const input = document.getElementById("user_plainPassword");
+        const icon = document.getElementById("eyeIcon");
+        if (!input || !icon) return;
+
+        input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function initPasswordFeature() {
+        const checkbox = document.getElementById('enable_password_checkbox');
+        const passwordInput = document.getElementById('user_plainPassword');
+        const toggleIcon = document.getElementById('togglePassword');
+
+        if (!checkbox || !passwordInput || !toggleIcon) return;
+
+        passwordInput.disabled = !checkbox.checked;
+        toggleIcon.style.display = checkbox.checked ? 'block' : 'none';
+
+        if (!checkbox.checked) {
             passwordInput.value = '';
+            passwordInput.type = 'password';
+            document.getElementById('passwordStrengthFill').style.width = '0%';
+            document.getElementById('passwordStrengthText').textContent = '';
+        }
 
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    passwordInput.disabled = false;
-                    passwordInput.focus();
-                    toggleIcon.style.display = 'block';
-                } else {
-                    passwordInput.disabled = true;
-                    passwordInput.value = '';
-                    passwordInput.type = 'password';
-                    toggleIcon.style.display = 'none';
-                }
-            });
-        })();
-        AOS.init();
-    </script>
+        checkbox.onchange = function () {
+            if (this.checked) {
+                passwordInput.disabled = false;
+                passwordInput.focus();
+                toggleIcon.style.display = 'block';
+                updatePasswordStrength();
+            } else {
+                passwordInput.disabled = true;
+                passwordInput.value = '';
+                passwordInput.type = 'password';
+                toggleIcon.style.display = 'none';
+                document.getElementById('passwordStrengthFill').style.width = '0%';
+                document.getElementById('passwordStrengthText').textContent = '';
+            }
+        };
+
+        passwordInput.oninput = updatePasswordStrength;
+    }
+
+    document.addEventListener('DOMContentLoaded', initPasswordFeature);
+    document.addEventListener('turbo:load', initPasswordFeature);
+
+    AOS.init();
+</script>
+
 {% endblock %}

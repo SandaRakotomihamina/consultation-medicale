@@ -107,11 +107,7 @@ class ApiController extends AbstractController
     #[Route('/api/check-user-exists', name: 'api_check_user_exists', methods: ['POST'])]
     public function checkUserExists(Request $request, UserRepository $userRepository): JsonResponse
     {
-        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
-            return new JsonResponse(['error' => 'Accès refusé'], 403);
-        }
-
-        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN') || !$this->isGranted('ROLE_SUPER_ADMIN')) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
@@ -131,7 +127,7 @@ class ApiController extends AbstractController
         if ($username) {
             $existingUser = $userRepository->findOneBy(['username' => $username]);
             if ($existingUser) {
-                $errors['username'] = 'Ce nom d\'utilisateur est déjà utilisé.';
+                $errors['username'] = 'Le nom d\'utilisateur ' . $username . ' est déjà utilisé.';
             }
         }
 
