@@ -342,6 +342,51 @@
     </div>
 </div>
 
+{# Filtre par plage de dates pour les exemptions #}
+<div class="chart-card" data-aos="fade-up" data-aos-duration="400" data-aos-delay="60" data-aos-anchor-placement="top-bottom">
+    <div class="chart-title">Consultations avec exemptions par plage de dates</div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 2rem; margin-bottom: 1.5rem; align-items: flex-end; flex-wrap: wrap;">
+        <div>
+            <label for="exemptionDateDebut" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.95rem;">Date début</label>
+            <input 
+                type="date" 
+                id="exemptionDateDebut" 
+                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;"
+            >
+        </div>
+        
+        <div>
+            <label for="exemptionDateFin" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.95rem;">Date fin</label>
+            <input 
+                type="date" 
+                id="exemptionDateFin" 
+                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;"
+            >
+        </div>
+        
+        <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <button 
+                id="exemptionSearchBtn" 
+                style="padding: 0.6rem 1.2rem; background: var(--bg-tertiary); color: var(--text-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light); transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap;"
+            >
+                Rechercher
+            </button>
+            
+            <button 
+                id="exemptionResetBtn" 
+                style="padding: 0.6rem 1.2rem; background: var(--bg-tertiary); color: var(--text-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light); transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap;"
+            >
+                Réinitialiser
+            </button>
+        </div>
+    </div>
+    
+    <div id="exemptionResultsContainer" style="min-height: 600px; max-height: 600px; overflow-y: auto;">
+        <p style="color: var(--text-secondary); text-align: center; padding: 2rem 1rem;">Sélectionnez une plage de dates et cliquez sur Rechercher</p>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
@@ -1150,7 +1195,10 @@
                         if (label) fetchAndShow('adresse', label, 'Consultations pour adresse « ' + label + ' »');
                     });
                 } else {
-                    ctxAdresse.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune adresse disponible.</p>');
+                    const existingMsg = ctxAdresse.previousElementSibling;
+                    if (!existingMsg || !existingMsg.textContent.includes('Aucune adresse')) {
+                        ctxAdresse.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune adresse disponible.</p>');
+                    }
                     ctxAdresse.style.display = 'none';
                 }
             }
@@ -1218,7 +1266,10 @@
                         if (label) fetchAndShow('patc', label, 'Consultations PATC: ' + label);
                     });
                 } else {
-                    ctxPatc.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée PATC disponible.</p>');
+                    const existingMsg = ctxPatc.previousElementSibling;
+                    if (!existingMsg || !existingMsg.textContent.includes('Aucune donnée PATC')) {
+                        ctxPatc.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune donnée PATC disponible.</p>');
+                    }
                     ctxPatc.style.display = 'none';
                 }
             }
@@ -1267,13 +1318,85 @@
                         if (label) fetchAndShow('exemption', label, 'Exemptions actives: ' + label);
                     });
                 } else {
-                    ctxExemption.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune exemption active.</p>');
+                    const existingMsg = ctxExemption.previousElementSibling;
+                    if (!existingMsg || !existingMsg.textContent.includes('Aucune exemption')) {
+                        ctxExemption.insertAdjacentHTML('beforebegin', '<p style="color: ' + textColor + '; font-size: .9rem;">Aucune exemption active.</p>');
+                    }
                     ctxExemption.style.display = 'none';
                 }
             }
 
             attachSavePdf();
             AOS.init();
+
+            // ========== GESTION DES EXEMPTIONS PAR PLAGE DE DATES ==========
+            const exemptionSearchBtn = document.getElementById('exemptionSearchBtn');
+            const exemptionResetBtn = document.getElementById('exemptionResetBtn');
+            const exemptionDateDebut = document.getElementById('exemptionDateDebut');
+            const exemptionDateFin = document.getElementById('exemptionDateFin');
+            const exemptionResultsContainer = document.getElementById('exemptionResultsContainer');
+
+            if (exemptionSearchBtn) {
+                exemptionSearchBtn.addEventListener('click', async function() {
+                    const dateDebut = exemptionDateDebut.value;
+                    const dateFin = exemptionDateFin.value;
+
+                    if (!dateDebut || !dateFin) {
+                        exemptionResultsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 1rem; color: #e74c3c;">Veuillez sélectionner les deux dates.</p>';
+                        return;
+                    }
+
+                    if (new Date(dateDebut) > new Date(dateFin)) {
+                        exemptionResultsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 1rem; color: #e74c3c;">La date de début doit être avant la date de fin.</p>';
+                        return;
+                    }
+
+                    // Afficher un état de chargement
+                    exemptionResultsContainer.innerHTML = '<div style="text-align: center; padding: 2rem 1rem; color: var(--text-secondary);"><svg style="width:32px;height:32px;animation:spin 0.6s linear infinite;display:inline-block;margin-right:0.5rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>Chargement...</div>';
+
+                    try {
+                        const response = await fetch('/statistique/exemptions/by-date?dateDebut=' + encodeURIComponent(dateDebut) + '&dateFin=' + encodeURIComponent(dateFin), {
+                            credentials: 'same-origin'
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Erreur ' + response.status);
+                        }
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            exemptionResultsContainer.innerHTML = data.html;
+                            if (data.count === 0) {
+                                exemptionResultsContainer.innerHTML += '<p style="color: var(--text-secondary); text-align: center; margin-top: 1rem;"></p>';
+                            }
+                        } else {
+                            exemptionResultsContainer.innerHTML = '<p style="color: #e74c3c; text-align: center; padding: 2rem 1rem;">Erreur lors de la récupération des données.</p>';
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        exemptionResultsContainer.innerHTML = '<p style="color: #e74c3c; text-align: center; padding: 2rem 1rem;">Une erreur est survenue. Veuillez réessayer.</p>';
+                    }
+                });
+
+                // Permettre la recherche avec la touche Entrée sur les inputs
+                exemptionDateDebut.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') exemptionSearchBtn.click();
+                });
+
+                exemptionDateFin.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') exemptionSearchBtn.click();
+                });
+
+                // Gestionnaire du bouton Réinitialiser
+                if (exemptionResetBtn) {
+                    exemptionResetBtn.addEventListener('click', function() {
+                        exemptionDateDebut.value = '';
+                        exemptionDateFin.value = '';
+                        exemptionResultsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 1rem;">Sélectionnez une plage de dates et cliquez sur Rechercher</p>';
+                    });
+                }
+            }
         }
         
         function waitForDependencies() {

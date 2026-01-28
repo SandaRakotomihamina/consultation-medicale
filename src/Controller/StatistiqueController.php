@@ -1029,4 +1029,88 @@ class StatistiqueController extends AbstractController
             'hasMore' => ($page * $perPage) < $total
         ]);
     }
+
+    #[Route('/statistique/exemptions/by-date', name: 'app_statistique_exemptions_by_date', methods: ['GET'])]
+    public function exemptionsByDate(
+        \Symfony\Component\HttpFoundation\Request $request,
+        ConsultationListRepository $consultationRepo
+    ): JsonResponse {
+        if (! $this->isGranted('ROLE_SUPER_ADMIN') && ! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_USER')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $dateDebut = $request->query->get('dateDebut');
+        $dateFin = $request->query->get('dateFin');
+
+        if (!$dateDebut || !$dateFin) {
+            return new JsonResponse(['error' => 'Dates invalides'], 400);
+        }
+
+        try {
+            $startDate = \DateTime::createFromFormat('Y-m-d', $dateDebut);
+            $endDate = \DateTime::createFromFormat('Y-m-d', $dateFin);
+
+            if (!$startDate || !$endDate) {
+                return new JsonResponse(['error' => 'Format de date invalide'], 400);
+            }
+
+            $startDate->setTime(0, 0, 0);
+            $endDate->setTime(23, 59, 59);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur format date'], 400);
+        }
+
+        // Récupérer le filtre LIBUTE si ROLE_USER
+        $libute = null;
+        if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $libute = ($user instanceof \App\Entity\User) ? $user->getLIBUTE() : null;
+        }
+
+        // Récupérer toutes les consultations
+        $consultations = $consultationRepo->findAll();
+
+        $results = [];
+
+        foreach ($consultations as $consultation) {
+            /** @var \App\Entity\ConsultationList $consultation */
+            
+            // Filtrer par LIBUTE si nécessaire
+            if ($libute && $consultation->getLIBUTE() !== $libute) {
+                continue;
+            }
+
+            // Vérifier si la consultation a des exemptions
+            $exemptions = $consultation->getExemption();
+            $debut = $consultation->getDebutExemption();
+            $fin = $consultation->getFinExemption();
+
+            if (!is_array($exemptions) || empty($exemptions) || !$debut instanceof \DateTime || !$fin instanceof \DateTime) {
+                continue;
+            }
+
+            // Vérifier que la plage d'exemption chevauche la plage cherchée
+            if ($fin >= $startDate && $debut <= $endDate) {
+                $results[] = $consultation;
+            }
+        }
+
+        // Trier par date décroissante
+        usort($results, function($a, $b) {
+            $dateA = $a->getDate() ?? new \DateTime('1970-01-01');
+            $dateB = $b->getDate() ?? new \DateTime('1970-01-01');
+            return $dateB <=> $dateA;
+        });
+
+        // Générer le HTML avec le template _list_fragment.html.twig
+        $html = $this->renderView('main/consultations/_list_fragment.html.twig', [
+            'consultations' => $results
+        ]);
+
+        return new JsonResponse([
+            'success' => true,
+            'count' => count($results),
+            'html' => $html
+        ]);
+    }
 }
