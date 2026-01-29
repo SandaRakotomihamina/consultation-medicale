@@ -2,11 +2,11 @@ import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
     connect() {
-        this.showLoading();
-
-        if (document.readyState === 'complete') {
+        // Ne pas afficher le loader si la page est déjà chargée
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
             this.hideLoading();
         } else {
+            this.showLoading();
             window.addEventListener('load', () => this.hideLoading());
         }
 
