@@ -102,6 +102,13 @@
             -5px -5px 10px var(--shadow-light);
     }
 
+    .save-pdf-btn:active {
+        transform: translateY(2px);
+        box-shadow:
+            inset 3px 3px 7px var(--shadow-dark),
+            inset -3px -3px 7px var(--shadow-light);
+    }
+
     .save-pdf-btn svg {
         width: 16px;
         height: 16px;
@@ -116,6 +123,24 @@
             4px 4px 12px var(--shadow-dark),
             -4px -4px 12px var(--shadow-light);
         transition: transform .2s ease, box-shadow .2s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .date-btn{
+        background: var(--bg-tertiary);
+    }
+
+    .date-btn:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            5px 5px 10px var(--shadow-dark),
+            -5px -5px 10px var(--shadow-light);
+    }
+
+    .date-btn:active {
+        transform: translateY(2px);
+        box-shadow:
+            inset 3px 3px 7px var(--shadow-dark),
+            inset -3px -3px 7px var(--shadow-light);
     }
 
     .chart-card:hover {
@@ -368,6 +393,7 @@
         <div style="display: flex; gap: 1rem; align-items: flex-end;">
             <button 
                 id="exemptionSearchBtn" 
+                class="date-btn"
                 style="padding: 0.6rem 1.2rem; background: var(--bg-tertiary); color: var(--text-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light); transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap;"
             >
                 Rechercher
@@ -375,6 +401,7 @@
             
             <button 
                 id="exemptionResetBtn" 
+                class="date-btn"
                 style="padding: 0.6rem 1.2rem; background: var(--bg-tertiary); color: var(--text-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light); transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap;"
             >
                 Réinitialiser
